@@ -15,6 +15,7 @@ Kimi CLI).
 - Change the period or pick a custom date range.
 - Toggle light/dark and the 10 style themes.
 - Click into a synthetic Codex / Claude / OpenCode session.
+- On the **Stats** tab, switch the Daily Activity metric chip to **Energy** to recolor the heatmap by estimated energy per day, and read the new Total Energy (kWh) row in the Month Stats sidebar (estimated entirely in the browser from token counts × model-family `J/token` coefficients; order-of-magnitude only).
 - Browse the read-only demo pricing snapshot.
 
 ## Local preview
