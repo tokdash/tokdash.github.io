@@ -716,11 +716,12 @@
     color: #92400E; border-radius: 12px; font-size: 13px; line-height: 1.4;
     display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
     <span>
-      <strong style="font-weight: 700;">DEMO</strong> &middot; This page renders
-      <strong>synthetic data</strong> generated in the browser. No real usage is shown.
+      <strong style="font-weight: 700;" data-i18n="demoLabel">DEMO</strong>
+      <span aria-hidden="true">&middot;</span>
+      <span data-i18n="demoBannerText">This page renders synthetic data generated in the browser. No real usage is shown.</span>
     </span>
     <a href="https://github.com/JingbiaoMei/Tokdash" target="_blank" rel="noopener noreferrer"
-       style="text-decoration: underline; color: #92400E; font-weight: 600;">
+       style="text-decoration: underline; color: #92400E; font-weight: 600;" data-i18n="demoBannerLink">
       View Tokdash on GitHub &rarr;
     </a>
   </div>
@@ -1392,7 +1393,7 @@
             <div id="pricingDbStatus" class="text-sm font-semibold mr-1" style="color: var(--color-muted);" data-i18n="loading">Loading…</div>
             <button id="pricingDbReload" class="btn btn-ghost" type="button" data-i18n="reload">Reload</button>
             <button id="pricingDbFormat" class="btn btn-ghost" type="button" data-i18n="formatJson">Format JSON</button>
-            <button id="pricingDbSave" class="btn btn-primary" type="button" data-i18n="save">Save</button>
+            <button id="pricingDbSave" class="btn btn-primary" type="button" data-i18n="save" style="display:none;">Save</button>
           </div>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
@@ -1409,7 +1410,8 @@
             <div id="pricingDbJsonState" class="mt-2 font-extrabold" style="color: var(--color-muted);" data-i18n="loading">Loading…</div>
           </div>
         </div>
-        <textarea id="pricingDbEditor" class="pricing-editor mono" spellcheck="false" aria-label="pricing_db.json editor"></textarea>
+        <p class="text-xs mb-3" style="color: var(--color-muted);" data-i18n="pricingReadOnly">This pricing snapshot is read-only in the static demo.</p>
+        <textarea id="pricingDbEditor" class="pricing-editor mono" spellcheck="false" aria-label="pricing_db.json editor" readonly></textarea>
       </section>
     </div>
 
@@ -1574,6 +1576,9 @@
 
     const I18N = {
       en: {
+        demoLabel: 'DEMO',
+        demoBannerText: 'This page renders synthetic data generated in the browser. No real usage is shown.',
+        demoBannerLink: 'View Tokdash on GitHub ->',
         range: 'Range',
         today: 'Today',
         yesterday: 'Yesterday',
@@ -1614,6 +1619,8 @@
         jsonState: 'JSON',
         validJson: 'Valid JSON',
         invalidJson: 'Invalid JSON',
+        readOnlyDemo: 'Read-only demo',
+        pricingReadOnly: 'This pricing snapshot is read-only in the static demo.',
         unsavedChanges: 'Unsaved changes',
         saved: 'Saved',
         totalTokens: 'Total Tokens',
@@ -1720,6 +1727,9 @@
         time: 'Time',
       },
       zh: {
+        demoLabel: '演示',
+        demoBannerText: '本页面展示在浏览器中生成的合成数据，不包含任何真实使用记录。',
+        demoBannerLink: '在 GitHub 查看 Tokdash ->',
         range: '范围',
         today: '今天',
         yesterday: '昨天',
@@ -1760,6 +1770,8 @@
         jsonState: 'JSON',
         validJson: 'JSON 有效',
         invalidJson: 'JSON 无效',
+        readOnlyDemo: '只读演示',
+        pricingReadOnly: '静态演示中的价格库快照为只读。',
         unsavedChanges: '未保存',
         saved: '已保存',
         totalTokens: '总 Token 数',
@@ -3463,7 +3475,7 @@
         const data = parsePricingDbEditor();
         updatePricingDbSummary(data);
         setPricingDbJsonState(t('validJson'), 'var(--color-cost)');
-        setPricingDbStatus(pricingDbDirty ? t('unsavedChanges') : t('saved'), pricingDbDirty ? '#D97706' : 'var(--color-muted)');
+        setPricingDbStatus(pricingDbDirty ? t('unsavedChanges') : t('readOnlyDemo'), pricingDbDirty ? '#D97706' : 'var(--color-muted)');
       } catch (e) {
         setPricingDbJsonState(t('invalidJson'), '#DC2626');
         setPricingDbStatus(e.message || t('invalidJson'), '#DC2626');
@@ -3485,7 +3497,7 @@
         document.getElementById('pricingDbPath').textContent = payload.path || 'pricing_db.json';
         updatePricingDbSummary(payload.data || {});
         setPricingDbJsonState(t('validJson'), 'var(--color-cost)');
-        setPricingDbStatus(t('saved'), 'var(--color-muted)');
+        setPricingDbStatus(t('readOnlyDemo'), 'var(--color-muted)');
       } catch (e) {
         setPricingDbStatus(e.message || String(e), '#DC2626');
       } finally {
@@ -3531,7 +3543,7 @@
         pricingDbDirty = false;
         updatePricingDbSummary(payload.data || {});
         setPricingDbJsonState(t('validJson'), 'var(--color-cost)');
-        setPricingDbStatus(t('saved'), 'var(--color-muted)');
+        setPricingDbStatus(t('readOnlyDemo'), 'var(--color-muted)');
       } catch (e) {
         setPricingDbStatus(e.message || String(e), '#DC2626');
       } finally {

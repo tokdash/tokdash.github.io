@@ -15,7 +15,7 @@ Kimi CLI).
 - Change the period or pick a custom date range.
 - Toggle light/dark and the 10 style themes.
 - Click into a synthetic Codex / Claude / OpenCode session.
-- Browse the (read-only) pricing database.
+- Browse the read-only demo pricing snapshot.
 
 ## Local preview
 
@@ -28,14 +28,15 @@ python3 -m http.server 8000
 
 | File                       | Purpose                                                                |
 | -------------------------- | ---------------------------------------------------------------------- |
-| `index.html`               | Verbatim copy of `src/tokdash/static/index.html` from the main repo.   |
+| `index.html`               | Tokdash dashboard shell with demo banner and synthetic backend wiring.  |
 | `static/themes.css`        | Verbatim copy of the production stylesheet.                            |
 | `static/theme-config.js`   | Verbatim copy of the production theme palettes.                        |
 | `static/mock-api.js`       | Demo-only fetch shim that builds and serves synthetic data.            |
-| `pricing_db.json`          | Snapshot of the pricing database for the read-only Pricing tab.        |
+| `pricing_db.json`          | Sanitized pricing snapshot for the read-only Pricing tab.              |
 
-To refresh the snapshot when Tokdash itself changes, re-copy the four upstream files
-(everything except `static/mock-api.js`) and commit.
+To refresh the demo when Tokdash itself changes, re-copy the upstream static assets,
+keep the demo-only edits in `index.html`, and sanitize `pricing_db.json` so the public
+demo does not advertise unreleased or placeholder model ids.
 
 ## License
 

@@ -38,6 +38,11 @@
     return Math.max(0, mean + sd * Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v));
   }
   function randInt(lo, hi) { return lo + Math.floor(rand() * (hi - lo + 1)); }
+  function randomIdPart(length) {
+    let out = "";
+    while (out.length < length) out += Math.floor(rand() * 36).toString(36);
+    return out;
+  }
 
   // ---------- Catalogue ----------
   // Tools that the dashboard treats as "coding tools".
@@ -53,14 +58,14 @@
 
   // (model name, provider, $/M input, $/M output, $/M cache_read, $/M cache_write, weight by tool)
   const MODELS = [
-    { name: "openai/gpt-5.4-codex",       provider: "openai",     in: 1.50, out: 12.00, cr: 0.15, cw: 1.50, tools: { codex: 0.55, opencode: 0.20, gemini: 0.05 } },
-    { name: "openai/gpt-5.4-codex-high",  provider: "openai",     in: 3.00, out: 24.00, cr: 0.30, cw: 3.00, tools: { codex: 0.20 } },
-    { name: "openai/gpt-5.4-mini",        provider: "openai",     in: 0.40, out: 1.60,  cr: 0.04, cw: 0.40, tools: { codex: 0.15, gemini: 0.10, opencode: 0.10 } },
+    { name: "openai/gpt-5.2-codex",       provider: "openai",     in: 1.75, out: 14.00, cr: 0.175, cw: 1.75, tools: { codex: 0.55, opencode: 0.20, gemini: 0.05 } },
+    { name: "openai/gpt-5.1-codex-max",   provider: "openai",     in: 1.25, out: 10.00, cr: 0.125, cw: 1.25, tools: { codex: 0.20 } },
+    { name: "openai/gpt-5.1-codex-mini",  provider: "openai",     in: 0.25, out: 2.00,  cr: 0.025, cw: 0.25, tools: { codex: 0.15, gemini: 0.10, opencode: 0.10 } },
     { name: "anthropic/claude-opus-4.7",  provider: "anthropic",  in: 15.0, out: 75.00, cr: 1.50, cw: 15.0, tools: { claude_code: 0.45, opencode: 0.10, openclaw: 0.45 } },
     { name: "anthropic/claude-sonnet-4.6",provider: "anthropic",  in: 3.00, out: 15.00, cr: 0.30, cw: 3.00, tools: { claude_code: 0.40, opencode: 0.30, openclaw: 0.35 } },
     { name: "anthropic/claude-haiku-4.5", provider: "anthropic",  in: 0.80, out: 4.00,  cr: 0.08, cw: 0.80, tools: { claude_code: 0.10, openclaw: 0.05 } },
-    { name: "google/gemini-3-pro",        provider: "google",     in: 1.25, out: 5.00,  cr: 0.13, cw: 1.25, tools: { gemini: 0.55, openclaw: 0.05 } },
-    { name: "google/gemini-3-flash",      provider: "google",     in: 0.10, out: 0.40,  cr: 0.01, cw: 0.10, tools: { gemini: 0.30 } },
+    { name: "google/gemini-3-pro-preview",provider: "google",     in: 2.00, out: 12.00, cr: 0.20, cw: 0.375, tools: { gemini: 0.55, openclaw: 0.05 } },
+    { name: "google/gemini-3-flash-preview",provider: "google",   in: 0.50, out: 3.00,  cr: 0.05, cw: 0.083333, tools: { gemini: 0.30 } },
     { name: "moonshotai/kimi-k2.6",       provider: "moonshotai", in: 0.60, out: 2.50,  cr: 0.15, cw: 0.60, tools: { kimi: 0.85, openclaw: 0.05 } },
     { name: "z-ai/glm-5.1",               provider: "z-ai",       in: 0.30, out: 1.10,  cr: 0.06, cw: 0.30, tools: { kimi: 0.15, opencode: 0.30, openclaw: 0.05 } },
   ];
@@ -108,7 +113,7 @@
   function makeSession(toolSpec, dayMs) {
     const startMs = dayMs + randInt(8, 22) * 3600 * 1000 + randInt(0, 59) * 60 * 1000;
     const turnCount = Math.max(1, Math.round(gauss(8, 5)));
-    const session_id = Math.random().toString(36).slice(2, 14) + Math.random().toString(36).slice(2, 6);
+    const session_id = randomIdPart(16);
     const project = pick(PROJECTS);
     const turns = [];
     let cursorMs = startMs;
@@ -550,9 +555,7 @@
       return jsonResponse(await loadPricingDb());
     }
     if (path === "/api/pricing-db" && method === "PUT") {
-      // Demo cannot persist edits — accept and echo back.
-      const echoed = await loadPricingDb();
-      return jsonResponse({ ...echoed, demo_note: "Edits are not persisted in the demo." });
+      return jsonResponse({ detail: "The pricing database is read-only in the static demo." }, 405);
     }
     if (path === "/api/openclaw" && method === "GET") {
       // Not consumed by the current UI but easy to support for parity.
