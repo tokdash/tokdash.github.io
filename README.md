@@ -2,7 +2,7 @@
 
 Live demo of [Tokdash](https://github.com/JingbiaoMei/Tokdash) — a local token & cost
 dashboard for AI coding tools (Codex, Claude Code, OpenCode, Gemini CLI, OpenClaw,
-Kimi CLI).
+Kimi CLI, pi-agent, GitHub Copilot CLI, Hermes).
 
 > **The data on this page is fully synthetic.** A small in-browser shim
 > (`static/mock-api.js`) intercepts every `/api/*` request and returns deterministic
