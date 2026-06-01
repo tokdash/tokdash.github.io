@@ -33,12 +33,16 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Fira+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>tailwind.config = { darkMode: 'class' }</script>
+  <!-- Tailwind: prebuilt static CSS so layout works with JS disabled/blocked.
+       Regenerate after class changes — see README ("Rebuilding the landing CSS"). -->
+  <link rel="stylesheet" href="/static/landing.css" />
 
   <!-- Avoid theme flash: set the class before paint -->
   <script>
     (function () {
+      // Mark the document as JS-capable up front: reveal animations are opt-in
+      // via html.js, so content stays visible when JS is disabled or blocked.
+      document.documentElement.classList.add('js');
       try {
         var saved = localStorage.getItem('tokdash-site-theme');
         var dark = saved ? saved === 'dark'
@@ -84,7 +88,14 @@
       --shadow-lg: 0 16px 44px rgba(0,0,0,0.5);
     }
 
-    html, body { height: 100%; }
+    /* min-height (not height:100%): a fixed-height body bounds position:sticky to
+       one viewport, so the nav would stop sticking after the first screen. min-height
+       lets the page grow with content and keeps the nav pinned across the full scroll.
+       clip kills the decorative glow's horizontal overflow without breaking sticky. */
+    html, body {
+      min-height: 100%;
+      overflow-x: clip;
+    }
     html { scroll-behavior: smooth; scroll-padding-top: 88px; }
 
     body {
@@ -277,11 +288,13 @@
       color: #fff; background: linear-gradient(135deg, var(--color-primary), #2563EB);
     }
 
-    /* ---- Reveal-on-scroll (progressive enhancement) ---- */
-    .reveal { opacity: 0; transform: translateY(16px); transition: opacity 0.6s ease, transform 0.6s ease; }
-    .reveal.in { opacity: 1; transform: none; }
+    /* ---- Reveal-on-scroll (progressive enhancement) ----
+       Opt-in via html.js: with JS disabled the class is never added, so .reveal
+       content renders fully visible instead of staying at opacity 0. */
+    html.js .reveal { opacity: 0; transform: translateY(16px); transition: opacity 0.6s ease, transform 0.6s ease; }
+    html.js .reveal.in { opacity: 1; transform: none; }
     @media (prefers-reduced-motion: reduce) {
-      .reveal { opacity: 1; transform: none; transition: none; }
+      html.js .reveal { opacity: 1; transform: none; transition: none; }
       html { scroll-behavior: auto; }
     }
 
@@ -310,14 +323,15 @@
       </a>
 
       <nav class="hidden md:flex items-center gap-1" aria-label="Primary">
-        <a href="#features" class="nav-link">Features</a>
-        <a href="#tools" class="nav-link">Tools</a>
-        <a href="#privacy" class="nav-link">Privacy</a>
-        <a href="#install" class="nav-link">Install</a>
-        <a href="/demo/" class="nav-link">Demo</a>
+        <a href="#features" class="nav-link" data-i18n="nav.features">Features</a>
+        <a href="#tools" class="nav-link" data-i18n="nav.tools">Tools</a>
+        <a href="#privacy" class="nav-link" data-i18n="nav.privacy">Privacy</a>
+        <a href="#install" class="nav-link" data-i18n="nav.install">Install</a>
+        <a href="/demo/" class="nav-link" data-i18n="nav.demo">Demo</a>
       </nav>
 
       <div class="flex items-center gap-2">
+        <button id="langToggle" class="btn btn-ghost" style="min-height:40px;padding:8px 12px;font-size:13px;font-weight:700;" aria-label="Switch language">中</button>
         <button id="themeToggle" class="btn btn-ghost" style="min-height:40px;padding:8px 10px;" aria-label="Toggle dark mode">
           <svg id="iconMoon" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
           <svg id="iconSun" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true" style="display:none;"><circle cx="12" cy="12" r="5" stroke="currentColor" stroke-width="2"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
@@ -338,13 +352,13 @@
       <div class="grid lg:grid-cols-2 gap-12 lg:gap-10 items-center">
         <!-- Copy -->
         <div>
-          <span class="chip reveal"><span class="dot"></span> Open source · Local-first · MIT</span>
+          <span class="chip reveal" data-i18n="hero.eyebrow"><span class="dot"></span> Open source · Local-first · MIT</span>
 
-          <h1 class="reveal text-[2.4rem] leading-[1.08] sm:text-5xl lg:text-[3.4rem] font-extrabold tracking-tight mt-5">
+          <h1 class="reveal text-[2.4rem] leading-[1.08] sm:text-5xl lg:text-[3.4rem] font-extrabold tracking-tight mt-5" data-i18n="hero.h1">
             Local token &amp; cost dashboard <span class="grad-text">for your AI coding tools</span>
           </h1>
 
-          <p class="reveal text-base sm:text-lg text-muted mt-5 max-w-xl">
+          <p class="reveal text-base sm:text-lg text-muted mt-5 max-w-xl" data-i18n="hero.sub">
             Tokdash reads your CLI logs on your own machine and shows exactly how many tokens you burn — and what they
             cost — across Codex, Claude Code, OpenCode, Gemini CLI and more. No account, no upload, no telemetry.
           </p>
@@ -357,7 +371,7 @@
               </span>
             </button>
             <a href="/demo/" class="btn btn-primary">
-              View live demo
+              <span data-i18n="hero.cta_demo">View live demo</span>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </a>
           </div>
@@ -420,23 +434,23 @@
         <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
           <div class="reveal">
             <div class="feature-icon mb-3"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 2 4 5v6c0 5 3.4 8.5 8 11 4.6-2.5 8-6 8-11V5l-8-3z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="m9 12 2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-            <h3 class="font-bold">100% local</h3>
-            <p class="text-sm text-muted mt-1">Reads logs already on your disk. Nothing is ever uploaded.</p>
+            <h3 class="font-bold" data-i18n="trust.local.h">100% local</h3>
+            <p class="text-sm text-muted mt-1" data-i18n="trust.local.p">Reads logs already on your disk. Nothing is ever uploaded.</p>
           </div>
           <div class="reveal">
             <div class="feature-icon mb-3"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 12a9 9 0 0 1 18 0M3 12a9 9 0 0 0 18 0" stroke="currentColor" stroke-width="2"/><path d="M3 12h18" stroke="currentColor" stroke-width="2"/><path d="M4 6l16 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
-            <h3 class="font-bold">Zero telemetry</h3>
-            <p class="text-sm text-muted mt-1">No accounts, no tracking, no phone-home. Works fully offline.</p>
+            <h3 class="font-bold" data-i18n="trust.telemetry.h">Zero telemetry</h3>
+            <p class="text-sm text-muted mt-1" data-i18n="trust.telemetry.p">No accounts, no tracking, no phone-home. Works fully offline.</p>
           </div>
           <div class="reveal">
             <div class="feature-icon mb-3"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-            <h3 class="font-bold">Open source</h3>
-            <p class="text-sm text-muted mt-1">MIT licensed and auditable. Install in one command with pip.</p>
+            <h3 class="font-bold" data-i18n="trust.oss.h">Open source</h3>
+            <p class="text-sm text-muted mt-1" data-i18n="trust.oss.p">MIT licensed and auditable. Install in one command with pip.</p>
           </div>
           <div class="reveal">
             <div class="feature-icon mb-3"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="14" rx="2" stroke="currentColor" stroke-width="2"/><path d="M8 21h8M12 18v3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
-            <h3 class="font-bold">Install as a PWA</h3>
-            <p class="text-sm text-muted mt-1">Pin the dashboard like a native app, light or dark, EN&nbsp;/&nbsp;中.</p>
+            <h3 class="font-bold" data-i18n="trust.pwa.h">Dashboard installs as a PWA</h3>
+            <p class="text-sm text-muted mt-1" data-i18n="trust.pwa.p">Pin the dashboard like a native app, light or dark, EN&nbsp;/&nbsp;中.</p>
           </div>
         </div>
       </div>
@@ -445,8 +459,8 @@
     <!-- ============ SUPPORTED TOOLS ============ -->
     <section id="tools" class="max-w-[1180px] mx-auto px-4 sm:px-6 py-14 lg:py-20">
       <div class="text-center max-w-2xl mx-auto reveal">
-        <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight">One dashboard for every agent</h2>
-        <p class="text-muted mt-3">Tokdash unifies usage across nine AI coding tools — switch agents without losing the bill.</p>
+        <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight" data-i18n="tools.h">One dashboard for every agent</h2>
+        <p class="text-muted mt-3" data-i18n="tools.sub">Tokdash unifies usage across nine AI coding tools — switch agents without losing the bill.</p>
       </div>
 
       <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 mt-10 max-w-3xl mx-auto reveal">
@@ -467,47 +481,47 @@
     <!-- ============ FEATURES ============ -->
     <section id="features" class="max-w-[1180px] mx-auto px-4 sm:px-6 py-14 lg:py-20">
       <div class="text-center max-w-2xl mx-auto reveal">
-        <span class="chip"><span class="dot"></span> Features</span>
-        <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight mt-5">Everything you spend, made visible</h2>
-        <p class="text-muted mt-3">From raw token counts to real dollars, drilled down to a single session.</p>
+        <span class="chip" data-i18n="feat.eyebrow"><span class="dot"></span> Features</span>
+        <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight mt-5" data-i18n="feat.h">Everything you spend, made visible</h2>
+        <p class="text-muted mt-3" data-i18n="feat.sub">From raw token counts to real dollars, drilled down to a single session.</p>
       </div>
 
       <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-12">
         <!-- 1 -->
         <div class="surface p-6 reveal">
           <div class="feature-icon mb-4"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M4 19V5M4 19h16M8 16V9M12 16V6M16 16v-4M20 16v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
-          <h3 class="text-lg font-bold">Exact token accounting</h3>
-          <p class="text-sm text-muted mt-2">Input, output, and cache tokens broken out per tool, model, and day — no estimates, the real counts from your logs.</p>
+          <h3 class="text-lg font-bold" data-i18n="feat.1.h">Exact token accounting</h3>
+          <p class="text-sm text-muted mt-2" data-i18n="feat.1.p">Input, output, and cache tokens broken out per tool, model, and day — no estimates, the real counts from your logs.</p>
         </div>
         <!-- 2 -->
         <div class="surface p-6 reveal">
           <div class="feature-icon mb-4"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><path d="M12 7v10M14.5 9.5C14 8.5 13 8 12 8c-1.5 0-2.5.8-2.5 2s1 1.7 2.5 2 2.5.9 2.5 2-1 2-2.5 2c-1 0-2-.5-2.5-1.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
-          <h3 class="text-lg font-bold">Cost in real money</h3>
-          <p class="text-sm text-muted mt-2">A built-in pricing database turns tokens into dollars across providers and models, so you see the bill, not just the volume.</p>
+          <h3 class="text-lg font-bold" data-i18n="feat.2.h">Cost in real money</h3>
+          <p class="text-sm text-muted mt-2" data-i18n="feat.2.p">A built-in pricing database turns tokens into dollars across providers and models, so you see the bill, not just the volume.</p>
         </div>
         <!-- 3 -->
         <div class="surface p-6 reveal">
           <div class="feature-icon mb-4"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="16" rx="2" stroke="currentColor" stroke-width="2"/><path d="M7 9h2v2H7zM11 9h2v2h-2zM15 9h2v2h-2zM7 13h2v2H7zM11 13h2v2h-2z" fill="currentColor"/></svg></div>
-          <h3 class="text-lg font-bold">Contribution heatmap</h3>
-          <p class="text-sm text-muted mt-2">A GitHub-style calendar of your activity — with a 3D isometric view and an energy estimate to recolor days by kWh.</p>
+          <h3 class="text-lg font-bold" data-i18n="feat.3.h">Contribution heatmap</h3>
+          <p class="text-sm text-muted mt-2" data-i18n="feat.3.p">A GitHub-style calendar of your activity — with a 3D isometric view and an energy estimate to recolor days by kWh.</p>
         </div>
         <!-- 4 -->
         <div class="surface p-6 reveal">
           <div class="feature-icon mb-4"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 12h16M4 18h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="19" cy="18" r="2.5" stroke="currentColor" stroke-width="2"/></svg></div>
-          <h3 class="text-lg font-bold">Session explorer</h3>
-          <p class="text-sm text-muted mt-2">Drill into any session, grouped by project and across tools, to find exactly what ran up the cost.</p>
+          <h3 class="text-lg font-bold" data-i18n="feat.4.h">Session explorer</h3>
+          <p class="text-sm text-muted mt-2" data-i18n="feat.4.p">Drill into any session, grouped by project and across tools, to find exactly what ran up the cost.</p>
         </div>
         <!-- 5 -->
         <div class="surface p-6 reveal">
           <div class="feature-icon mb-4"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="2" y="4" width="20" height="16" rx="2" stroke="currentColor" stroke-width="2"/><path d="m6 9 3 3-3 3M12 15h5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-          <h3 class="text-lg font-bold">Statusline integration</h3>
-          <p class="text-sm text-muted mt-2">Surface live token and cost indicators right in your shell prompt while you work — no need to switch windows.</p>
+          <h3 class="text-lg font-bold" data-i18n="feat.5.h">Statusline integration</h3>
+          <p class="text-sm text-muted mt-2" data-i18n="feat.5.p">Surface live token and cost indicators right in your shell prompt while you work — no need to switch windows.</p>
         </div>
         <!-- 6 -->
         <div class="surface p-6 reveal">
           <div class="feature-icon mb-4"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
-          <h3 class="text-lg font-bold">10 themes, light &amp; dark</h3>
-          <p class="text-sm text-muted mt-2">Classic, Midnight, Terminal, Arcade and more — with system-preference detection, custom date ranges, and English&nbsp;/&nbsp;中文.</p>
+          <h3 class="text-lg font-bold" data-i18n="feat.6.h">10 themes, light &amp; dark</h3>
+          <p class="text-sm text-muted mt-2" data-i18n="feat.6.p">Classic, Midnight, Terminal, Arcade and more — with system-preference detection, custom date ranges, and English&nbsp;/&nbsp;中文.</p>
         </div>
       </div>
     </section>
@@ -519,30 +533,31 @@
       <div class="grid lg:grid-cols-2 gap-10 lg:gap-14 items-center">
         <!-- Copy -->
         <div class="reveal">
-          <span class="chip"><span class="dot"></span> Cost optimization</span>
-          <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight mt-5">See where every dollar goes</h2>
-          <p class="text-muted mt-3 max-w-md">Tokdash breaks spend down to the session, model, and project — so you can find waste and cut it, not just watch the number climb.</p>
+          <span class="chip" data-i18n="opt.eyebrow"><span class="dot"></span> Cost optimization</span>
+          <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight mt-5" data-i18n="opt.h">See where every dollar goes</h2>
+          <p class="text-muted mt-3 max-w-md" data-i18n="opt.sub">Tokdash breaks spend down to the session, model, and project — so you can find waste and cut it, not just watch the number climb.</p>
 
           <ul class="mt-7 space-y-4">
             <li class="opt-li">
               <span class="opt-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M4 19V5M4 19h16M8 16V9M12 16V6M16 16v-4M20 16v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>
-              <div><h3 class="font-bold text-[15px]">Cost by model, agent &amp; project</h3><p class="text-sm text-muted">Rank exactly what's running up the bill across every tool.</p></div>
+              <div><h3 class="font-bold text-[15px]" data-i18n="opt.1.h">Cost by model, agent &amp; project</h3><p class="text-sm text-muted" data-i18n="opt.1.p">Rank exactly what's running up the bill across every tool.</p></div>
             </li>
             <li class="opt-li">
               <span class="opt-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M21 12a9 9 0 1 1-6.2-8.56" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M21 4v5h-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-              <div><h3 class="font-bold text-[15px]">Spot low cache-hit sessions</h3><p class="text-sm text-muted">A low hit rate means you're re-paying full price for context you could reuse.</p></div>
+              <div><h3 class="font-bold text-[15px]" data-i18n="opt.2.h">Spot low cache-hit sessions</h3><p class="text-sm text-muted" data-i18n="opt.2.p">A low hit rate means you're re-paying full price for context you could reuse.</p></div>
             </li>
             <li class="opt-li">
               <span class="opt-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 3v18M7 8l5-5 5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-              <div><h3 class="font-bold text-[15px]">Flag output-heavy turns</h3><p class="text-sm text-muted">Output tokens cost ~5–10× input — see which sessions lean on them.</p></div>
+              <div><h3 class="font-bold text-[15px]" data-i18n="opt.3.h">Flag output-heavy turns</h3><p class="text-sm text-muted" data-i18n="opt.3.p">Output tokens cost ~5–10× input — see which sessions lean on them.</p></div>
             </li>
             <li class="opt-li">
               <span class="opt-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M16 3h5v5M21 3l-7 7M8 21H3v-5M3 21l7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-              <div><h3 class="font-bold text-[15px]">Compare models for cheaper swaps</h3><p class="text-sm text-muted">Find where a lighter model would do the job for a fraction of the cost.</p></div>
+              <div><h3 class="font-bold text-[15px]" data-i18n="opt.4.h">Compare models for cheaper swaps</h3><p class="text-sm text-muted" data-i18n="opt.4.p">Find where a lighter model would do the job for a fraction of the cost.</p></div>
             </li>
           </ul>
 
-          <a href="/demo/" class="btn btn-primary mt-8">Explore it in the live demo
+          <a href="/demo/" class="btn btn-primary mt-8">
+            <span data-i18n="opt.cta">Explore it in the live demo</span>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </a>
         </div>
@@ -558,7 +573,7 @@
               <span class="ml-auto text-[11px] font-bold px-2.5 py-1 rounded-md" style="background:color-mix(in srgb, var(--color-cost) 14%, transparent); color:var(--color-cost);">$315.30</span>
             </div>
             <div class="p-4 sm:p-5">
-              <div class="kpi-label mb-3">Top cost drivers</div>
+              <div class="kpi-label mb-3" data-i18n="opt.card.drivers">Top cost drivers</div>
               <div class="space-y-3.5">
                 <div>
                   <div class="flex justify-between items-baseline text-sm mb-1.5"><span class="mono">claude-opus-4.8</span><span class="font-bold" style="color:var(--color-cost);">$182.40</span></div>
@@ -582,8 +597,8 @@
                 <div class="flex items-start gap-2.5">
                   <span class="text-base leading-none mt-0.5" aria-hidden="true">💡</span>
                   <div>
-                    <div class="text-sm font-bold">~$31/mo recoverable</div>
-                    <div class="text-xs text-muted mt-0.5">3 sessions ran under 40% cache-hit — reusing context cuts repeated input cost. Opus drove 58% of spend on 19% of turns.</div>
+                    <div class="text-sm font-bold" data-i18n="opt.card.savings.h">~$31/mo recoverable</div>
+                    <div class="text-xs text-muted mt-0.5" data-i18n="opt.card.savings.p">3 sessions ran under 40% cache-hit — reusing context cuts repeated input cost. Opus drove 58% of spend on 19% of turns.</div>
                   </div>
                 </div>
               </div>
@@ -597,40 +612,43 @@
     <section id="install" class="max-w-[1180px] mx-auto px-4 sm:px-6 py-14 lg:py-20">
       <div class="grid lg:grid-cols-2 gap-10 lg:gap-14 items-center">
         <div class="reveal">
-          <span class="chip"><span class="dot"></span> Get started</span>
-          <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight mt-5">Up and running in 30 seconds</h2>
-          <p class="text-muted mt-3 max-w-md">Python package, one command to install, one to serve. Your data never leaves your laptop.</p>
+          <span class="chip" data-i18n="start.eyebrow"><span class="dot"></span> Get started</span>
+          <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight mt-5" data-i18n="start.h">Up and running in 30 seconds</h2>
+          <p class="text-muted mt-3 max-w-md" data-i18n="start.sub">Python package, one command to install, one to serve. Your data never leaves your laptop.</p>
 
           <ol class="mt-8 space-y-5">
             <li class="flex gap-4">
               <span class="step-num">1</span>
               <div>
-                <h3 class="font-bold">Install</h3>
-                <p class="text-sm text-muted mt-0.5"><code class="mono" style="color:var(--color-primary);">pip install tokdash</code> — or <code class="mono">pip install -e .</code> from source.</p>
+                <h3 class="font-bold" data-i18n="start.1.h">Install</h3>
+                <p class="text-sm text-muted mt-0.5" data-i18n="start.1.p"><code class="mono" style="color:var(--color-primary);">pip install tokdash</code></p>
               </div>
             </li>
             <li class="flex gap-4">
               <span class="step-num">2</span>
               <div>
-                <h3 class="font-bold">Serve</h3>
-                <p class="text-sm text-muted mt-0.5">Run <code class="mono" style="color:var(--color-primary);">tokdash serve</code>. It discovers your CLI logs automatically.</p>
+                <h3 class="font-bold" data-i18n="start.2.h">Serve</h3>
+                <p class="text-sm text-muted mt-0.5" data-i18n="start.2.p">Run <code class="mono" style="color:var(--color-primary);">tokdash serve</code>. It discovers your CLI logs automatically.</p>
               </div>
             </li>
             <li class="flex gap-4">
               <span class="step-num">3</span>
               <div>
-                <h3 class="font-bold">Done</h3>
-                <p class="text-sm text-muted mt-0.5">Your dashboard opens automatically at <code class="mono" style="color:var(--color-primary);">localhost:55423</code>.</p>
+                <h3 class="font-bold" data-i18n="start.3.h">Done</h3>
+                <p class="text-sm text-muted mt-0.5" data-i18n="start.3.p">Your dashboard opens automatically at <code class="mono" style="color:var(--color-primary);">localhost:55423</code>.</p>
               </div>
             </li>
           </ol>
 
           <div class="flex flex-wrap gap-3 mt-8">
-            <a href="/demo/" class="btn btn-primary">Try it now — no install
+            <a href="/demo/" class="btn btn-primary">
+              <span data-i18n="start.cta_try">Try it now — no install</span>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </a>
-            <a href="https://github.com/JingbiaoMei/Tokdash" target="_blank" rel="noopener" class="btn btn-ghost">Read the docs</a>
+            <a href="https://github.com/JingbiaoMei/Tokdash" target="_blank" rel="noopener" class="btn btn-ghost" data-i18n="start.cta_docs">Read the docs</a>
           </div>
+
+          <p class="text-xs text-muted mt-4" data-i18n="start.upgrade">Already installed? Upgrade any time with <code class="mono" style="color:var(--color-primary);">pip install --upgrade tokdash</code>.</p>
         </div>
 
         <!-- Terminal -->
@@ -657,11 +675,12 @@
     <!-- ============ CTA BAND ============ -->
     <section class="max-w-[1180px] mx-auto px-4 sm:px-6 pb-20">
       <div class="surface surface-static reveal overflow-hidden text-center px-6 py-12 sm:py-16"
-           style="background: linear-gradient(135deg, color-mix(in srgb, var(--color-primary) 12%, rgba(255,255,255,0.9)), color-mix(in srgb, var(--color-cta) 10%, rgba(255,255,255,0.9)));">
-        <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight">See it before you install</h2>
-        <p class="text-muted mt-3 max-w-xl mx-auto">The live demo runs the real dashboard on synthetic data — explore every tab, theme, and chart right in your browser.</p>
+           style="background: linear-gradient(135deg, color-mix(in srgb, var(--color-primary) 16%, var(--color-bg)), color-mix(in srgb, var(--color-cta) 12%, var(--color-bg)));">
+        <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight" data-i18n="cta.h">See it before you install</h2>
+        <p class="text-muted mt-3 max-w-xl mx-auto" data-i18n="cta.sub">The live demo runs the real dashboard on synthetic data — explore every tab, theme, and chart right in your browser.</p>
         <div class="flex flex-wrap justify-center gap-3 mt-8">
-          <a href="/demo/" class="btn btn-primary">Open the live demo
+          <a href="/demo/" class="btn btn-primary">
+            <span data-i18n="cta.open">Open the live demo</span>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </a>
           <button class="cmd" data-cmd="pip install tokdash" aria-label="Copy: pip install tokdash" onclick="window.__copyCmd(this)">
@@ -680,18 +699,18 @@
         <img src="/static/icons/logo.png" alt="" width="26" height="26" style="width:26px;height:26px;object-fit:contain;" />
         <div>
           <div class="mono font-extrabold leading-tight">Tokdash</div>
-          <div class="text-xs text-muted">Local token &amp; cost dashboard · MIT</div>
+          <div class="text-xs text-muted" data-i18n="footer.tagline">Local token &amp; cost dashboard · MIT</div>
         </div>
       </div>
 
       <nav class="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm" aria-label="Footer">
-        <a href="/demo/" class="nav-link" style="padding:6px 0;">Live demo</a>
-        <a href="#features" class="nav-link" style="padding:6px 0;">Features</a>
+        <a href="/demo/" class="nav-link" style="padding:6px 0;" data-i18n="footer.demo">Live demo</a>
+        <a href="#features" class="nav-link" style="padding:6px 0;" data-i18n="footer.features">Features</a>
         <a href="https://github.com/JingbiaoMei/Tokdash" target="_blank" rel="noopener" class="nav-link" style="padding:6px 0;">GitHub</a>
-        <a href="https://github.com/JingbiaoMei/Tokdash/blob/main/LICENSE" target="_blank" rel="noopener" class="nav-link" style="padding:6px 0;">License</a>
+        <a href="https://github.com/JingbiaoMei/Tokdash/blob/main/LICENSE" target="_blank" rel="noopener" class="nav-link" style="padding:6px 0;" data-i18n="footer.license">License</a>
       </nav>
     </div>
-    <div class="max-w-[1180px] mx-auto px-4 sm:px-6 pb-8 text-xs text-muted">
+    <div class="max-w-[1180px] mx-auto px-4 sm:px-6 pb-8 text-xs text-muted" data-i18n="footer.credit">
       Demo data is fully synthetic. Built by <a href="https://github.com/JingbiaoMei" target="_blank" rel="noopener" style="color:var(--color-primary);font-weight:600;">Jingbiao Mei</a>.
     </div>
   </footer>
@@ -781,6 +800,183 @@
           el.hidden = false;
         })
         .catch(function () {});
+    })();
+
+    // ---- i18n: default to the browser language, switchable via the 中/EN toggle ----
+    (function () {
+      var I18N = {
+        en: {
+          'nav.features': `Features`,
+          'nav.tools': `Tools`,
+          'nav.privacy': `Privacy`,
+          'nav.install': `Install`,
+          'nav.demo': `Demo`,
+          'hero.eyebrow': `<span class="dot"></span> Open source · Local-first · MIT`,
+          'hero.h1': `Local token & cost dashboard <span class="grad-text">for your AI coding tools</span>`,
+          'hero.sub': `Tokdash reads your CLI logs on your own machine and shows exactly how many tokens you burn — and what they cost — across Codex, Claude Code, OpenCode, Gemini CLI and more. No account, no upload, no telemetry.`,
+          'hero.cta_demo': `View live demo`,
+          'trust.local.h': `100% local`,
+          'trust.local.p': `Reads logs already on your disk. Nothing is ever uploaded.`,
+          'trust.telemetry.h': `Zero telemetry`,
+          'trust.telemetry.p': `No accounts, no tracking, no phone-home. Works fully offline.`,
+          'trust.oss.h': `Open source`,
+          'trust.oss.p': `MIT licensed and auditable. Install in one command with pip.`,
+          'trust.pwa.h': `Dashboard installs as a PWA`,
+          'trust.pwa.p': `Pin the dashboard like a native app, light or dark, EN&nbsp;/&nbsp;中.`,
+          'tools.h': `One dashboard for every agent`,
+          'tools.sub': `Tokdash unifies usage across nine AI coding tools — switch agents without losing the bill.`,
+          'feat.eyebrow': `<span class="dot"></span> Features`,
+          'feat.h': `Everything you spend, made visible`,
+          'feat.sub': `From raw token counts to real dollars, drilled down to a single session.`,
+          'feat.1.h': `Exact token accounting`,
+          'feat.1.p': `Input, output, and cache tokens broken out per tool, model, and day — no estimates, the real counts from your logs.`,
+          'feat.2.h': `Cost in real money`,
+          'feat.2.p': `A built-in pricing database turns tokens into dollars across providers and models, so you see the bill, not just the volume.`,
+          'feat.3.h': `Contribution heatmap`,
+          'feat.3.p': `A GitHub-style calendar of your activity — with a 3D isometric view and an energy estimate to recolor days by kWh.`,
+          'feat.4.h': `Session explorer`,
+          'feat.4.p': `Drill into any session, grouped by project and across tools, to find exactly what ran up the cost.`,
+          'feat.5.h': `Statusline integration`,
+          'feat.5.p': `Surface live token and cost indicators right in your shell prompt while you work — no need to switch windows.`,
+          'feat.6.h': `10 themes, light & dark`,
+          'feat.6.p': `Classic, Midnight, Terminal, Arcade and more — with system-preference detection, custom date ranges, and English&nbsp;/&nbsp;中文.`,
+          'opt.eyebrow': `<span class="dot"></span> Cost optimization`,
+          'opt.h': `See where every dollar goes`,
+          'opt.sub': `Tokdash breaks spend down to the session, model, and project — so you can find waste and cut it, not just watch the number climb.`,
+          'opt.1.h': `Cost by model, agent & project`,
+          'opt.1.p': `Rank exactly what's running up the bill across every tool.`,
+          'opt.2.h': `Spot low cache-hit sessions`,
+          'opt.2.p': `A low hit rate means you're re-paying full price for context you could reuse.`,
+          'opt.3.h': `Flag output-heavy turns`,
+          'opt.3.p': `Output tokens cost ~5–10× input — see which sessions lean on them.`,
+          'opt.4.h': `Compare models for cheaper swaps`,
+          'opt.4.p': `Find where a lighter model would do the job for a fraction of the cost.`,
+          'opt.cta': `Explore it in the live demo`,
+          'opt.card.drivers': `Top cost drivers`,
+          'opt.card.savings.h': `~$31/mo recoverable`,
+          'opt.card.savings.p': `3 sessions ran under 40% cache-hit — reusing context cuts repeated input cost. Opus drove 58% of spend on 19% of turns.`,
+          'start.eyebrow': `<span class="dot"></span> Get started`,
+          'start.h': `Up and running in 30 seconds`,
+          'start.sub': `Python package, one command to install, one to serve. Your data never leaves your laptop.`,
+          'start.1.h': `Install`,
+          'start.1.p': `<code class="mono" style="color:var(--color-primary);">pip install tokdash</code>`,
+          'start.2.h': `Serve`,
+          'start.2.p': `Run <code class="mono" style="color:var(--color-primary);">tokdash serve</code>. It discovers your CLI logs automatically.`,
+          'start.3.h': `Done`,
+          'start.3.p': `Your dashboard opens automatically at <code class="mono" style="color:var(--color-primary);">localhost:55423</code>.`,
+          'start.cta_try': `Try it now — no install`,
+          'start.cta_docs': `Read the docs`,
+          'start.upgrade': `Already installed? Upgrade any time with <code class="mono" style="color:var(--color-primary);">pip install --upgrade tokdash</code>.`,
+          'cta.h': `See it before you install`,
+          'cta.sub': `The live demo runs the real dashboard on synthetic data — explore every tab, theme, and chart right in your browser.`,
+          'cta.open': `Open the live demo`,
+          'footer.tagline': `Local token & cost dashboard · MIT`,
+          'footer.demo': `Live demo`,
+          'footer.features': `Features`,
+          'footer.license': `License`,
+          'footer.credit': `Demo data is fully synthetic. Built by <a href="https://github.com/JingbiaoMei" target="_blank" rel="noopener" style="color:var(--color-primary);font-weight:600;">Jingbiao Mei</a>.`,
+          'meta.title': `Tokdash — Local token & cost dashboard for AI coding tools`
+        },
+        zh: {
+          'nav.features': `功能`,
+          'nav.tools': `支持工具`,
+          'nav.privacy': `隐私`,
+          'nav.install': `安装`,
+          'nav.demo': `演示`,
+          'hero.eyebrow': `<span class="dot"></span> 开源 · 本地优先 · MIT`,
+          'hero.h1': `本地 Token 与成本仪表盘，<span class="grad-text">为你的 AI 编码工具而生</span>`,
+          'hero.sub': `Tokdash 在你自己的机器上读取 CLI 日志，精确显示你消耗了多少 Token、花费多少成本 —— 覆盖 Codex、Claude Code、OpenCode、Gemini CLI 等多种工具。无需账号，不上传，零遥测。`,
+          'hero.cta_demo': `查看在线演示`,
+          'trust.local.h': `100% 本地`,
+          'trust.local.p': `直接读取你磁盘上已有的日志，任何数据都不会上传。`,
+          'trust.telemetry.h': `零遥测`,
+          'trust.telemetry.p': `无账号、无追踪、不回传，完全离线可用。`,
+          'trust.oss.h': `开源`,
+          'trust.oss.p': `采用 MIT 许可、代码可审计。一条 pip 命令即可安装。`,
+          'trust.pwa.h': `仪表盘可安装为 PWA`,
+          'trust.pwa.p': `像原生应用一样固定仪表盘，支持明暗主题与 EN&nbsp;/&nbsp;中。`,
+          'tools.h': `一个仪表盘，统管所有智能体`,
+          'tools.sub': `Tokdash 统一汇总九款 AI 编码工具的用量 —— 随意切换工具，账单始终一目了然。`,
+          'feat.eyebrow': `<span class="dot"></span> 功能`,
+          'feat.h': `让每一笔花费都看得见`,
+          'feat.sub': `从原始 Token 数量到真实金额，细化到每一次会话。`,
+          'feat.1.h': `精确的 Token 统计`,
+          'feat.1.p': `按工具、模型和日期拆分输入、输出与缓存 Token —— 不是估算，而是来自日志的真实数字。`,
+          'feat.2.h': `真实货币成本`,
+          'feat.2.p': `内置价格数据库将 Token 换算成各家提供商与模型的金额，让你看到的是账单，而不只是用量。`,
+          'feat.3.h': `贡献热力图`,
+          'feat.3.p': `类似 GitHub 的活动日历 —— 提供 3D 等距视图，并可按估算能耗（kWh）为每天重新着色。`,
+          'feat.4.h': `会话浏览器`,
+          'feat.4.p': `深入任意会话，按项目与工具分组，精准定位是什么推高了成本。`,
+          'feat.5.h': `状态栏集成`,
+          'feat.5.p': `在 shell 提示符中实时显示 Token 与成本指标，工作时无需切换窗口。`,
+          'feat.6.h': `10 种主题，明暗随心`,
+          'feat.6.p': `Classic、Midnight、Terminal、Arcade 等多种主题 —— 支持跟随系统、自定义日期范围，以及 English&nbsp;/&nbsp;中文。`,
+          'opt.eyebrow': `<span class="dot"></span> 成本优化`,
+          'opt.h': `看清每一分钱的去向`,
+          'opt.sub': `Tokdash 将花费细分到会话、模型和项目 —— 让你发现并削减浪费，而不只是眼看着数字上涨。`,
+          'opt.1.h': `按模型、工具与项目统计成本`,
+          'opt.1.p': `精确排出每款工具中究竟是什么在推高账单。`,
+          'opt.2.h': `发现缓存命中率低的会话`,
+          'opt.2.p': `命中率低，意味着你在为本可复用的上下文重复支付全价。`,
+          'opt.3.h': `标记输出密集的回合`,
+          'opt.3.p': `输出 Token 的成本约为输入的 5–10 倍 —— 看清哪些会话过度依赖输出。`,
+          'opt.4.h': `对比模型，寻找更省的替代`,
+          'opt.4.p': `找出哪些场景换用更轻量的模型即可，以极低成本完成同样的工作。`,
+          'opt.cta': `在在线演示中体验`,
+          'opt.card.drivers': `主要成本来源`,
+          'opt.card.savings.h': `每月约可节省 $31`,
+          'opt.card.savings.p': `有 3 个会话的缓存命中率低于 40% —— 复用上下文可削减重复的输入成本。Opus 以 19% 的回合占据了 58% 的花费。`,
+          'start.eyebrow': `<span class="dot"></span> 开始使用`,
+          'start.h': `30 秒即可上手`,
+          'start.sub': `一个 Python 包，一条命令安装、一条命令启动。你的数据永远不会离开你的电脑。`,
+          'start.1.h': `安装`,
+          'start.1.p': `<code class="mono" style="color:var(--color-primary);">pip install tokdash</code>`,
+          'start.2.h': `启动`,
+          'start.2.p': `运行 <code class="mono" style="color:var(--color-primary);">tokdash serve</code>，它会自动发现你的 CLI 日志。`,
+          'start.3.h': `完成`,
+          'start.3.p': `仪表盘会自动在 <code class="mono" style="color:var(--color-primary);">localhost:55423</code> 打开。`,
+          'start.cta_try': `立即试用 —— 无需安装`,
+          'start.cta_docs': `查看文档`,
+          'start.upgrade': `已经安装？随时用 <code class="mono" style="color:var(--color-primary);">pip install --upgrade tokdash</code> 升级。`,
+          'cta.h': `安装前先一睹为快`,
+          'cta.sub': `在线演示以合成数据运行真实的仪表盘 —— 直接在浏览器里体验每个标签页、主题和图表。`,
+          'cta.open': `打开在线演示`,
+          'footer.tagline': `本地 Token 与成本仪表盘 · MIT`,
+          'footer.demo': `在线演示`,
+          'footer.features': `功能`,
+          'footer.license': `许可证`,
+          'footer.credit': `演示数据完全为合成数据。由 <a href="https://github.com/JingbiaoMei" target="_blank" rel="noopener" style="color:var(--color-primary);font-weight:600;">Jingbiao Mei</a> 构建。`,
+          'meta.title': `Tokdash — 面向 AI 编码工具的本地 Token 与成本仪表盘`
+        }
+      };
+
+      var root = document.documentElement;
+      function detect() {
+        try { var s = localStorage.getItem('tokdash-site-lang'); if (s === 'en' || s === 'zh') return s; } catch (e) {}
+        var ls = navigator.languages || [navigator.language || 'en'];
+        for (var i = 0; i < ls.length; i++) { if (String(ls[i] || '').toLowerCase().indexOf('zh') === 0) return 'zh'; }
+        return 'en';
+      }
+      function apply(lang) {
+        var dict = I18N[lang] || I18N.en;
+        root.setAttribute('lang', lang === 'zh' ? 'zh-CN' : 'en');
+        document.querySelectorAll('[data-i18n]').forEach(function (el) {
+          var k = el.getAttribute('data-i18n');
+          if (dict[k] != null) el.innerHTML = dict[k];
+        });
+        if (dict['meta.title']) document.title = dict['meta.title'];
+        var btn = document.getElementById('langToggle');
+        if (btn) {
+          btn.textContent = lang === 'zh' ? 'EN' : '中';
+          btn.setAttribute('aria-label', lang === 'zh' ? 'Switch to English' : '切换到中文');
+        }
+        try { localStorage.setItem('tokdash-site-lang', lang); } catch (e) {}
+        window.__lang = lang;
+      }
+      apply(detect());
+      var toggle = document.getElementById('langToggle');
+      if (toggle) toggle.addEventListener('click', function () { apply(window.__lang === 'zh' ? 'en' : 'zh'); });
     })();
   </script>
 </body>

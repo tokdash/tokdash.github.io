@@ -34,6 +34,7 @@ python3 -m http.server 8000
 | File                       | Purpose                                                                |
 | -------------------------- | ---------------------------------------------------------------------- |
 | `index.html`               | Official marketing landing page (self-contained, reuses the design tokens). |
+| `static/landing.css`       | Prebuilt Tailwind utilities for the landing page (so it renders without JS). |
 | `demo/index.html`          | Tokdash dashboard shell — upstream frontend + the demo-only edits listed below. |
 | `static/themes.css`        | Verbatim copy of the production stylesheet.                            |
 | `static/theme-config.js`   | Verbatim copy of the production theme palettes.                        |
@@ -58,6 +59,21 @@ byte-identical to upstream), and sanitize `pricing_db.json` so the public demo d
 advertise unreleased or placeholder model ids. When upstream adds API fields (e.g.
 `cache_hit_rate`), mirror them in `static/mock-api.js` so the new UI shows real synthetic
 values instead of `n/a`.
+
+### Rebuilding the landing CSS
+
+The landing page ships a prebuilt, purged Tailwind v3 stylesheet (`static/landing.css`)
+instead of the runtime JS CDN, so it renders fully with JavaScript disabled. Regenerate it
+after changing classes in `index.html`:
+
+```bash
+printf '@tailwind base;\n@tailwind components;\n@tailwind utilities;\n' > /tmp/in.css
+npx tailwindcss@3 -i /tmp/in.css -o static/landing.css --minify \
+  --content ./index.html
+```
+
+(Equivalently, point a `tailwind.config.js` at `index.html` with `darkMode: 'class'`.)
+No Node tooling is committed — this is a one-off build step that only touches `static/landing.css`.
 
 ## License
 
