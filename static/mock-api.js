@@ -56,7 +56,7 @@
     { source: "opencode",    label: "OpenCode",           weight: 0.13 },
     { source: "gemini",      label: "Gemini CLI",         weight: 0.09 },
     { source: "kimi",        label: "Kimi CLI",           weight: 0.05 },
-    { source: "pi_agent",    label: "pi-agent",           weight: 0.03 },
+    { source: "pi_agent",    label: "Pi",                 weight: 0.03 },
     { source: "copilot_cli", label: "GitHub Copilot CLI", weight: 0.04 },
     { source: "hermes",      label: "Hermes",             weight: 0.03 },
   ];
@@ -214,13 +214,22 @@
     }
   }
 
+  // Cache hit rate = cache reads / (prompt input + cache reads). Mirrors the
+  // frontend's hitRateFrom() and the backend's compute.cache_hit_rate. Returns
+  // null when there is no prompt input, so the UI shows "n/a" rather than 0%.
+  function hitRate(tokensIn, tokensCache) {
+    const cache = Number(tokensCache || 0);
+    const den = Number(tokensIn || 0) + cache;
+    return den > 0 ? cache / den : null;
+  }
+
   // ---------- /api/usage ----------
   function buildUsage(period, dateFrom, dateTo) {
     const range = periodToRange(period, dateFrom, dateTo);
 
     const byApp = {};         // source -> aggregate (incl. models map)
     const combinedModels = {}; // model name -> aggregate
-    let total_tokens = 0, total_cost = 0, total_messages = 0;
+    let total_tokens = 0, total_cost = 0, total_messages = 0, total_in = 0, total_cache = 0;
 
     for (const { session, turn } of iterTurnsInRange(range)) {
       const src = session.source;
@@ -249,14 +258,18 @@
       total_tokens += turn.tokens;
       total_cost += turn.cost;
       total_messages += 1;
+      total_in += turn.tokens_in;
+      total_cache += turn.tokens_cache;
     }
 
     // Finalize apps -> { models: [...] }
     const apps = {};
     for (const [src, agg] of Object.entries(byApp)) {
-      const models = Object.values(agg._models).sort((a, b) => b.cost - a.cost);
+      const models = Object.values(agg._models)
+        .map((m) => ({ ...m, cache_hit_rate: hitRate(m.tokens_in, m.tokens_cache) }))
+        .sort((a, b) => b.cost - a.cost);
       delete agg._models;
-      apps[src] = { ...agg, models };
+      apps[src] = { ...agg, cache_hit_rate: hitRate(agg.tokens_in, agg.tokens_cache), models };
     }
 
     const codingApps = {};
@@ -273,10 +286,12 @@
 
     const by_tool = {};
     for (const [src, v] of Object.entries(apps)) {
-      by_tool[src] = { tokens: v.tokens, cost: v.cost };
+      by_tool[src] = { tokens: v.tokens, cost: v.cost, cache_hit_rate: v.cache_hit_rate };
     }
 
-    const combined = Object.values(combinedModels).sort((a, b) => b.cost - a.cost);
+    const combined = Object.values(combinedModels)
+      .map((c) => ({ ...c, cache_hit_rate: hitRate(c.tokens_in, c.tokens_cache) }))
+      .sort((a, b) => b.cost - a.cost);
 
     // Comparison: previous window aggregates.
     const prev = previousRange(range);
@@ -291,6 +306,7 @@
       total_tokens,
       total_cost: Math.round(total_cost * 100) / 100,
       total_messages,
+      cache_hit_rate: hitRate(total_in, total_cache),
       by_tool,
       apps: codingApps,
       coding_apps: codingApps,
@@ -342,6 +358,7 @@
       tokens_in, tokens_cache, tokens_out, tokens_reasoning,
       tokens,
       cache_ratio: tokens > 0 ? tokens_cache / tokens : 0,
+      cache_hit_rate: hitRate(tokens_in, tokens_cache),
       cost,
       started_at: isoOf(turns[0].timestamp_ms),
       last_seen_at: isoOf(turns[turns.length - 1].timestamp_ms),
@@ -517,7 +534,9 @@
   let pricingCache = null;
   async function loadPricingDb() {
     if (pricingCache) return pricingCache;
-    const res = await origFetch("./pricing_db.json", { cache: "no-store" });
+    // Absolute path: pricing_db.json lives at the site root, while the demo page
+    // is served from /demo/ — a relative "./pricing_db.json" would 404.
+    const res = await origFetch("/pricing_db.json", { cache: "no-store" });
     const data = await res.json();
     const text = JSON.stringify(data, null, 2) + "\n";
     pricingCache = { path: "demo://pricing_db.json", data, text };

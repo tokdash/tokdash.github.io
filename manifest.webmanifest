@@ -2,7 +2,7 @@
   "name": "Tokdash",
   "short_name": "Tokdash",
   "description": "OpenClaw + coding tools usage, cost, and activity.",
-  "start_url": "/",
+  "start_url": "/demo/",
   "scope": "/",
   "display": "standalone",
   "background_color": "#F8FAFC",

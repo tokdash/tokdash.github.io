@@ -1,10 +1,13 @@
 # tokdash.github.io
 
-Live demo of [Tokdash](https://github.com/JingbiaoMei/Tokdash) — a local token & cost
+Official site for [Tokdash](https://github.com/JingbiaoMei/Tokdash) — a local token & cost
 dashboard for AI coding tools (Codex, Claude Code, OpenCode, Gemini CLI, OpenClaw,
-Kimi CLI, pi-agent, GitHub Copilot CLI, Hermes).
+Kimi CLI, Pi, GitHub Copilot CLI, Hermes).
 
-> **The data on this page is fully synthetic.** A small in-browser shim
+- **`/`** — the marketing landing page (`index.html`).
+- **`/demo/`** — the live, interactive dashboard demo (`demo/index.html`).
+
+> **The data on the demo page is fully synthetic.** A small in-browser shim
 > (`static/mock-api.js`) intercepts every `/api/*` request and returns deterministic
 > sample data, so the unmodified Tokdash frontend can run as a static site. Nothing is
 > uploaded; nothing is read from your machine.
@@ -22,22 +25,39 @@ Kimi CLI, pi-agent, GitHub Copilot CLI, Hermes).
 
 ```bash
 python3 -m http.server 8000
-# open http://localhost:8000
+# open http://localhost:8000        (landing page)
+# open http://localhost:8000/demo/  (dashboard demo)
 ```
 
 ## How it works
 
 | File                       | Purpose                                                                |
 | -------------------------- | ---------------------------------------------------------------------- |
-| `index.html`               | Tokdash dashboard shell with demo banner and synthetic backend wiring.  |
+| `index.html`               | Official marketing landing page (self-contained, reuses the design tokens). |
+| `demo/index.html`          | Tokdash dashboard shell — upstream frontend + the demo-only edits listed below. |
 | `static/themes.css`        | Verbatim copy of the production stylesheet.                            |
 | `static/theme-config.js`   | Verbatim copy of the production theme palettes.                        |
 | `static/mock-api.js`       | Demo-only fetch shim that builds and serves synthetic data.            |
+| `static/icons/agents/`     | Per-agent logos used by the landing page "supported tools" row.        |
+| `sw.js`                    | Service worker (PWA install + offline app shell), served at `/sw.js`.   |
 | `pricing_db.json`          | Sanitized pricing snapshot for the read-only Pricing tab.              |
 
-To refresh the demo when Tokdash itself changes, re-copy the upstream static assets,
-keep the demo-only edits in `index.html`, and sanitize `pricing_db.json` so the public
-demo does not advertise unreleased or placeholder model ids.
+### Refreshing the demo from upstream
+
+`demo/index.html` is a verbatim copy of `src/tokdash/static/index.html` from the
+[Tokdash repo](https://github.com/JingbiaoMei/Tokdash) plus four demo-only edits. To
+re-sync, copy the upstream file over `demo/index.html` and re-apply:
+
+1. The `<script src="/static/mock-api.js">` include in `<head>` (the synthetic backend).
+2. The "Live demo" banner block immediately after `<body>` (links back to `/`).
+3. `pi_agent: 'Pi'` in the `formatToolName` map (display name; the rest matches upstream).
+4. The Google Analytics `gtag.js` snippet in `<head>`.
+
+Keep `static/themes.css` / `static/theme-config.js` in sync the same way (currently
+byte-identical to upstream), and sanitize `pricing_db.json` so the public demo does not
+advertise unreleased or placeholder model ids. When upstream adds API fields (e.g.
+`cache_hit_rate`), mirror them in `static/mock-api.js` so the new UI shows real synthetic
+values instead of `n/a`.
 
 ## License
 
