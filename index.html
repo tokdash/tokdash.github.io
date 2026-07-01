@@ -369,8 +369,8 @@
           </div>
 
           <div class="reveal flex flex-wrap items-center gap-3 mt-8">
-            <button id="copyCmd" class="cmd" data-cmd="pip install tokdash" aria-label="Copy: pip install tokdash">
-              <span><span class="prompt">$</span>&nbsp;pip install tokdash</span>
+            <button id="copyCmd" class="cmd" data-cmd="pipx install tokdash" aria-label="Copy: pipx install tokdash">
+              <span><span class="prompt">$</span>&nbsp;pipx install tokdash</span>
               <span class="copy-ic" aria-hidden="true">
                 <svg id="copyGlyph" width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="11" height="11" rx="2" stroke="currentColor" stroke-width="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
               </span>
@@ -450,7 +450,7 @@
           <div class="reveal">
             <div class="feature-icon mb-3"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
             <h3 class="font-bold" data-i18n="trust.oss.h">Open source</h3>
-            <p class="text-sm text-muted mt-1" data-i18n="trust.oss.p">MIT licensed and auditable. Install in one command with pip.</p>
+            <p class="text-sm text-muted mt-1" data-i18n="trust.oss.p">MIT licensed and auditable. Install in one command with pipx.</p>
           </div>
           <div class="reveal">
             <div class="feature-icon mb-3"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="14" rx="2" stroke="currentColor" stroke-width="2"/><path d="M8 21h8M12 18v3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
@@ -527,6 +527,12 @@
           <div class="feature-icon mb-4"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
           <h3 class="text-lg font-bold" data-i18n="feat.6.h">10 themes, light &amp; dark</h3>
           <p class="text-sm text-muted mt-2" data-i18n="feat.6.p">Classic, Midnight, Terminal, Arcade and more — with system-preference detection, custom date ranges, and English&nbsp;/&nbsp;中文.</p>
+        </div>
+        <!-- 7 -->
+        <div class="surface p-6 reveal">
+          <div class="feature-icon mb-4"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 12a9 9 0 0 1 15-6.7M21 12a9 9 0 0 1-15 6.7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M18 3v4h-4M6 21v-4h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <h3 class="text-lg font-bold" data-i18n="feat.7.h">Managed background service</h3>
+          <p class="text-sm text-muted mt-2" data-i18n="feat.7.p"><code class="mono" style="color:var(--color-primary);">tokdash setup</code> configures a reversible, no-sudo systemd/launchd service in one step — <code class="mono" style="color:var(--color-primary);">doctor</code>, <code class="mono" style="color:var(--color-primary);">update</code>, and <code class="mono" style="color:var(--color-primary);">uninstall</code> keep it healthy and fully removable.</p>
         </div>
       </div>
     </section>
@@ -619,28 +625,28 @@
         <div class="reveal">
           <span class="chip" data-i18n="start.eyebrow"><span class="dot"></span> Get started</span>
           <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight mt-5" data-i18n="start.h">Up and running in 30 seconds</h2>
-          <p class="text-muted mt-3 max-w-md" data-i18n="start.sub">Python package, one command to install, one to serve. Your data never leaves your laptop.</p>
+          <p class="text-muted mt-3 max-w-md" data-i18n="start.sub">Python package, one command to install, one to set up. Your data never leaves your laptop.</p>
 
           <ol class="mt-8 space-y-5">
             <li class="flex gap-4">
               <span class="step-num">1</span>
               <div>
                 <h3 class="font-bold" data-i18n="start.1.h">Install</h3>
-                <p class="text-sm text-muted mt-0.5" data-i18n="start.1.p"><code class="mono" style="color:var(--color-primary);">pip install tokdash</code></p>
+                <p class="text-sm text-muted mt-0.5" data-i18n="start.1.p"><code class="mono" style="color:var(--color-primary);">pipx install tokdash</code></p>
               </div>
             </li>
             <li class="flex gap-4">
               <span class="step-num">2</span>
               <div>
-                <h3 class="font-bold" data-i18n="start.2.h">Serve</h3>
-                <p class="text-sm text-muted mt-0.5" data-i18n="start.2.p">Run <code class="mono" style="color:var(--color-primary);">tokdash serve</code>. It discovers your CLI logs automatically.</p>
+                <h3 class="font-bold" data-i18n="start.2.h">Setup</h3>
+                <p class="text-sm text-muted mt-0.5" data-i18n="start.2.p">Run <code class="mono" style="color:var(--color-primary);">tokdash setup</code>. It configures a reversible, no-sudo background service and finds your CLI logs automatically.</p>
               </div>
             </li>
             <li class="flex gap-4">
               <span class="step-num">3</span>
               <div>
                 <h3 class="font-bold" data-i18n="start.3.h">Done</h3>
-                <p class="text-sm text-muted mt-0.5" data-i18n="start.3.p">Your dashboard opens automatically at <code class="mono" style="color:var(--color-primary);">localhost:55423</code>.</p>
+                <p class="text-sm text-muted mt-0.5" data-i18n="start.3.p">The wizard prints your dashboard URL — default <code class="mono" style="color:var(--color-primary);">http://127.0.0.1:55423</code>.</p>
               </div>
             </li>
           </ol>
@@ -653,7 +659,7 @@
             <a href="https://github.com/JingbiaoMei/Tokdash" target="_blank" rel="noopener" class="btn btn-ghost" data-i18n="start.cta_docs">Read the docs</a>
           </div>
 
-          <p class="text-xs text-muted mt-4" data-i18n="start.upgrade">Already installed? Upgrade any time with <code class="mono" style="color:var(--color-primary);">pip install --upgrade tokdash</code>.</p>
+          <p class="text-xs text-muted mt-4" data-i18n="start.upgrade">Already set up? Upgrade any time with <code class="mono" style="color:var(--color-primary);">tokdash update</code>.</p>
         </div>
 
         <!-- Terminal -->
@@ -665,12 +671,12 @@
             <span class="mono text-xs ml-2" style="color:#94A3B8;">zsh — tokdash</span>
           </div>
           <div class="terminal-body">
-            <div><span class="p">$</span> <span class="c">pip install tokdash</span></div>
-            <div class="o">Successfully installed tokdash ✓</div>
-            <div><span class="p">$</span> <span class="c">tokdash serve</span></div>
+            <div><span class="p">$</span> <span class="c">pipx install tokdash</span></div>
+            <div class="o">installed package tokdash ✓</div>
+            <div><span class="p">$</span> <span class="c">tokdash setup</span></div>
             <div class="o">scanning ~/.codex, ~/.claude, ~/.opencode …</div>
-            <div class="o">indexed 212 sessions · 9 tools</div>
-            <div class="ok">→ dashboard ready at http://localhost:55423</div>
+            <div class="o">configuring user-level background service …</div>
+            <div class="ok">→ dashboard ready at http://127.0.0.1:55423</div>
             <div><span class="p">$</span> <span class="c" style="opacity:.7;">▍</span></div>
           </div>
         </div>
@@ -688,8 +694,8 @@
             <span data-i18n="cta.open">Open the live demo</span>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </a>
-          <button class="cmd" data-cmd="pip install tokdash" aria-label="Copy: pip install tokdash" onclick="window.__copyCmd(this)">
-            <span><span class="prompt">$</span>&nbsp;pip install tokdash</span>
+          <button class="cmd" data-cmd="pipx install tokdash" aria-label="Copy: pipx install tokdash" onclick="window.__copyCmd(this)">
+            <span><span class="prompt">$</span>&nbsp;pipx install tokdash</span>
             <span class="copy-ic" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="11" height="11" rx="2" stroke="currentColor" stroke-width="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>
           </button>
         </div>
@@ -827,7 +833,7 @@
           'trust.telemetry.h': `Zero telemetry`,
           'trust.telemetry.p': `No accounts, no tracking, no phone-home. Works fully offline.`,
           'trust.oss.h': `Open source`,
-          'trust.oss.p': `MIT licensed and auditable. Install in one command with pip.`,
+          'trust.oss.p': `MIT licensed and auditable. Install in one command with pipx.`,
           'trust.pwa.h': `Dashboard installs as a PWA`,
           'trust.pwa.p': `Pin the dashboard like a native app, light or dark, EN&nbsp;/&nbsp;中.`,
           'tools.h': `One dashboard for every agent`,
@@ -847,6 +853,8 @@
           'feat.5.p': `Surface live token and cost indicators right in your shell prompt while you work — no need to switch windows.`,
           'feat.6.h': `10 themes, light & dark`,
           'feat.6.p': `Classic, Midnight, Terminal, Arcade and more — with system-preference detection, custom date ranges, and English&nbsp;/&nbsp;中文.`,
+          'feat.7.h': `Managed background service`,
+          'feat.7.p': `<code class="mono" style="color:var(--color-primary);">tokdash setup</code> configures a reversible, no-sudo systemd/launchd service in one step — <code class="mono" style="color:var(--color-primary);">doctor</code>, <code class="mono" style="color:var(--color-primary);">update</code>, and <code class="mono" style="color:var(--color-primary);">uninstall</code> keep it healthy and fully removable.`,
           'opt.eyebrow': `<span class="dot"></span> Cost optimization`,
           'opt.h': `See where every dollar goes`,
           'opt.sub': `Tokdash breaks spend down to the session, model, and project — so you can find waste and cut it, not just watch the number climb.`,
@@ -864,16 +872,16 @@
           'opt.card.savings.p': `3 sessions ran under 40% cache-hit — reusing context cuts repeated input cost. Opus drove 58% of spend on 19% of turns.`,
           'start.eyebrow': `<span class="dot"></span> Get started`,
           'start.h': `Up and running in 30 seconds`,
-          'start.sub': `Python package, one command to install, one to serve. Your data never leaves your laptop.`,
+          'start.sub': `Python package, one command to install, one to set up. Your data never leaves your laptop.`,
           'start.1.h': `Install`,
-          'start.1.p': `<code class="mono" style="color:var(--color-primary);">pip install tokdash</code>`,
-          'start.2.h': `Serve`,
-          'start.2.p': `Run <code class="mono" style="color:var(--color-primary);">tokdash serve</code>. It discovers your CLI logs automatically.`,
+          'start.1.p': `<code class="mono" style="color:var(--color-primary);">pipx install tokdash</code>`,
+          'start.2.h': `Setup`,
+          'start.2.p': `Run <code class="mono" style="color:var(--color-primary);">tokdash setup</code>. It configures a reversible, no-sudo background service and finds your CLI logs automatically.`,
           'start.3.h': `Done`,
-          'start.3.p': `Your dashboard opens automatically at <code class="mono" style="color:var(--color-primary);">localhost:55423</code>.`,
+          'start.3.p': `The wizard prints your dashboard URL — default <code class="mono" style="color:var(--color-primary);">http://127.0.0.1:55423</code>.`,
           'start.cta_try': `Try it now — no install`,
           'start.cta_docs': `Read the docs`,
-          'start.upgrade': `Already installed? Upgrade any time with <code class="mono" style="color:var(--color-primary);">pip install --upgrade tokdash</code>.`,
+          'start.upgrade': `Already set up? Upgrade any time with <code class="mono" style="color:var(--color-primary);">tokdash update</code>.`,
           'cta.h': `See it before you install`,
           'cta.sub': `The live demo runs the real dashboard on synthetic data — explore every tab, theme, and chart right in your browser.`,
           'cta.open': `Open the live demo`,
@@ -901,7 +909,7 @@
           'trust.telemetry.h': `零遥测`,
           'trust.telemetry.p': `无账号、无追踪、不回传，完全离线可用。`,
           'trust.oss.h': `开源`,
-          'trust.oss.p': `采用 MIT 许可、代码可审计。一条 pip 命令即可安装。`,
+          'trust.oss.p': `采用 MIT 许可、代码可审计。一条 pipx 命令即可安装。`,
           'trust.pwa.h': `仪表盘可安装为 PWA`,
           'trust.pwa.p': `像原生应用一样固定仪表盘，支持明暗主题与 EN&nbsp;/&nbsp;中。`,
           'tools.h': `一个仪表盘，统管所有智能体`,
@@ -921,6 +929,8 @@
           'feat.5.p': `在 shell 提示符中实时显示 Token 与成本指标，工作时无需切换窗口。`,
           'feat.6.h': `10 种主题，明暗随心`,
           'feat.6.p': `Classic、Midnight、Terminal、Arcade 等多种主题 —— 支持跟随系统、自定义日期范围，以及 English&nbsp;/&nbsp;中文。`,
+          'feat.7.h': `托管后台服务`,
+          'feat.7.p': `<code class="mono" style="color:var(--color-primary);">tokdash setup</code> 一步配置可逆、无需 sudo 的 systemd/launchd 服务 —— <code class="mono" style="color:var(--color-primary);">doctor</code>、<code class="mono" style="color:var(--color-primary);">update</code>、<code class="mono" style="color:var(--color-primary);">uninstall</code> 让它始终健康且可完全卸载。`,
           'opt.eyebrow': `<span class="dot"></span> 成本优化`,
           'opt.h': `看清每一分钱的去向`,
           'opt.sub': `Tokdash 将花费细分到会话、模型和项目 —— 让你发现并削减浪费，而不只是眼看着数字上涨。`,
@@ -938,16 +948,16 @@
           'opt.card.savings.p': `有 3 个会话的缓存命中率低于 40% —— 复用上下文可削减重复的输入成本。Opus 以 19% 的回合占据了 58% 的花费。`,
           'start.eyebrow': `<span class="dot"></span> 开始使用`,
           'start.h': `30 秒即可上手`,
-          'start.sub': `一个 Python 包，一条命令安装、一条命令启动。你的数据永远不会离开你的电脑。`,
+          'start.sub': `一个 Python 包，一条命令安装、一条命令完成配置。你的数据永远不会离开你的电脑。`,
           'start.1.h': `安装`,
-          'start.1.p': `<code class="mono" style="color:var(--color-primary);">pip install tokdash</code>`,
-          'start.2.h': `启动`,
-          'start.2.p': `运行 <code class="mono" style="color:var(--color-primary);">tokdash serve</code>，它会自动发现你的 CLI 日志。`,
+          'start.1.p': `<code class="mono" style="color:var(--color-primary);">pipx install tokdash</code>`,
+          'start.2.h': `配置`,
+          'start.2.p': `运行 <code class="mono" style="color:var(--color-primary);">tokdash setup</code>，它会配置一个可逆、无需 sudo 的后台服务，并自动发现你的 CLI 日志。`,
           'start.3.h': `完成`,
-          'start.3.p': `仪表盘会自动在 <code class="mono" style="color:var(--color-primary);">localhost:55423</code> 打开。`,
+          'start.3.p': `向导会打印仪表盘地址 —— 默认是 <code class="mono" style="color:var(--color-primary);">http://127.0.0.1:55423</code>。`,
           'start.cta_try': `立即试用 —— 无需安装`,
           'start.cta_docs': `查看文档`,
-          'start.upgrade': `已经安装？随时用 <code class="mono" style="color:var(--color-primary);">pip install --upgrade tokdash</code> 升级。`,
+          'start.upgrade': `已经配置好了？随时用 <code class="mono" style="color:var(--color-primary);">tokdash update</code> 升级。`,
           'cta.h': `安装前先一睹为快`,
           'cta.sub': `在线演示以合成数据运行真实的仪表盘 —— 直接在浏览器里体验每个标签页、主题和图表。`,
           'cta.open': `打开在线演示`,

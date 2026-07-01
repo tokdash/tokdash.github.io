@@ -13,14 +13,28 @@
     gtag('js', new Date());
     gtag('config', 'G-SMJYP7ZVL7');
   </script>
-
   <title>Tokdash</title>
 
-  <link rel="manifest" href="/manifest.webmanifest" />
-  <link rel="icon" href="/static/icons/icon-192.png" sizes="192x192" />
+  <script>
+    window.TOKDASH_BASE_PATH = (() => {
+      const configured = "__TOKDASH_BASE_PATH__";
+      if (configured && configured.startsWith("/")) return configured.replace(/\/+$/, "");
+      const path = window.location.pathname || "/";
+      return (path === "/tokdash" || path.startsWith("/tokdash/")) ? "/tokdash" : "";
+    })();
+    window.tokdashPath = (path) => `${window.TOKDASH_BASE_PATH || ""}${path}`;
+    window.tokdashAssetWithBase = (path) => {
+      const url = window.tokdashPath(path);
+      return window.TOKDASH_BASE_PATH
+        ? `${url}?base=${encodeURIComponent(window.TOKDASH_BASE_PATH)}`
+        : url;
+    };
+    document.write(`<link rel="manifest" href="${window.tokdashAssetWithBase('/manifest.webmanifest')}" />`);
+    document.write(`<link rel="icon" href="${window.tokdashPath('/static/icons/icon-192.png')}" sizes="192x192" />`);
+  </script>
 
   <!-- Demo: synthetic backend (overrides window.fetch for /api/*) -->
-  <script src="/static/mock-api.js"></script>
+  <script>document.write(`<script src="${window.tokdashPath('/static/mock-api.js')}"><\/script>`);</script>
 
   <!-- Fonts (Design System: Fira Code / Fira Sans) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -720,7 +734,7 @@
       * { transition: none !important; scroll-behavior: auto !important; }
     }
   </style>
-  <link rel="stylesheet" href="/static/themes.css" />
+  <script>document.write(`<link rel="stylesheet" href="${window.tokdashPath('/static/themes.css')}" />`);</script>
 </head>
 
 <body class="p-4 sm:p-6 lg:p-8">
@@ -733,7 +747,7 @@
         <span style="color: var(--color-cta); font-weight: 700;">●</span>
         Live demo — every number here is <strong style="color: var(--color-text);">synthetic</strong>. Nothing is uploaded or read from your machine.
       </p>
-      <a href="/" class="btn btn-ghost" style="min-height: 32px; padding: 6px 12px; font-size: 12px;">← Tokdash home</a>
+      <script>document.write(`<a href="${window.tokdashPath('/')}" class="btn btn-ghost" style="min-height: 32px; padding: 6px 12px; font-size: 12px;">← Tokdash home</a>`);</script>
     </div>
 
     <!-- Top bar -->
@@ -741,7 +755,7 @@
       <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
         <div class="flex items-start gap-4">
           <div class="h-11 w-11 flex items-center justify-center">
-            <img src="/static/icons/logo.png" alt="Tokdash logo" width="44" height="44" style="display:block; width:44px; height:44px; object-fit:contain;" />
+            <script>document.write(`<img src="${window.tokdashPath('/static/icons/logo.png')}" alt="Tokdash logo" width="44" height="44" style="display:block; width:44px; height:44px; object-fit:contain;" />`);</script>
           </div>
           <div>
             <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight mono">Tokdash</h1>
@@ -780,6 +794,13 @@
             </button>
 
             <div class="view-toggle-cluster">
+              <button id="installBtn" class="btn btn-ghost compact-control" style="display:none; gap:6px;" data-i18n-title="installApp" aria-label="Install app">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M12 3v12m0 0l-4-4m4 4l4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <span data-i18n="install">Install</span>
+              </button>
               <button id="langToggle" class="btn btn-ghost compact-control" style="font-size:12px; font-weight:700;" aria-label="Toggle language">中</button>
               <button id="themeToggle" class="btn btn-ghost compact-control" aria-label="Toggle theme">
                 <svg id="themeIconMoon" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -938,6 +959,10 @@
             <h2 class="text-base font-extrabold mono" data-i18n="codexSessions">Codex Sessions</h2>
             <p class="text-xs mt-1" style="color: var(--color-muted);" data-i18n="sessionsRangeDesc">Latest session plus sessions for the selected range.</p>
           </div>
+          <label class="flex items-center gap-2 text-xs font-semibold" style="color: var(--color-muted);">
+            <input id="codexReviewToggle" type="checkbox" />
+            <span data-i18n="showReviewSessions">Show review sessions</span>
+          </label>
         </div>
         <div id="codexLatestSession" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-6 gap-4 mb-5">
           <div class="surface p-4">
@@ -970,10 +995,10 @@
         </div>
         <div class="overflow-x-auto">
           <table class="w-full text-sm session-table" aria-label="Codex sessions table" data-panel="codex">
-            <colgroup><col style="width:10%"><col style="width:13%"><col style="width:11%"><col style="width:11%"><col style="width:9%"><col style="width:10%"><col style="width:12%"><col style="width:10%"><col style="width:14%"></colgroup>
+            <colgroup><col style="width:18%"><col style="width:12%"><col style="width:10%"><col style="width:10%"><col style="width:8%"><col style="width:9%"><col style="width:11%"><col style="width:9%"><col style="width:13%"></colgroup>
             <thead>
               <tr class="border-b" style="border-color: var(--color-border);">
-                <th class="text-left py-3 px-4 font-semibold" style="color: var(--color-muted);" data-i18n="session">Session</th>
+                <th class="text-left py-3 px-4 font-semibold" style="color: var(--color-muted);" data-i18n="session" data-sortable="display_name">Session</th>
                 <th class="text-left py-3 px-4 font-semibold" style="color: var(--color-muted);" data-i18n="model">Model</th>
                 <th class="text-right py-3 px-4 font-semibold" style="color: var(--color-muted);" data-i18n="input" data-sortable="tokens_in">Input</th>
                 <th class="text-right py-3 px-4 font-semibold" style="color: var(--color-muted);" data-i18n="cache" data-sortable="tokens_cache">Cache</th>
@@ -1029,10 +1054,10 @@
         </div>
         <div class="overflow-x-auto">
           <table class="w-full text-sm session-table" aria-label="Claude Code sessions table" data-panel="claude">
-            <colgroup><col style="width:10%"><col style="width:13%"><col style="width:11%"><col style="width:11%"><col style="width:9%"><col style="width:10%"><col style="width:12%"><col style="width:10%"><col style="width:14%"></colgroup>
+            <colgroup><col style="width:18%"><col style="width:12%"><col style="width:10%"><col style="width:10%"><col style="width:8%"><col style="width:9%"><col style="width:11%"><col style="width:9%"><col style="width:13%"></colgroup>
             <thead>
               <tr class="border-b" style="border-color: var(--color-border);">
-                <th class="text-left py-3 px-4 font-semibold" style="color: var(--color-muted);" data-i18n="session">Session</th>
+                <th class="text-left py-3 px-4 font-semibold" style="color: var(--color-muted);" data-i18n="session" data-sortable="display_name">Session</th>
                 <th class="text-left py-3 px-4 font-semibold" style="color: var(--color-muted);" data-i18n="model">Model</th>
                 <th class="text-right py-3 px-4 font-semibold" style="color: var(--color-muted);" data-i18n="input" data-sortable="tokens_in">Input</th>
                 <th class="text-right py-3 px-4 font-semibold" style="color: var(--color-muted);" data-i18n="cache" data-sortable="tokens_cache">Cache</th>
@@ -1088,10 +1113,10 @@
         </div>
         <div class="overflow-x-auto">
           <table class="w-full text-sm session-table" aria-label="OpenCode sessions table" data-panel="opencode">
-            <colgroup><col style="width:10%"><col style="width:13%"><col style="width:11%"><col style="width:11%"><col style="width:9%"><col style="width:10%"><col style="width:12%"><col style="width:10%"><col style="width:14%"></colgroup>
+            <colgroup><col style="width:18%"><col style="width:12%"><col style="width:10%"><col style="width:10%"><col style="width:8%"><col style="width:9%"><col style="width:11%"><col style="width:9%"><col style="width:13%"></colgroup>
             <thead>
               <tr class="border-b" style="border-color: var(--color-border);">
-                <th class="text-left py-3 px-4 font-semibold" style="color: var(--color-muted);" data-i18n="session">Session</th>
+                <th class="text-left py-3 px-4 font-semibold" style="color: var(--color-muted);" data-i18n="session" data-sortable="display_name">Session</th>
                 <th class="text-left py-3 px-4 font-semibold" style="color: var(--color-muted);" data-i18n="model">Model</th>
                 <th class="text-right py-3 px-4 font-semibold" style="color: var(--color-muted);" data-i18n="input" data-sortable="tokens_in">Input</th>
                 <th class="text-right py-3 px-4 font-semibold" style="color: var(--color-muted);" data-i18n="cache" data-sortable="tokens_cache">Cache</th>
@@ -1103,6 +1128,65 @@
               </tr>
             </thead>
             <tbody id="opencodeSessionsTable">
+              <tr><td colspan="9" class="text-center py-10" style="color: var(--color-muted);" data-i18n="loading">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="surface p-5 mb-6">
+        <div class="flex items-center justify-between gap-3 mb-4">
+          <div>
+            <h2 class="text-base font-extrabold mono" data-i18n="piSessions">Pi Sessions</h2>
+            <p class="text-xs mt-1" style="color: var(--color-muted);" data-i18n="sessionsRangeDesc">Latest session plus sessions for the selected range.</p>
+          </div>
+        </div>
+        <div id="pi_agentLatestSession" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-6 gap-4 mb-5">
+          <div class="surface p-4">
+            <div class="text-xs font-semibold uppercase tracking-wider" style="color: var(--color-label);" data-i18n="latestSession">Latest Session</div>
+            <div id="pi_agentLatestProject" class="mt-2 font-extrabold mono">Loading…</div>
+            <div id="pi_agentLatestMeta" class="text-sm mt-1" style="color: var(--color-muted);">-</div>
+          </div>
+          <div class="surface p-4">
+            <div class="text-xs font-semibold uppercase tracking-wider" style="color: var(--color-label);" data-i18n="input">Input</div>
+            <div id="pi_agentLatestInput" class="mt-2 font-extrabold">-</div>
+          </div>
+          <div class="surface p-4">
+            <div class="text-xs font-semibold uppercase tracking-wider" style="color: var(--color-label);" data-i18n="cacheRead">Cache Read</div>
+            <div id="pi_agentLatestCache" class="mt-2 font-extrabold">-</div>
+            <div id="pi_agentLatestCachePct" class="text-sm mt-1" style="color: var(--color-muted);">-</div>
+          </div>
+          <div class="surface p-4">
+            <div class="text-xs font-semibold uppercase tracking-wider" style="color: var(--color-label);" data-i18n="output">Output</div>
+            <div id="pi_agentLatestOutput" class="mt-2 font-extrabold">-</div>
+          </div>
+          <div class="surface p-4">
+            <div class="text-xs font-semibold uppercase tracking-wider" style="color: var(--color-label);" data-i18n="totalTokens">Total Tokens</div>
+            <div id="pi_agentLatestTotal" class="mt-2 font-extrabold">-</div>
+          </div>
+          <div class="surface p-4">
+            <div class="text-xs font-semibold uppercase tracking-wider" style="color: var(--color-label);" data-i18n="events">Events</div>
+            <div id="pi_agentLatestEvents" class="mt-2 font-extrabold">-</div>
+            <div id="pi_agentLatestSeen" class="text-sm mt-1" style="color: var(--color-muted);">-</div>
+          </div>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm session-table" aria-label="Pi sessions table" data-panel="pi_agent">
+            <colgroup><col style="width:18%"><col style="width:12%"><col style="width:10%"><col style="width:10%"><col style="width:8%"><col style="width:9%"><col style="width:11%"><col style="width:9%"><col style="width:13%"></colgroup>
+            <thead>
+              <tr class="border-b" style="border-color: var(--color-border);">
+                <th class="text-left py-3 px-4 font-semibold" style="color: var(--color-muted);" data-i18n="session" data-sortable="display_name">Session</th>
+                <th class="text-left py-3 px-4 font-semibold" style="color: var(--color-muted);" data-i18n="model">Model</th>
+                <th class="text-right py-3 px-4 font-semibold" style="color: var(--color-muted);" data-i18n="input" data-sortable="tokens_in">Input</th>
+                <th class="text-right py-3 px-4 font-semibold" style="color: var(--color-muted);" data-i18n="cache" data-sortable="tokens_cache">Cache</th>
+                <th class="text-right py-3 px-4 font-semibold" style="color: var(--color-muted);" data-i18n="hitPct" data-sortable="cache_hit_rate">Hit %</th>
+                <th class="text-right py-3 px-4 font-semibold" style="color: var(--color-muted);" data-i18n="output" data-sortable="tokens_out">Output</th>
+                <th class="text-right py-3 px-4 font-semibold" style="color: var(--color-muted);" data-i18n="total" data-sortable="tokens">Total</th>
+                <th class="text-right py-3 px-4 font-semibold" style="color: var(--color-muted);" data-i18n="cost" data-sortable="cost">Cost</th>
+                <th class="text-right py-3 px-4 font-semibold" style="color: var(--color-muted);" data-i18n="lastUpdated" data-sortable="last_seen_at">Last updated</th>
+              </tr>
+            </thead>
+            <tbody id="pi_agentSessionsTable">
               <tr><td colspan="9" class="text-center py-10" style="color: var(--color-muted);" data-i18n="loading">Loading…</td></tr>
             </tbody>
           </table>
@@ -1147,10 +1231,10 @@
         </div>
         <div class="overflow-x-auto">
           <table class="w-full text-sm session-table" aria-label="Combined sessions table" data-panel="combined">
-            <colgroup><col style="width:9%"><col style="width:9%"><col style="width:11%"><col style="width:10%"><col style="width:10%"><col style="width:9%"><col style="width:9%"><col style="width:10%"><col style="width:9%"><col style="width:14%"></colgroup>
+            <colgroup><col style="width:17%"><col style="width:8%"><col style="width:10%"><col style="width:9%"><col style="width:9%"><col style="width:8%"><col style="width:9%"><col style="width:10%"><col style="width:8%"><col style="width:12%"></colgroup>
             <thead>
               <tr class="border-b" style="border-color: var(--color-border);">
-                <th class="text-left py-3 px-4 font-semibold" style="color: var(--color-muted);" data-i18n="session">Session</th>
+                <th class="text-left py-3 px-4 font-semibold" style="color: var(--color-muted);" data-i18n="session" data-sortable="display_name">Session</th>
                 <th class="text-left py-3 px-4 font-semibold" style="color: var(--color-muted);" data-i18n="tool">Tool</th>
                 <th class="text-left py-3 px-4 font-semibold" style="color: var(--color-muted);" data-i18n="model">Model</th>
                 <th class="text-right py-3 px-4 font-semibold" style="color: var(--color-muted);" data-i18n="input" data-sortable="tokens_in">Input</th>
@@ -1247,6 +1331,12 @@
               <button id="metricMessagesBtn" class="btn btn-ghost" type="button" style="min-height:36px; padding:8px 12px;" data-i18n="metricMessages">Messages</button>
             </div>
           </div>
+        </div>
+
+        <!-- Loading / error state for the stats calendar (shown until the first /api/stats load succeeds) -->
+        <div id="statsStatus" class="text-center py-10" style="display:none; color: var(--color-muted);">
+          <div id="statsStatusMsg" class="font-semibold">Loading…</div>
+          <button id="statsRetryBtn" class="btn btn-primary mt-3" type="button" style="display:none;" data-i18n="retry">Retry</button>
         </div>
 
         <!-- Month view -->
@@ -1437,6 +1527,7 @@
           <div>
             <h2 class="text-base font-extrabold mono" data-i18n="pricingDb">Pricing</h2>
             <div id="pricingDbPath" class="text-xs mono mt-1 break-all" style="color: var(--color-muted);">pricing_db.json</div>
+            <div id="pricingDbSource" class="text-xs mono mt-1 break-all" style="color: var(--color-muted);"></div>
           </div>
           <div class="flex flex-wrap items-center gap-2">
             <div id="pricingDbStatus" class="text-sm font-semibold mr-1" style="color: var(--color-muted);" data-i18n="loading">Loading…</div>
@@ -1565,8 +1656,11 @@
     </div>
   </div>
 
-  <script src="/static/theme-config.js"></script>
+  <script>document.write(`<script src="${window.tokdashPath('/static/theme-config.js')}"><\/script>`);</script>
   <script>
+    const TOKDASH_BASE_PATH = window.TOKDASH_BASE_PATH || "";
+    const appPath = window.tokdashPath || ((path) => `${TOKDASH_BASE_PATH}${path}`);
+    const appAssetWithBase = window.tokdashAssetWithBase || ((path) => appPath(path));
     // Dashboard v3.12.0 - sessions tab + i18n + dark mode
     // - "Streak" label (not "Current Streak")
     // - Month/Year: streak within that view period
@@ -1583,15 +1677,26 @@
     // Render perf controls
     let updateInFlight = false;
     let lastUsageResponse = null;
-    let lastSessionsResponses = { codex: null, claude: null, opencode: null, combined: null };
+    const SESSION_TOOL_KEYS = ['codex', 'claude', 'opencode', 'pi_agent'];
+    let lastSessionsResponses = { codex: null, claude: null, opencode: null, pi_agent: null, combined: null };
     let lastCombinedModels = [];
     let lastAppsBreakdown = null;
     let lastByTool = {};
     let pricingDbLoaded = false;
     let pricingDbDirty = false;
     let pricingDbLastText = '';
+    let pricingDbLastPayload = null;  // last GET/PUT payload, so the source line can re-localize
     const MAX_COMBINED_MODELS_ROWS = 300;
     let combinedModelsShowAll = false;
+    // Tri-state: true/false once the user toggles, null when never set so the
+    // server default (TOKDASH_INCLUDE_CODEX_GUARDIAN) decides. codexReviewDefault
+    // mirrors the effective server default echoed by the codex sessions response.
+    let includeCodexReviewSessions = (() => {
+      const stored = localStorage.getItem('tokdash-show-codex-review-sessions');
+      return stored === '1' ? true : stored === '0' ? false : null;
+    })();
+    let codexReviewDefault = false;
+    let statsWarmScheduled = false;
     const THEME_CONFIG = window.TOKDASH_THEME_CONFIG || {};
     const DEFAULT_HEAT_COLORS_LIGHT = ['#EEF2F7','#E0E7FF','#C7D2FE','#A5B4FC','#60A5FA','#3B82F6','#2563EB','#1E40AF'];
     const DEFAULT_HEAT_COLORS_DARK = ['#172033','#1E293B','#1D4ED8','#2563EB','#3B82F6','#60A5FA','#93C5FD','#BFDBFE'];
@@ -1641,6 +1746,8 @@
         daysPlaceholder: 'Days',
         apply: 'Apply',
         refresh: 'Refresh',
+        install: 'Install',
+        installApp: 'Install Tokdash as an app',
         styleTheme: 'Style',
         styleClassic: 'Classic',
         styleElevated: 'Elevated',
@@ -1653,6 +1760,10 @@
         styleArcade: 'Arcade',
         styleStudio: 'Studio',
         loading: 'Loading…',
+        temporaryOverload: 'Temporarily busy. Try Refresh again.',
+        loadFailed: 'Failed to load data.',
+        statsLoadFailed: 'Failed to load stats.',
+        retry: 'Retry',
         overview: 'Overview',
         sessionsPage: 'Sessions',
         stats: 'Stats',
@@ -1667,6 +1778,9 @@
         invalidJson: 'Invalid JSON',
         unsavedChanges: 'Unsaved changes',
         saved: 'Saved',
+        pricingSourceBaseline: 'Editing bundled defaults — saving creates a local override',
+        pricingSourceOverride: 'Local override active (fully replaces bundled rates)',
+        pricingForkedFrom: 'bundled baseline is now v{v}; delete the override to resume updates',
         totalTokens: 'Total Tokens',
         totalCost: 'Total Cost',
         totalMessages: 'Total Messages',
@@ -1683,9 +1797,11 @@
         codexSessions: 'Codex Sessions',
         claudeSessions: 'Claude Code Sessions',
         opencodeSessions: 'OpenCode Sessions',
+        piSessions: 'Pi Sessions',
         combinedSessions: 'Combined Sessions',
         combinedSessionsDesc: 'Cross-tool session view grouped by project for the selected range.',
         sessionsRangeDesc: 'Latest session plus sessions for the selected range.',
+        showReviewSessions: 'Show review sessions',
         latestSession: 'Latest Session',
         freshInput: 'Fresh Input',
         events: 'Events',
@@ -1797,6 +1913,8 @@
         daysPlaceholder: '天数',
         apply: '应用',
         refresh: '刷新',
+        install: '安装',
+        installApp: '将 Tokdash 安装为应用',
         styleTheme: '样式',
         styleClassic: '经典',
         styleElevated: '浮层',
@@ -1809,6 +1927,10 @@
         styleArcade: '街机',
         styleStudio: '工作室',
         loading: '加载中…',
+        temporaryOverload: '暂时繁忙，请稍后刷新重试。',
+        loadFailed: '数据加载失败。',
+        statsLoadFailed: '统计数据加载失败。',
+        retry: '重试',
         overview: '概览',
         sessionsPage: '会话',
         stats: '统计',
@@ -1823,6 +1945,9 @@
         invalidJson: 'JSON 无效',
         unsavedChanges: '未保存',
         saved: '已保存',
+        pricingSourceBaseline: '正在编辑内置默认价格 —— 保存将创建本地覆盖',
+        pricingSourceOverride: '本地覆盖已生效（完全替换内置费率）',
+        pricingForkedFrom: '内置基线现为 v{v}；删除覆盖文件可恢复自动更新',
         totalTokens: '总 Token 数',
         totalCost: '总费用',
         totalMessages: '总消息数',
@@ -1839,9 +1964,11 @@
         codexSessions: 'Codex 会话',
         claudeSessions: 'Claude Code 会话',
         opencodeSessions: 'OpenCode 会话',
+        piSessions: 'Pi 会话',
         combinedSessions: '合并会话',
         combinedSessionsDesc: '按项目汇总所选时间范围内的跨工具会话视图。',
         sessionsRangeDesc: '显示最近一条会话摘要，以及所选时间范围内的会话列表。',
+        showReviewSessions: '显示审核会话',
         latestSession: '最近会话',
         freshInput: '新输入',
         events: '事件数',
@@ -2302,6 +2429,56 @@
       document.getElementById('lastUpdate').textContent = `${t('lastUpdated')}: ${formatMonthDayTime(lastUsageResponse.timestamp)}`;
     }
 
+    async function fetchJson(url, options = {}) {
+      const response = await fetch(url, options);
+      let payload = null;
+      try {
+        payload = await response.json();
+      } catch (_error) {
+        payload = null;
+      }
+      if (!response.ok) {
+        const error = new Error(payload?.detail || `HTTP ${response.status}`);
+        error.status = response.status;
+        error.payload = payload;
+        throw error;
+      }
+      return payload;
+    }
+
+    function sleep(ms) {
+      return new Promise((resolve) => setTimeout(resolve, ms));
+    }
+
+    async function fetchJsonWithRetry(url, options = {}, retryOptions = {}) {
+      const attempts = Number(retryOptions.attempts || 3);
+      const baseDelayMs = Number(retryOptions.baseDelayMs || 450);
+      let lastError = null;
+      for (let attempt = 0; attempt < attempts; attempt += 1) {
+        try {
+          return await fetchJson(url, options);
+        } catch (error) {
+          lastError = error;
+          if (error?.status !== 503 || attempt === attempts - 1) throw error;
+          const jitter = Math.floor(Math.random() * 250);
+          await sleep(baseDelayMs * (attempt + 1) + jitter);
+        }
+      }
+      throw lastError;
+    }
+
+    function setDashboardFetchStatus(error) {
+      const lastUpdate = document.getElementById('lastUpdate');
+      if (!lastUpdate) return;
+      lastUpdate.textContent = error?.status === 503 ? t('temporaryOverload') : t('loadFailed');
+    }
+
+    function syncCodexReviewToggle() {
+      const toggle = document.getElementById('codexReviewToggle');
+      if (!toggle) return;
+      toggle.checked = includeCodexReviewSessions === null ? codexReviewDefault : includeCodexReviewSessions;
+    }
+
     function applyI18n() {
       document.documentElement.lang = currentLang === 'zh' ? 'zh-CN' : 'en';
       document.querySelectorAll('[data-i18n]').forEach((el) => {
@@ -2328,7 +2505,11 @@
       }
       const langBtn = document.getElementById('langToggle');
       if (langBtn) langBtn.textContent = currentLang === 'zh' ? 'EN' : '中';
+      // The pricing source line is set imperatively (no data-i18n), so re-derive it from the
+      // last payload on a language switch — otherwise it stays frozen in the prior language.
+      if (pricingDbLastPayload) setPricingDbSource(pricingDbLastPayload);
       renderRefreshButton();
+      syncCodexReviewToggle();
       updateTimestamp();
       updateMetricControls();
       syncDatePickerFooter();
@@ -2699,63 +2880,143 @@
       scheduleIdle(() => updateCombinedModelsTable(lastCombinedModels));
     }
 
+    // Window key for the data currently displayed, so deferred session loads
+    // (3A) can tell whether cached session responses still match the active range.
+    let sessionsLoadedKey = null;
+    let lastWindowKey = null;
+
+    function windowKeyFor(customDays, dateFrom, dateTo) {
+      if (dateFrom && dateTo) return `${dateFrom}_${dateTo}`;
+      return `p:${customDays ? String(customDays) : 'today'}`;
+    }
+
+    function sessionRequestKeyFor(tool, customDays, dateFrom, dateTo) {
+      const reviewState = tool === 'codex'
+        ? (includeCodexReviewSessions === null ? 'server' : String(includeCodexReviewSessions))
+        : 'n/a';
+      return `${tool}:${windowKeyFor(customDays, dateFrom, dateTo)}:review=${reviewState}`;
+    }
+
+    function sessionUrlForTool(tool, customDays, dateFrom, dateTo) {
+      const params = (dateFrom && dateTo)
+        ? `date_from=${encodeURIComponent(dateFrom)}&date_to=${encodeURIComponent(dateTo)}`
+        : `period=${encodeURIComponent(customDays ? String(customDays) : 'today')}`;
+      const reviewParam = (tool === 'codex' && includeCodexReviewSessions !== null)
+        ? `&include_review_sessions=${includeCodexReviewSessions ? 'true' : 'false'}`
+        : '';
+      return `${appPath('/api/sessions')}?tool=${encodeURIComponent(tool)}&${params}${reviewParam}`;
+    }
+
+    async function fetchSessionsResponses(customDays, dateFrom, dateTo) {
+      const responses = {};
+      const errors = {};
+      for (const tool of SESSION_TOOL_KEYS) {
+        const requestKey = sessionRequestKeyFor(tool, customDays, dateFrom, dateTo);
+        try {
+          responses[tool] = {
+            ...(await fetchJsonWithRetry(sessionUrlForTool(tool, customDays, dateFrom, dateTo))),
+            _request_key: requestKey,
+          };
+        } catch (error) {
+          console.error(`Error fetching ${tool} sessions:`, error);
+          errors[tool] = error;
+          // Keep the last good data so one tool's outage does not blank its panel
+          // or silently undercount Combined Sessions, but only for the same
+          // date range and Codex review toggle state.
+          const previous = lastSessionsResponses?.[tool];
+          if (previous?._request_key === requestKey && Array.isArray(previous.sessions) && previous.sessions.length) {
+            responses[tool] = { ...previous, stale: true, error: error?.message || String(error) };
+          } else {
+            responses[tool] = {
+              tool,
+              tool_label: formatToolName(tool),
+              latest_session: null,
+              sessions: [],
+              summary: { session_count: 0, tokens: 0, cost: 0 },
+              error: error?.message || String(error),
+              _request_key: requestKey,
+            };
+          }
+        }
+      }
+      responses.combined = buildCombinedSessionsData(responses);
+      responses._errors = errors;
+      return responses;
+    }
+
     async function updateDashboard(customDays = null, dateFrom = null, dateTo = null) {
       if (updateInFlight) return;
 
       let usageApiUrl;
       if (dateFrom && dateTo) {
         // Use specific date range
-        usageApiUrl = `/api/usage?date_from=${encodeURIComponent(dateFrom)}&date_to=${encodeURIComponent(dateTo)}`;
+        usageApiUrl = `${appPath('/api/usage')}?date_from=${encodeURIComponent(dateFrom)}&date_to=${encodeURIComponent(dateTo)}`;
       } else {
         // Use period-based query
         let periodValue = customDays ? String(customDays) : 'today';
-        usageApiUrl = `/api/usage?period=${encodeURIComponent(periodValue)}`;
+        usageApiUrl = `${appPath('/api/usage')}?period=${encodeURIComponent(periodValue)}`;
       }
+
+      const windowKey = windowKeyFor(customDays, dateFrom, dateTo);
+      // 3A: the Overview tab only needs /api/usage. Fetch the 3 heavy /api/sessions
+      // streams only when the Sessions tab is actually open; otherwise defer them
+      // to ensureSessionsLoaded() so a cold page load no longer fans out 4 parses.
+      const wantSessions = isSessionsActive();
 
       updateInFlight = true;
       renderRefreshButton();
 
       try {
-        const sessionUrls = ["codex", "claude", "opencode"].map((tool) => {
-          if (dateFrom && dateTo) {
-            return `/api/sessions?tool=${tool}&date_from=${encodeURIComponent(dateFrom)}&date_to=${encodeURIComponent(dateTo)}`;
-          } else {
-            const periodValue = customDays ? String(customDays) : 'today';
-            return `/api/sessions?tool=${tool}&period=${encodeURIComponent(periodValue)}`;
-          }
-        });
-        const [usageResponse, codexResponse, claudeResponse, opencodeResponse] = await Promise.all([
-          fetch(usageApiUrl),
-          fetch(sessionUrls[0]),
-          fetch(sessionUrls[1]),
-          fetch(sessionUrls[2]),
-        ]);
-
-        const [usageData, codexData, claudeData, opencodeData] = await Promise.all([
-          usageResponse.json(),
-          codexResponse.json(),
-          claudeResponse.json(),
-          opencodeResponse.json(),
-        ]);
-
-        lastUsageResponse = usageData;
-        lastSessionsResponses = {
-          codex: codexData,
-          claude: claudeData,
-          opencode: opencodeData,
-          combined: buildCombinedSessionsData({ codex: codexData, claude: claudeData, opencode: opencodeData }),
-        };
+        const usagePromise = fetchJsonWithRetry(usageApiUrl);
+        if (wantSessions) {
+          const [usageData, sessions] = await Promise.all([
+            usagePromise,
+            fetchSessionsResponses(customDays, dateFrom, dateTo),
+          ]);
+          lastUsageResponse = usageData;
+          lastSessionsResponses = sessions;
+          sessionsLoadedKey = windowKey;
+        } else {
+          lastUsageResponse = await usagePromise;
+        }
+        lastWindowKey = windowKey;
 
         updateTimestamp();
 
-        if (isOverviewActive()) renderOverviewTab(usageData);
+        if (isOverviewActive()) renderOverviewTab(lastUsageResponse);
         if (isSessionsActive()) renderSessionsTab();
       } catch (error) {
         console.error('Error fetching data:', error);
-        alert('Failed to fetch data. Check console for details.');
+        setDashboardFetchStatus(error);
+        if (isOverviewActive() && lastUsageResponse) renderOverviewTab(lastUsageResponse);
+        if (isSessionsActive()) renderSessionsTab();
+        if (error?.status !== 503 && !lastUsageResponse) {
+          alert('Failed to fetch data. Check console for details.');
+        }
       } finally {
         updateInFlight = false;
         renderRefreshButton();
+        scheduleStatsWarm();
+      }
+    }
+
+    // 3A: load session data on demand when the Sessions tab is opened, if the
+    // cached responses don't already match the window of the displayed usage data.
+    async function ensureSessionsLoaded() {
+      if (sessionsLoadedKey === lastWindowKey && hasLoadedSessionResponses()) {
+        renderSessionsTab();
+        return;
+      }
+      const dateFrom = currentStartDate ? formatLocalDateYmd(currentStartDate) : null;
+      const dateTo = currentEndDate ? formatLocalDateYmd(currentEndDate) : null;
+      try {
+        lastSessionsResponses = await fetchSessionsResponses(null, dateFrom, dateTo);
+        sessionsLoadedKey = windowKeyFor(null, dateFrom, dateTo);
+        renderSessionsTab();
+      } catch (error) {
+        console.error('Error fetching sessions:', error);
+        setDashboardFetchStatus(error);
+        renderSessionsTab();
       }
     }
 
@@ -2782,6 +3043,11 @@
       return raw ? raw.slice(0, 8) : '—';
     }
 
+    function sessionDisplayName(session) {
+      const name = String(session?.display_name || '').trim();
+      return name || sessionShortId(session?.session_id);
+    }
+
     function formatSessionDateTime(value) {
       return formatMonthDayTime(value);
     }
@@ -2791,11 +3057,10 @@
     }
 
     function buildCombinedSessionsData(responses) {
-      const toolKeys = ["codex", "claude", "opencode"];
       const combinedSessions = [];
       const summary = { session_count: 0, tokens: 0, cost: 0 };
 
-      toolKeys.forEach((tool) => {
+      SESSION_TOOL_KEYS.forEach((tool) => {
         const response = responses?.[tool];
         if (!response) return;
         const responseSummary = response.summary || {};
@@ -2817,7 +3082,7 @@
     }
 
     function hasLoadedSessionResponses() {
-      return !!(lastSessionsResponses?.codex || lastSessionsResponses?.claude || lastSessionsResponses?.opencode);
+      return SESSION_TOOL_KEYS.some((tool) => !!lastSessionsResponses?.[tool]);
     }
 
     function groupSessionsByProject(sessions, sortComparator) {
@@ -2879,6 +3144,18 @@
       return row;
     }
 
+    function createErrorRow(colSpan, message) {
+      const row = document.createElement("tr");
+      const cell = document.createElement("td");
+      cell.colSpan = colSpan;
+      cell.className = "text-center py-10";
+      cell.style.color = "var(--color-danger, #dc2626)";
+      cell.textContent = t("loadFailed");
+      if (message) cell.title = String(message);
+      row.appendChild(cell);
+      return row;
+    }
+
     function createTableCell(tag, className, text, style = null) {
       const cell = document.createElement(tag);
       cell.className = className;
@@ -2893,8 +3170,8 @@
     }
 
     // Column widths for 8-col (no Tool) and 9-col (with Tool) session tables
-    const SESSION_COLS_8 = '<colgroup><col style="width:10%"><col style="width:13%"><col style="width:11%"><col style="width:11%"><col style="width:9%"><col style="width:10%"><col style="width:12%"><col style="width:10%"><col style="width:14%"></colgroup>';
-    const SESSION_COLS_9 = '<colgroup><col style="width:9%"><col style="width:9%"><col style="width:11%"><col style="width:10%"><col style="width:10%"><col style="width:9%"><col style="width:9%"><col style="width:10%"><col style="width:9%"><col style="width:14%"></colgroup>';
+    const SESSION_COLS_8 = '<colgroup><col style="width:18%"><col style="width:12%"><col style="width:10%"><col style="width:10%"><col style="width:8%"><col style="width:9%"><col style="width:11%"><col style="width:9%"><col style="width:13%"></colgroup>';
+    const SESSION_COLS_9 = '<colgroup><col style="width:17%"><col style="width:8%"><col style="width:10%"><col style="width:9%"><col style="width:9%"><col style="width:8%"><col style="width:9%"><col style="width:10%"><col style="width:8%"><col style="width:12%"></colgroup>';
 
     // Sort state per panel: { field, direction }
     // Default: sort by last_seen_at descending (most recent first)
@@ -2903,6 +3180,7 @@
       codex: { ...DEFAULT_SORT },
       claude: { ...DEFAULT_SORT },
       opencode: { ...DEFAULT_SORT },
+      pi_agent: { ...DEFAULT_SORT },
       combined: { ...DEFAULT_SORT },
     };
 
@@ -2977,11 +3255,16 @@
       const latestEvents = document.getElementById(`${prefix}LatestEvents`);
       const latestSeen = document.getElementById(`${prefix}LatestSeen`);
 
-      if (latestProject) latestProject.textContent = latest?.project || t("noData");
+      if (latestProject) latestProject.textContent = latest ? sessionDisplayName(latest) : t("noData");
       if (latestMeta) {
         if (!latest) latestMeta.textContent = "—";
-        else if (showTool) latestMeta.textContent = `${formatToolName(latest.tool)} · ${latest.model || "—"}`;
-        else latestMeta.textContent = latest.model || "—";
+        else {
+          const parts = [];
+          if (showTool) parts.push(formatToolName(latest.tool));
+          parts.push(latest.model || "—");
+          if (latest.project) parts.push(latest.project);
+          latestMeta.textContent = parts.join(" · ");
+        }
       }
       if (latestInput) latestInput.textContent = formatNumber(latest?.tokens_in || 0);
       if (latestCache) latestCache.textContent = formatNumber(latest?.tokens_cache || 0);
@@ -2994,7 +3277,9 @@
       const tbody = document.getElementById(`${prefix}SessionsTable`);
       if (!tbody) return;
       if (!sessions.length) {
-        tbody.replaceChildren(createNoDataRow(showTool ? 10 : 9));
+        tbody.replaceChildren(
+          data?.error ? createErrorRow(showTool ? 10 : 9, data.error) : createNoDataRow(showTool ? 10 : 9)
+        );
         updateSortArrows(prefix);
         return;
       }
@@ -3085,7 +3370,9 @@
           const row = document.createElement("tr");
           row.className = "border-t hover:bg-slate-50 transition cursor-pointer";
           row.style.borderColor = "rgba(226,232,240,0.65)";
-          row.appendChild(createTableCell("td", "py-3 px-4 text-slate-800 mono", sessionShortId(session.session_id)));
+          const nameCell = createTableCell("td", "py-3 px-4 text-slate-800", sessionDisplayName(session));
+          nameCell.title = session.session_id ? `${sessionDisplayName(session)} · ${session.session_id}` : sessionDisplayName(session);
+          row.appendChild(nameCell);
           if (showTool) row.appendChild(createTableCell("td", "py-3 px-4 text-slate-700", formatToolName(session.tool)));
           row.appendChild(createTableCell("td", "py-3 px-4 text-slate-700 mono", session.model || "—"));
           row.appendChild(createTableCell("td", "py-3 px-4 text-right text-slate-700", formatNumber(session.tokens_in || 0)));
@@ -3114,9 +3401,16 @@
 
     function renderSessionsTab() {
       if (!hasLoadedSessionResponses()) return;
+      // Adopt the server's effective review-session default until the user opts in.
+      const codexResp = lastSessionsResponses?.codex;
+      if (codexResp && typeof codexResp.include_review_sessions === 'boolean') {
+        codexReviewDefault = codexResp.include_review_sessions;
+        if (includeCodexReviewSessions === null) syncCodexReviewToggle();
+      }
       updateSessionPanel("codex", lastSessionsResponses.codex);
       updateSessionPanel("claude", lastSessionsResponses.claude);
       updateSessionPanel("opencode", lastSessionsResponses.opencode);
+      updateSessionPanel("pi_agent", lastSessionsResponses.pi_agent);
       lastSessionsResponses.combined = buildCombinedSessionsData(lastSessionsResponses);
       updateSessionPanel("combined", lastSessionsResponses.combined, { showTool: true });
 
@@ -3124,6 +3418,7 @@
       initSortHeaders("codex", renderSessionsTab);
       initSortHeaders("claude", renderSessionsTab);
       initSortHeaders("opencode", renderSessionsTab);
+      initSortHeaders("pi_agent", renderSessionsTab);
       initSortHeaders("combined", renderSessionsTab);
     }
 
@@ -3328,12 +3623,12 @@
       document.getElementById("sessionModalReasoningPct").textContent = "-";
 
       try {
-        const response = await fetch(`/api/session?tool=${encodeURIComponent(tool)}&session_id=${encodeURIComponent(sessionId)}`);
+        const response = await fetch(`${appPath('/api/session')}?tool=${encodeURIComponent(tool)}&session_id=${encodeURIComponent(sessionId)}`);
         const data = await response.json();
         const session = data.session || {};
         const turns = data.turns || [];
-        document.getElementById("sessionModalTitle").textContent = `${session.project || "—"} · ${sessionShortId(session.session_id)}`;
-        document.getElementById("sessionModalMeta").textContent = `${formatToolName(tool)} · ${session.model || "—"} · ${formatNumber(session.token_events || 0)} ${t("events")}`;
+        document.getElementById("sessionModalTitle").textContent = sessionDisplayName(session);
+        document.getElementById("sessionModalMeta").textContent = `${formatToolName(tool)} · ${session.project || "—"} · ${session.model || "—"} · ${formatNumber(session.token_events || 0)} ${t("events")}`;
         document.getElementById("sessionModalInput").textContent = formatNumber(session.tokens_in || 0);
         document.getElementById("sessionModalCache").textContent = formatNumber(session.tokens_cache || 0);
         document.getElementById("sessionModalOutput").textContent = formatNumber(session.tokens_out || 0);
@@ -3779,6 +4074,26 @@
       });
     }
 
+    function setPricingDbSource(payload) {
+      // Make the full-replacement trade-off explicit: when no override exists yet the editor
+      // is showing the read-only bundled baseline (saving FORKS it); once an override exists
+      // it fully replaces the bundled rates and freezes them at baseline_version.
+      pricingDbLastPayload = payload || null;  // remember it so applyI18n can re-localize
+      const el = document.getElementById('pricingDbSource');
+      if (!el) return;
+      const source = payload && payload.source;
+      const baseVer = payload && payload.baseline_version;
+      if (source === 'override') {
+        let msg = t('pricingSourceOverride');
+        if (baseVer) msg += ' — ' + t('pricingForkedFrom').replace('{v}', baseVer);
+        el.textContent = msg;
+        el.style.color = '#D97706';
+      } else {
+        el.textContent = t('pricingSourceBaseline');
+        el.style.color = 'var(--color-muted)';
+      }
+    }
+
     function updatePricingDbSummary(data) {
       const models = data && typeof data.models === 'object' && data.models !== null ? data.models : {};
       const aliases = data && typeof data.aliases === 'object' && data.aliases !== null ? data.aliases : {};
@@ -3814,7 +4129,7 @@
       setPricingDbBusy(true);
       setPricingDbStatus(t('loading'));
       try {
-        const response = await fetch('/api/pricing-db');
+        const response = await fetch(appPath('/api/pricing-db'));
         const payload = await response.json();
         if (!response.ok) throw new Error(payload.detail || response.statusText);
         const editor = document.getElementById('pricingDbEditor');
@@ -3823,6 +4138,7 @@
         pricingDbLoaded = true;
         pricingDbDirty = false;
         document.getElementById('pricingDbPath').textContent = payload.path || 'pricing_db.json';
+        setPricingDbSource(payload);
         updatePricingDbSummary(payload.data || {});
         setPricingDbJsonState(t('validJson'), 'var(--color-cost)');
         setPricingDbStatus(t('saved'), 'var(--color-muted)');
@@ -3858,9 +4174,17 @@
       setPricingDbBusy(true);
       setPricingDbStatus(t('loading'));
       try {
-        const response = await fetch('/api/pricing-db', {
+        // Fetch the per-session write token (same-origin) and echo it back so the
+        // server's write guard accepts this mutation. The token is fetched fresh each
+        // time (it rotates every server restart) — /api/ is never service-worker-cached.
+        let csrfToken = '';
+        try {
+          const tokenResp = await fetch(appPath('/api/csrf-token'));
+          if (tokenResp.ok) csrfToken = (await tokenResp.json()).token || '';
+        } catch (e) { /* fall through; the PUT will 403 with a clear message */ }
+        const response = await fetch(appPath('/api/pricing-db'), {
           method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', 'X-Tokdash-Token': csrfToken },
           body: JSON.stringify({ data }),
         });
         const payload = await response.json();
@@ -3869,6 +4193,8 @@
         if (editor) editor.value = payload.text || JSON.stringify(payload.data || {}, null, 2);
         pricingDbLastText = editor ? editor.value : '';
         pricingDbDirty = false;
+        if (payload.path) document.getElementById('pricingDbPath').textContent = payload.path;
+        setPricingDbSource(payload);
         updatePricingDbSummary(payload.data || {});
         setPricingDbJsonState(t('validJson'), 'var(--color-cost)');
         setPricingDbStatus(t('saved'), 'var(--color-muted)');
@@ -3891,7 +4217,7 @@
 
         if (tab === 'stats') loadStats();
         if (tab === 'overview' && lastUsageResponse) renderOverviewTab(lastUsageResponse);
-        if (tab === 'sessions' && hasLoadedSessionResponses()) renderSessionsTab();
+        if (tab === 'sessions') ensureSessionsLoaded();
         if (tab === 'pricing' && !pricingDbLoaded) loadPricingDb();
       });
     });
@@ -3913,6 +4239,31 @@
       years: new Map(),
       pendingYears: new Map(),
     };
+
+    let statsLoaded = false;   // true once the first /api/stats load has rendered
+    let statsLoadSeq = 0;      // guards against stale/overlapping concurrent loads
+
+    // Loading / error overlay for the stats calendar. While the first load is in
+    // flight (or after it fails), we cover the calendar so the controls can never
+    // render an empty grid, and a failed load shows a Retry button instead of a
+    // silent blank page.
+    function setStatsStatus(state) {
+      const banner = document.getElementById('statsStatus');
+      if (!banner) return;
+      if (state === 'ok') {
+        banner.style.display = 'none';
+        return; // setView() restores the active view container
+      }
+      banner.style.display = 'block';
+      ['calendarMonthView', 'calendarYearView', 'calendar3DView'].forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+      });
+      const msg = document.getElementById('statsStatusMsg');
+      if (msg) msg.textContent = t(state === 'error' ? 'statsLoadFailed' : 'loading');
+      const retry = document.getElementById('statsRetryBtn');
+      if (retry) retry.style.display = state === 'error' ? '' : 'none';
+    }
 
     function createEmptyContribution(key) {
       return {
@@ -3947,9 +4298,11 @@
 
     async function loadStats(options = {}) {
       const preserveNavigation = !!options.preserveNavigation;
+      const seq = ++statsLoadSeq;
+      if (!statsLoaded) setStatsStatus('loading');
       try {
-        const response = await fetch('/api/stats');
-        const data = await response.json();
+        const data = await fetchJsonWithRetry(appPath('/api/stats'));
+        if (seq !== statsLoadSeq) return; // a newer load superseded this one
 
         const stats = data.stats || {};
         document.getElementById('statFavoriteModel').textContent = stats.favorite_model || '—';
@@ -3966,6 +4319,8 @@
         const currentYear = new Date().getFullYear();
         const currentYearRows = filledContributions.filter((day) => Number(String(day.date).slice(0, 4)) === currentYear);
         statsCache.years.set(currentYear, fillYearDays(currentYearRows, currentYear));
+        statsLoaded = true;          // must be set before renderCalendar() so setView() renders
+        setStatsStatus('ok');
         renderCalendar(filledContributions, { preserveNavigation });
         contributionsData = filledContributions;
         if (calendarState.view === 'year') {
@@ -3973,7 +4328,22 @@
         }
       } catch (error) {
         console.error('Error loading stats:', error);
+        // Only surface the error (Retry) if this is the latest load and nothing
+        // has rendered yet — a failed background refresh keeps the existing data.
+        if (seq === statsLoadSeq && !statsLoaded) setStatsStatus('error');
       }
+    }
+
+    function scheduleStatsWarm() {
+      if (statsWarmScheduled || statsLoaded) return;
+      statsWarmScheduled = true;
+      setTimeout(() => {
+        scheduleIdle(() => {
+          fetchJsonWithRetry(appPath('/api/stats'), {}, { attempts: 2, baseDelayMs: 600 }).catch(() => {
+            statsWarmScheduled = false;
+          });
+        }, 1500);
+      }, 750);
     }
 
     async function ensureYearStatsLoaded(year) {
@@ -3981,8 +4351,7 @@
       if (statsCache.pendingYears.has(year)) return statsCache.pendingYears.get(year);
 
       const promise = (async () => {
-        const response = await fetch(`/api/stats?year=${year}`);
-        const data = await response.json();
+        const data = await fetchJsonWithRetry(`${appPath('/api/stats')}?year=${year}`);
         const filled = fillYearDays(data.contributions || [], year);
         statsCache.years.set(year, filled);
         return filled;
@@ -4178,14 +4547,20 @@
     function setView(view) {
       calendarState.view = view;
 
-      document.getElementById('calendarMonthView').style.display = view === 'month' ? 'block' : 'none';
-      document.getElementById('calendarYearView').style.display = view === 'year' ? 'block' : 'none';
-      document.getElementById('calendar3DView').style.display = view === '3d' ? 'block' : 'none';
-
       document.getElementById('viewMonth').className = view === 'month' ? 'btn btn-primary' : 'btn btn-ghost';
       document.getElementById('viewYear').className = view === 'year' ? 'btn btn-primary' : 'btn btn-ghost';
       document.getElementById('view3D').className = view === '3d' ? 'btn btn-primary' : 'btn btn-ghost';
       updateMetricControls();
+
+      // Before the first successful stats load, keep the loading/error banner up
+      // (setStatsStatus has hidden the view containers) rather than rendering an
+      // empty calendar — this is what previously looked like a blank page when the
+      // user toggled Month/Year while /api/stats was still loading or had failed.
+      if (!statsLoaded) return;
+
+      document.getElementById('calendarMonthView').style.display = view === 'month' ? 'block' : 'none';
+      document.getElementById('calendarYearView').style.display = view === 'year' ? 'block' : 'none';
+      document.getElementById('calendar3DView').style.display = view === '3d' ? 'block' : 'none';
 
       if (view === 'month') {
         renderMonthHeatmap();
@@ -5147,6 +5522,7 @@
     document.getElementById('viewMonth').addEventListener('click', () => setView('month'));
     document.getElementById('viewYear').addEventListener('click', () => setView('year'));
     document.getElementById('view3D').addEventListener('click', () => setView('3d'));
+    document.getElementById('statsRetryBtn')?.addEventListener('click', () => loadStats());
     document.getElementById('metricTokensBtn').addEventListener('click', () => setCalendarMetric('tokens'));
     document.getElementById('metricEnergyBtn').addEventListener('click', () => setCalendarMetric('energy'));
     document.getElementById('metricCostBtn').addEventListener('click', () => setCalendarMetric('cost'));
@@ -5178,6 +5554,13 @@
         const today = new Date();
         updateDashboardByDateRange(today, today);
       }
+    });
+
+    document.getElementById('codexReviewToggle')?.addEventListener('change', (event) => {
+      includeCodexReviewSessions = !!event.target.checked;
+      localStorage.setItem('tokdash-show-codex-review-sessions', includeCodexReviewSessions ? '1' : '0');
+      sessionsLoadedKey = null;
+      if (isSessionsActive()) ensureSessionsLoaded();
     });
 
     const combinedModelsToggle = document.getElementById('combinedModelsToggle');
@@ -5213,9 +5596,40 @@
     // PWA install support (Android/Chrome requires manifest + service worker).
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' }).catch(() => {});
+        navigator.serviceWorker.register(appAssetWithBase('/sw.js'), { updateViaCache: 'none' }).catch(() => {});
       });
     }
+
+    // PWA install button: surface the browser's install prompt when available.
+    (function setupInstallPrompt() {
+      const btn = document.getElementById('installBtn');
+      if (!btn) return;
+      let deferredPrompt = null;
+      const isStandalone = () =>
+        (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) ||
+        window.navigator.standalone === true;
+
+      // beforeinstallprompt only fires on Chromium browsers when the app is
+      // installable and not already installed (iOS Safari has no equivalent).
+      window.addEventListener('beforeinstallprompt', (event) => {
+        event.preventDefault();
+        deferredPrompt = event;
+        if (!isStandalone()) btn.style.display = '';
+      });
+
+      btn.addEventListener('click', async () => {
+        if (!deferredPrompt) return;
+        deferredPrompt.prompt();
+        try { await deferredPrompt.userChoice; } catch (_) { /* dismissed */ }
+        deferredPrompt = null;
+        btn.style.display = 'none';
+      });
+
+      window.addEventListener('appinstalled', () => {
+        deferredPrompt = null;
+        btn.style.display = 'none';
+      });
+    })();
 
     applyStyleTheme(getDefaultStyleTheme());
     applyTheme(getDefaultTheme());
@@ -5270,6 +5684,9 @@
     currentStartDate = today;
     currentEndDate = today;
     updateDashboardByDateRange(today, today);
+
+    // Stats warming is scheduled after the first dashboard request completes, so it
+    // does not compete with the cold-start Overview/Sessions burst.
   </script>
 </body>
 </html>

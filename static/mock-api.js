@@ -7,7 +7,8 @@
  *
  * Routes mocked (must match src/tokdash/api.py):
  *   GET  /api/usage     ?period=… | ?date_from=…&date_to=…
- *   GET  /api/sessions  ?tool=codex|claude|opencode (&period=… | &date_from/to)
+ *   GET  /api/sessions  ?tool=codex|claude|opencode|pi_agent (&period=… | &date_from/to)
+ *                       (&include_review_sessions=true|false — codex only)
  *   GET  /api/session   ?tool=…&session_id=…
  *   GET  /api/stats     [?year=…]
  *   GET  /api/pricing-db
@@ -147,12 +148,15 @@
         tokens, cost,
       });
     }
+    // ~15% of Codex sessions simulate review/auto-permission runs, hidden by default.
+    const is_review_session = toolSpec.source === "codex" && rand() < 0.15;
     return {
       tool: toolSpec.source === "claude_code" ? "claude" : toolSpec.source, // /api/sessions uses 'claude' as the tool key
       source: toolSpec.source,
       session_id,
       project,
       turns,
+      is_review_session,
     };
   }
 
@@ -327,9 +331,9 @@
   }
 
   // ---------- /api/sessions and /api/session ----------
-  // The session-explorer panel only knows about codex, claude, opencode.
-  const SESSION_TOOL_KEYS = { codex: "codex", claude: "claude_code", opencode: "opencode" };
-  const TOOL_LABELS = { codex: "Codex", claude: "Claude Code", opencode: "OpenCode" };
+  // The session-explorer panel knows about codex, claude, opencode, pi_agent.
+  const SESSION_TOOL_KEYS = { codex: "codex", claude: "claude_code", opencode: "opencode", pi_agent: "pi_agent" };
+  const TOOL_LABELS = { codex: "Codex", claude: "Claude Code", opencode: "OpenCode", pi_agent: "Pi" };
 
   function summarizeSession(session, range) {
     const turns = session.turns.filter((t) =>
@@ -362,16 +366,22 @@
       cost,
       started_at: isoOf(turns[0].timestamp_ms),
       last_seen_at: isoOf(turns[turns.length - 1].timestamp_ms),
+      is_review_session: !!session.is_review_session,
     };
   }
 
-  function buildSessions(tool, period, dateFrom, dateTo) {
+  function buildSessions(tool, period, dateFrom, dateTo, includeReviewSessions) {
     const key = String(tool || "").toLowerCase();
     const internalSource = SESSION_TOOL_KEYS[key];
     if (!internalSource) return { __error: 400, message: `Unsupported session tool: ${tool}` };
 
     const range = periodToRange(period, dateFrom, dateTo);
-    const matching = sessions.filter((s) => s.source === internalSource);
+    // Codex review/auto-permission sessions are hidden unless explicitly requested,
+    // matching the real backend's TOKDASH_INCLUDE_CODEX_GUARDIAN default-off behavior.
+    const includeReview = key === "codex" && includeReviewSessions === "true";
+    const matching = sessions.filter((s) =>
+      s.source === internalSource && (includeReview || !s.is_review_session)
+    );
 
     const summaries = [];
     for (const s of matching) {
@@ -391,6 +401,7 @@
         tokens: summaries.reduce((a, s) => a + s.tokens, 0),
         cost: summaries.reduce((a, s) => a + s.cost, 0),
       },
+      ...(key === "codex" ? { include_review_sessions: includeReview } : {}),
       timestamp: new Date().toISOString(),
     };
   }
@@ -532,11 +543,23 @@
 
   // ---------- /api/pricing-db (read-only, served from a static JSON file) ----------
   let pricingCache = null;
+  function demoBasePath() {
+    return (window.TOKDASH_BASE_PATH || "").replace(/\/+$/, "");
+  }
+  function demoPath(path) {
+    return `${demoBasePath()}${path}`;
+  }
+  function localPath(pathname) {
+    const base = demoBasePath();
+    return base && pathname.startsWith(`${base}/`)
+      ? pathname.slice(base.length)
+      : pathname;
+  }
   async function loadPricingDb() {
     if (pricingCache) return pricingCache;
-    // Absolute path: pricing_db.json lives at the site root, while the demo page
-    // is served from /demo/ — a relative "./pricing_db.json" would 404.
-    const res = await origFetch("/pricing_db.json", { cache: "no-store" });
+    // Site-root path: pricing_db.json lives beside index.html, while the demo
+    // page is served from /demo/. Preserve any Pages base path such as /tokdash.
+    const res = await origFetch(demoPath("/pricing_db.json"), { cache: "no-store" });
     const data = await res.json();
     const text = JSON.stringify(data, null, 2) + "\n";
     pricingCache = { path: "demo://pricing_db.json", data, text };
@@ -562,7 +585,7 @@
 
   async function dispatch(input, init) {
     const url = parseUrl(input);
-    const path = url.pathname;
+    const path = localPath(url.pathname);
     if (!path.startsWith("/api/")) return null; // not ours
     const method = (init && init.method) || (input instanceof Request ? input.method : "GET");
     const params = url.searchParams;
@@ -571,7 +594,10 @@
       return jsonResponse(buildUsage(params.get("period"), params.get("date_from"), params.get("date_to")));
     }
     if (path === "/api/sessions" && method === "GET") {
-      const out = buildSessions(params.get("tool"), params.get("period"), params.get("date_from"), params.get("date_to"));
+      const out = buildSessions(
+        params.get("tool"), params.get("period"), params.get("date_from"), params.get("date_to"),
+        params.get("include_review_sessions")
+      );
       if (out.__error) return jsonResponse({ detail: out.message }, out.__error);
       return jsonResponse(out);
     }
