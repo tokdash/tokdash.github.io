@@ -46,7 +46,8 @@
   function getQuotaState() {
     const nowSecs = Math.floor(Date.now() / 1000);
     const nextReset = nowSecs + 4 * 3600; // 4 hours from now
-    
+    const daySecs = 86400; // reset-credit expiries are inferred from the browser's "now"
+
     return {
       "providers": {
         "codex": {
@@ -75,8 +76,39 @@
               "captured_at": quotaLastRun,
               "source": "codex_api",
               "status": "ok"
+            },
+            {
+              "account": "demo@tokdash.io",
+              "bucket": "spark_5h",
+              "bucket_label": "GPT-5.3-Codex-Spark · 5-hour",
+              "used_percent": 21.0,
+              "remaining_percent": 79.0,
+              "resets_at": nextReset + 3600 * 3,
+              "captured_at": quotaLastRun,
+              "source": "codex_api",
+              "status": "ok"
+            },
+            {
+              "account": "demo@tokdash.io",
+              "bucket": "spark_7d",
+              "bucket_label": "GPT-5.3-Codex-Spark · 7-day",
+              "used_percent": 38.0,
+              "remaining_percent": 62.0,
+              "resets_at": nextReset + 3600 * 24 * 5,
+              "captured_at": quotaLastRun,
+              "source": "codex_api",
+              "status": "ok"
             }
           ],
+          "reset_credits": {
+            "available_count": 4,
+            "credits": [
+              { "id": "rc-10d", "title": "Reset credit", "expires_at": nowSecs + 10 * daySecs },
+              { "id": "rc-15d", "title": "Reset credit", "expires_at": nowSecs + 15 * daySecs },
+              { "id": "rc-17d", "title": "Reset credit", "expires_at": nowSecs + 17 * daySecs },
+              { "id": "rc-30d", "title": "Reset credit", "expires_at": nowSecs + 30 * daySecs }
+            ]
+          },
           "status": "ok",
           "status_detail": null,
           "status_at": quotaLastRun,
@@ -191,6 +223,22 @@
         consumption: []
       },
       {
+        provider: "codex",
+        account: "demo@tokdash.io",
+        bucket: "spark_5h",
+        bucket_label: "GPT-5.3-Codex-Spark · 5-hour",
+        points: [],
+        consumption: []
+      },
+      {
+        provider: "codex",
+        account: "demo@tokdash.io",
+        bucket: "spark_7d",
+        bucket_label: "GPT-5.3-Codex-Spark · 7-day",
+        points: [],
+        consumption: []
+      },
+      {
         provider: "claude",
         account: "demo@tokdash.io",
         bucket: "session",
@@ -225,7 +273,9 @@
     ];
 
     for (const s of series) {
-      const baseSeed = s.provider === "codex" ? (s.bucket === "5h" ? 1.2 : 0.9) : (s.provider === "claude" ? (s.bucket === "session" ? 2.5 : 1.8) : (s.bucket.includes("gemini") ? 0.8 : 1.7));
+      const baseSeed = s.provider === "codex"
+        ? (s.bucket === "5h" ? 1.2 : s.bucket === "7d" ? 0.9 : s.bucket === "spark_5h" ? 1.45 : 0.65)
+        : (s.provider === "claude" ? (s.bucket === "session" ? 2.5 : 1.8) : (s.bucket.includes("gemini") ? 0.8 : 1.7));
       
       for (let i = limit; i >= 0; i--) {
         const ts = nowSecs - i * period;
