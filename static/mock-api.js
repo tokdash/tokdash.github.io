@@ -33,6 +33,223 @@
   }
   const rand = mulberry32(0x70B05A1); // anything stable
 
+  // ---------- Mock Quota Tracking State & Generators ----------
+  let quotaTrackingEnabled = true;
+  let quotaConsent = {
+    codex_api: true,
+    claude_api: true,
+    antigravity_api: true
+  };
+  let quotaPollIntervalMinutes = 15;
+  let quotaLastRun = Math.floor((Date.now() - 8 * 60 * 1000) / 1000); // 8 min ago
+
+  function getQuotaState() {
+    const nowSecs = Math.floor(Date.now() / 1000);
+    const nextReset = nowSecs + 4 * 3600; // 4 hours from now
+    
+    return {
+      "providers": {
+        "codex": {
+          "provider": "codex",
+          "network_enabled": quotaConsent.codex_api,
+          "plan": "Pro Lite",
+          "buckets": [
+            {
+              "account": "demo@tokdash.io",
+              "bucket": "5h",
+              "bucket_label": "5-hour window",
+              "used_percent": 34.5,
+              "remaining_percent": 65.5,
+              "resets_at": nextReset + 3600 * 2,
+              "captured_at": quotaLastRun,
+              "source": "codex_api",
+              "status": "ok"
+            },
+            {
+              "account": "demo@tokdash.io",
+              "bucket": "7d",
+              "bucket_label": "7-day window",
+              "used_percent": 41.2,
+              "remaining_percent": 58.8,
+              "resets_at": nextReset + 3600 * 24 * 3,
+              "captured_at": quotaLastRun,
+              "source": "codex_api",
+              "status": "ok"
+            }
+          ],
+          "status": "ok",
+          "status_detail": null,
+          "status_at": quotaLastRun,
+          "updated_at": quotaLastRun,
+          "sources": ["codex_api"]
+        },
+        "claude": {
+          "provider": "claude",
+          "network_enabled": quotaConsent.claude_api,
+          "plan": "Pro",
+          "buckets": [
+            {
+              "account": "demo@tokdash.io",
+              "bucket": "session",
+              "bucket_label": "Session",
+              "used_percent": 72.1,
+              "remaining_percent": 27.9,
+              "resets_at": nextReset,
+              "captured_at": quotaLastRun,
+              "source": "claude_api",
+              "status": "ok"
+            },
+            {
+              "account": "demo@tokdash.io",
+              "bucket": "weekly_all",
+              "bucket_label": "Weekly All",
+              "used_percent": 54.8,
+              "remaining_percent": 45.2,
+              "resets_at": nextReset + 3600 * 24 * 4,
+              "captured_at": quotaLastRun,
+              "source": "claude_api",
+              "status": "ok"
+            }
+          ],
+          "status": "ok",
+          "status_detail": null,
+          "status_at": quotaLastRun,
+          "updated_at": quotaLastRun,
+          "sources": ["claude_api"]
+        },
+        "antigravity": {
+          "provider": "antigravity",
+          "network_enabled": quotaConsent.antigravity_api,
+          "plan": null,
+          "buckets": [
+            {
+              "account": "demo@tokdash.io",
+              "bucket": "gemini-2.0-flash",
+              "bucket_label": "gemini-2.0-flash",
+              "used_percent": 15.0,
+              "remaining_percent": 85.0,
+              "resets_at": nextReset + 1800,
+              "captured_at": quotaLastRun,
+              "source": "antigravity_api",
+              "status": "ok"
+            },
+            {
+              "account": "demo@tokdash.io",
+              "bucket": "claude-3-5-sonnet",
+              "bucket_label": "claude-3-5-sonnet",
+              "used_percent": 45.0,
+              "remaining_percent": 55.0,
+              "resets_at": nextReset + 1800,
+              "captured_at": quotaLastRun,
+              "source": "antigravity_api",
+              "status": "ok"
+            }
+          ],
+          "status": "ok",
+          "status_detail": null,
+          "status_at": quotaLastRun,
+          "updated_at": quotaLastRun,
+          "sources": ["antigravity_api"]
+        }
+      },
+      "consent": quotaConsent,
+      "enabled": quotaTrackingEnabled,
+      "poll": {
+        "enabled": quotaTrackingEnabled,
+        "network_enabled": quotaConsent.codex_api || quotaConsent.claude_api || quotaConsent.antigravity_api,
+        "interval": quotaPollIntervalMinutes * 60,
+        "interval_source": "config",
+        "interval_minutes": quotaPollIntervalMinutes,
+        "interval_choices": [15, 30, 60, 120],
+        "last_run": quotaLastRun,
+        "kill_switch": false
+      },
+      "timestamp": nowSecs
+    };
+  }
+
+  function buildQuotaHistory(granularity, start) {
+    const nowSecs = Math.floor(Date.now() / 1000);
+    const period = granularity === 'day' ? 86400 : 3600;
+    const limit = granularity === 'day' ? 30 : 24;
+    
+    const series = [
+      {
+        provider: "codex",
+        account: "demo@tokdash.io",
+        bucket: "5h",
+        bucket_label: "5-hour window",
+        points: [],
+        consumption: []
+      },
+      {
+        provider: "codex",
+        account: "demo@tokdash.io",
+        bucket: "7d",
+        bucket_label: "7-day window",
+        points: [],
+        consumption: []
+      },
+      {
+        provider: "claude",
+        account: "demo@tokdash.io",
+        bucket: "session",
+        bucket_label: "Session",
+        points: [],
+        consumption: []
+      },
+      {
+        provider: "claude",
+        account: "demo@tokdash.io",
+        bucket: "weekly_all",
+        bucket_label: "Weekly All",
+        points: [],
+        consumption: []
+      },
+      {
+        provider: "antigravity",
+        account: "demo@tokdash.io",
+        bucket: "gemini-2.0-flash",
+        bucket_label: "gemini-2.0-flash",
+        points: [],
+        consumption: []
+      },
+      {
+        provider: "antigravity",
+        account: "demo@tokdash.io",
+        bucket: "claude-3-5-sonnet",
+        bucket_label: "claude-3-5-sonnet",
+        points: [],
+        consumption: []
+      }
+    ];
+
+    for (const s of series) {
+      const baseSeed = s.provider === "codex" ? (s.bucket === "5h" ? 1.2 : 0.9) : (s.provider === "claude" ? (s.bucket === "session" ? 2.5 : 1.8) : (s.bucket.includes("gemini") ? 0.8 : 1.7));
+      
+      for (let i = limit; i >= 0; i--) {
+        const ts = nowSecs - i * period;
+        const resetInterval = granularity === 'day' ? 5 : 6;
+        const step = (limit - i) % resetInterval;
+        let used = (step * baseSeed * 12 + 10) % 100;
+        
+        s.points.push({
+          captured_at: ts,
+          used_percent: Number(used.toFixed(4))
+        });
+        
+        let prevUsed = (((step - 1 + resetInterval) % resetInterval) * baseSeed * 12 + 10) % 100;
+        let consumed = used > prevUsed ? (used - prevUsed) : used;
+        s.consumption.push({
+          period_start: ts,
+          consumed_percent: Number(consumed.toFixed(4))
+        });
+      }
+    }
+    
+    return { series };
+  }
+
   function pick(arr) { return arr[Math.floor(rand() * arr.length)]; }
   function gauss(mean, sd) {
     // Box–Muller; clamps at 0
@@ -94,8 +311,24 @@
   }
 
   const PROJECTS = [
-    "tokdash", "ravqa-v2", "personal-memory-qa", "auto-research", "vlm-evalkit",
-    "agent-digest", "coding-agent", "language-learning-ai", "video-gen", "p-test",
+    "web-app", "api-service", "cli-tool", "mobile-app", "data-pipeline",
+    "docs-site", "auth-service", "worker-node", "analytics-dashboard", "testing-harness"
+  ];
+
+  // Human-readable per-session titles (replace the old "<project>-<hex>" label). The
+  // Sessions tab already groups rows under the project name, so the row label is just a
+  // short task description (action + area). Assigned once per session at creation so it
+  // stays stable across requests; action + area give ~350 combinations for variety.
+  const SESSION_ACTIONS = [
+    "Fix", "Refactor", "Add", "Debug", "Optimize", "Implement", "Update", "Investigate",
+    "Improve", "Migrate", "Harden", "Rework", "Document", "Test", "Simplify",
+  ];
+  const SESSION_AREAS = [
+    "login flow", "auth middleware", "pagination", "the retry logic", "cache invalidation",
+    "error handling", "the config loader", "rate limiting", "the CI pipeline", "database migrations",
+    "the search index", "session handling", "input validation", "the API client", "structured logging",
+    "the build script", "webhook delivery", "the settings page", "type definitions", "flaky tests",
+    "the onboarding flow", "the health check", "background jobs", "the export job", "pagination cursors",
   ];
 
   // ---------- Time helpers ----------
@@ -123,9 +356,15 @@
 
   function makeSession(toolSpec, dayMs) {
     const startMs = dayMs + randInt(8, 22) * 3600 * 1000 + randInt(0, 59) * 60 * 1000;
-    const turnCount = Math.max(1, Math.round(gauss(8, 5)));
+    // Turns == messages == token_events. The demo targets a heavy power-user profile
+    // (~100x the original volume), so the scale-up lives here in the turn count (each
+    // turn keeps a realistic, noisy per-message token size) rather than in the per-turn
+    // token amounts — that keeps total tokens AND total messages both ~100x with a
+    // sane tokens-per-message ratio. Session count is also raised (see buildHistory).
+    const turnCount = Math.max(1, Math.round(gauss(170, 105)));
     const session_id = randomIdPart(16);
     const project = pick(PROJECTS);
+    const task = `${pick(SESSION_ACTIONS)} ${pick(SESSION_AREAS)}`;
     const turns = [];
     let cursorMs = startMs;
     const sessionModel = pickModelFor(toolSpec.source); // mostly one model per session
@@ -155,6 +394,7 @@
       source: toolSpec.source,
       session_id,
       project,
+      task,
       turns,
       is_review_session,
     };
@@ -172,7 +412,7 @@
       // "today" so the default Today view always shows every agent.
       if (d > 0 && rand() < 0.12 * (dow === 0 ? 1.6 : 1)) continue;
       for (const tool of allTools) {
-        const expected = tool.weight * 6.0 * weekend * recency; // sessions per tool per day
+        const expected = tool.weight * 54.0 * weekend * recency; // sessions per tool per day (heavy-user demo profile)
         // Floor at 1 so every agent renders on every active day — the demo's
         // purpose is to showcase all supported tools, not to vary which ones
         // are visible from day to day.
@@ -357,6 +597,7 @@
       tool: session.tool,
       session_id: session.session_id,
       project: session.project,
+      display_name: session.task || session.project,
       model: top_model,
       token_events: turns.length,
       tokens_in, tokens_cache, tokens_out, tokens_reasoning,
@@ -615,6 +856,45 @@
     }
     if (path === "/api/pricing-db" && method === "PUT") {
       return jsonResponse({ detail: "The pricing database is read-only in the static demo." }, 405);
+    }
+    if (path === "/api/csrf-token" && method === "GET") {
+      // Same-origin write token. The static demo has no real CSRF surface, but the
+      // frontend's postJsonWithCsrf() fetches this before every write (quota toggle,
+      // poll interval, consent, refresh), so echo a stable placeholder token so those
+      // POSTs succeed instead of throwing on a 501.
+      return jsonResponse({ token: "demo" });
+    }
+    if (path === "/api/quota" && method === "GET") {
+      return jsonResponse(getQuotaState());
+    }
+    if (path === "/api/quota/history" && method === "GET") {
+      return jsonResponse(buildQuotaHistory(params.get("granularity") || "hour", params.get("start")));
+    }
+    if (path === "/api/quota/consent" && method === "POST") {
+      try {
+        const bodyText = (init && init.body) || "";
+        const payload = bodyText ? JSON.parse(bodyText) : {};
+        Object.assign(quotaConsent, payload);
+      } catch (e) {}
+      return jsonResponse({ consent: quotaConsent });
+    }
+    if (path === "/api/quota/settings" && method === "POST") {
+      try {
+        const bodyText = (init && init.body) || "";
+        const payload = bodyText ? JSON.parse(bodyText) : {};
+        if ("enabled" in payload) quotaTrackingEnabled = !!payload.enabled;
+        if ("poll_interval_minutes" in payload) quotaPollIntervalMinutes = Number(payload.poll_interval_minutes);
+      } catch (e) {}
+      return jsonResponse({
+        enabled: quotaTrackingEnabled,
+        poll_interval_minutes: quotaPollIntervalMinutes,
+        interval: quotaPollIntervalMinutes * 60,
+        interval_source: "config"
+      });
+    }
+    if (path === "/api/quota/refresh" && method === "POST") {
+      quotaLastRun = Math.floor(Date.now() / 1000);
+      return jsonResponse({ snapshots: 4, inserted: 4 });
     }
     if (path === "/api/openclaw" && method === "GET") {
       // Not consumed by the current UI but easy to support for parity.
