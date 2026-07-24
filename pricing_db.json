@@ -19,6 +19,7 @@
     "kimi-k2p6": "kimi-k2.6",
     "kimi-k2-6": "kimi-k2.6",
     "moonshot-ai/kimi-k2.6": "kimi-k2.6",
+    "kimi-code/k3": "kimi-k3",
     "glm5.1": "glm-5.1",
     "glm-5-1": "glm-5.1",
     "z-ai/glm-5.1": "glm-5.1",
@@ -35,7 +36,8 @@
     "fable": "claude-fable-5",
     "sonnet-5": "claude-sonnet-5",
     "sonnet5": "claude-sonnet-5",
-    "claude-sonnet-5-20260630": "claude-sonnet-5"
+    "claude-sonnet-5-20260630": "claude-sonnet-5",
+    "gemini-3-flash-a": "antigravity-gemini-3-flash"
   },
   "models": {
     "_comment_moonshot": "=== Moonshot AI / Kimi Models ===",
@@ -97,6 +99,16 @@
       "cache_write": 0.75,
       "unit": "per_million_tokens",
       "source": "openrouter.ai/moonshotai/kimi-k2.7-code"
+    },
+    "kimi-k3": {
+      "provider": "moonshotai",
+      "input": 3.0,
+      "output": 15.0,
+      "cache_read": 0.3,
+      "cache_write": 3.0,
+      "unit": "per_million_tokens",
+      "source": "Moonshot AI Kimi K3 launch pricing, verified 2026-07-16",
+      "note": "cache_write uses the input rate because the launch pricing lists only cache-hit input ($0.30), cache-miss input ($3.00), and output ($15.00)."
     },
     "kimi-k2-0905:exacto": {
       "provider": "moonshotai",
@@ -747,6 +759,15 @@
       "source": "developers.openai.com/api/docs/pricing",
       "note": "Official OpenAI standard short-context pricing, verified 2026-07-10"
     },
+    "gpt-5.6-sol-pro": {
+      "provider": "openai",
+      "input": 5.0,
+      "output": 30.0,
+      "cache_read": 0.5,
+      "cache_write": 6.25,
+      "unit": "per_million_tokens",
+      "source": "openrouter.ai/openai/gpt-5.6-sol-pro"
+    },
     "gpt-5.6-terra": {
       "provider": "openai",
       "input": 2.5,
@@ -757,6 +778,15 @@
       "source": "developers.openai.com/api/docs/pricing",
       "note": "Official OpenAI standard short-context pricing, verified 2026-07-10"
     },
+    "gpt-5.6-terra-pro": {
+      "provider": "openai",
+      "input": 2.5,
+      "output": 15.0,
+      "cache_read": 0.25,
+      "cache_write": 3.125,
+      "unit": "per_million_tokens",
+      "source": "openrouter.ai/openai/gpt-5.6-terra-pro"
+    },
     "gpt-5.6-luna": {
       "provider": "openai",
       "input": 1.0,
@@ -766,6 +796,15 @@
       "unit": "per_million_tokens",
       "source": "developers.openai.com/api/docs/pricing",
       "note": "Official OpenAI standard short-context pricing, verified 2026-07-10"
+    },
+    "gpt-5.6-luna-pro": {
+      "provider": "openai",
+      "input": 1.0,
+      "output": 6.0,
+      "cache_read": 0.1,
+      "cache_write": 1.25,
+      "unit": "per_million_tokens",
+      "source": "openrouter.ai/openai/gpt-5.6-luna-pro"
     },
     "gpt-audio": {
       "provider": "openai",
@@ -1330,6 +1369,16 @@
       "unit": "per_million_tokens",
       "source": "openrouter.ai/google/gemini-3-flash-preview"
     },
+    "gemini-3-flash": {
+      "provider": "google",
+      "input": 0.5,
+      "output": 3,
+      "cache_read": 0.05,
+      "cache_write": 0.5,
+      "unit": "per_million_tokens",
+      "source": "Antigravity observed GA id; rates match antigravity-gemini-3-flash",
+      "note": "Plain Gemini 3 Flash id reported by Antigravity-style clients."
+    },
     "gemini-3-pro-image-preview": {
       "provider": "google",
       "input": 2,
@@ -1392,6 +1441,24 @@
       "cache_write": 0.083333,
       "unit": "per_million_tokens",
       "source": "openrouter.ai/google/gemini-3.5-flash"
+    },
+    "gemini-3.5-flash-lite": {
+      "provider": "google",
+      "input": 0.3,
+      "output": 2.5,
+      "cache_read": 0.03,
+      "cache_write": 0.083333,
+      "unit": "per_million_tokens",
+      "source": "openrouter.ai/google/gemini-3.5-flash-lite"
+    },
+    "gemini-3.6-flash": {
+      "provider": "google",
+      "input": 1.5,
+      "output": 7.5,
+      "cache_read": 0.15,
+      "cache_write": 0.083333,
+      "unit": "per_million_tokens",
+      "source": "openrouter.ai/google/gemini-3.6-flash"
     },
     "gemma-2-27b-it": {
       "provider": "google",
@@ -1491,6 +1558,16 @@
       "cache_write": 0.375,
       "unit": "per_million_tokens",
       "source": "openrouter.ai/google/gemini-3-pro-preview"
+    },
+    "gemini-3-pro": {
+      "provider": "google",
+      "input": 2,
+      "output": 12,
+      "cache_read": 0.2,
+      "cache_write": 2,
+      "unit": "per_million_tokens",
+      "source": "Antigravity observed GA id; rates match antigravity-gemini-3-pro",
+      "note": "Plain Gemini 3 Pro id reported by Antigravity-style clients."
     },
     "_comment_xiaomi": "=== Xiaomi Models ===",
     "mimo-v2-flash": {
@@ -2091,6 +2168,15 @@
       "unit": "per_million_tokens",
       "source": "openrouter.ai/tencent/hy3-preview"
     },
+    "hy3": {
+      "provider": "tencent",
+      "input": 0.14,
+      "output": 0.58,
+      "cache_read": 0.035,
+      "cache_write": 0.14,
+      "unit": "per_million_tokens",
+      "source": "openrouter.ai/tencent/hy3"
+    },
     "_comment_xai": "=== xAI Grok Models ===",
     "grok-4.20": {
       "provider": "xai",
@@ -2118,6 +2204,15 @@
       "cache_write": 1.25,
       "unit": "per_million_tokens",
       "source": "openrouter.ai/x-ai/grok-4.3"
+    },
+    "grok-4.5": {
+      "provider": "xai",
+      "input": 2.0,
+      "output": 6.0,
+      "cache_read": 0.5,
+      "cache_write": 2.0,
+      "unit": "per_million_tokens",
+      "source": "openrouter.ai/x-ai/grok-4.5"
     },
     "grok-build-0.1": {
       "provider": "xai",

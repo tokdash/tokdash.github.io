@@ -1673,6 +1673,9 @@
                 <label class="quota-visibility-item"><input type="checkbox" data-quota-provider="codex" checked><span>Codex</span></label>
                 <label class="quota-visibility-item"><input type="checkbox" data-quota-provider="claude" checked><span>Claude Code</span></label>
                 <label class="quota-visibility-item"><input type="checkbox" data-quota-provider="antigravity" checked><span>Antigravity</span></label>
+                <label class="quota-visibility-item"><input type="checkbox" data-quota-provider="minimax" checked><span>MiniMax</span></label>
+                <label class="quota-visibility-item"><input type="checkbox" data-quota-provider="kimi" checked><span>Kimi</span></label>
+                <label class="quota-visibility-item"><input type="checkbox" data-quota-provider="grok" checked><span>Grok</span></label>
               </div>
             </div>
             <!-- TASK 2: no dedicated quota refresh button anymore — the global #refreshBtn
@@ -4535,6 +4538,9 @@
       if (provider === 'codex') return 'Codex';
       if (provider === 'claude') return 'Claude Code';
       if (provider === 'antigravity') return 'Antigravity';
+      if (provider === 'minimax') return 'MiniMax';
+      if (provider === 'kimi') return 'Kimi';
+      if (provider === 'grok') return 'Grok';
       return provider || '—';
     }
 
@@ -4542,6 +4548,9 @@
       if (provider === 'codex') return { key: 'codex_api', endpoint: 'chatgpt.com/backend-api/wham/*', path: '$CODEX_HOME/auth.json' };
       if (provider === 'claude') return { key: 'claude_api', endpoint: 'api.anthropic.com/api/oauth/usage', path: '$CLAUDE_CONFIG_DIR/.credentials.json' };
       if (provider === 'antigravity') return { key: 'antigravity_api', endpoint: 'daily-cloudcode-pa.googleapis.com/v1internal:*', path: '~/.gemini/antigravity-cli/antigravity-oauth-token' };
+      if (provider === 'minimax') return { key: 'minimax_api', endpoint: 'api.minimax.io/v1/billing', path: '~/.minimax/config.json' };
+      if (provider === 'kimi') return { key: 'kimi_api', endpoint: 'api.kimi.com/coding/v1/billing', path: '~/.kimi/config.toml' };
+      if (provider === 'grok') return { key: 'grok_api', endpoint: 'cli-chat-proxy.grok.com/v1/billing', path: '~/.grok/auth.json' };
       return { key: '', endpoint: '', path: '' };
     }
 
@@ -4847,7 +4856,7 @@
         return;
       }
       const providers = payload?.providers || {};
-      const order = ['codex', 'claude', 'antigravity'];
+      const order = ['codex', 'claude', 'antigravity', 'minimax', 'kimi', 'grok'];
       const cards = document.createDocumentFragment();
       let renderedCards = 0;
 
@@ -5016,7 +5025,7 @@
     // Provider-visibility dropdown state. The user can hide whole providers (Codex /
     // Claude / Antigravity) from both the cards and the charts; the choice is persisted
     // in localStorage and defaults to all-visible. Unknown providers default to visible.
-    const QUOTA_PROVIDERS = ['codex', 'claude', 'antigravity'];
+    const QUOTA_PROVIDERS = ['codex', 'claude', 'antigravity', 'minimax', 'kimi', 'grok'];
     const QUOTA_VISIBILITY_KEY = 'tokdash-quota-visible';
     let quotaVisibilityState = null;
 

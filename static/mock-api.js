@@ -38,7 +38,10 @@
   let quotaConsent = {
     codex_api: true,
     claude_api: true,
-    antigravity_api: true
+    antigravity_api: true,
+    minimax_api: true,
+    kimi_api: true,
+    grok_api: true
   };
   let quotaPollIntervalMinutes = 15;
   let quotaLastRun = Math.floor((Date.now() - 8 * 60 * 1000) / 1000); // 8 min ago
@@ -182,13 +185,82 @@
           "status_at": quotaLastRun,
           "updated_at": quotaLastRun,
           "sources": ["antigravity_api"]
+        },
+        "minimax": {
+          "provider": "minimax",
+          "network_enabled": quotaConsent.minimax_api,
+          "plan": "Token Plan",
+          "buckets": [
+            {
+              "account": "demo@tokdash.io",
+              "bucket": "standard",
+              "bucket_label": "Standard",
+              "used_percent": 28.0,
+              "remaining_percent": 72.0,
+              "resets_at": nextReset + 3600 * 24,
+              "captured_at": quotaLastRun,
+              "source": "minimax_api",
+              "status": "ok"
+            }
+          ],
+          "status": "ok",
+          "status_detail": null,
+          "status_at": quotaLastRun,
+          "updated_at": quotaLastRun,
+          "sources": ["minimax_api"]
+        },
+        "kimi": {
+          "provider": "kimi",
+          "network_enabled": quotaConsent.kimi_api,
+          "plan": "Coding Plan",
+          "buckets": [
+            {
+              "account": "demo@tokdash.io",
+              "bucket": "coding",
+              "bucket_label": "Coding",
+              "used_percent": 52.0,
+              "remaining_percent": 48.0,
+              "resets_at": nextReset + 3600 * 24 * 7,
+              "captured_at": quotaLastRun,
+              "source": "kimi_api",
+              "status": "ok"
+            }
+          ],
+          "status": "ok",
+          "status_detail": null,
+          "status_at": quotaLastRun,
+          "updated_at": quotaLastRun,
+          "sources": ["kimi_api"]
+        },
+        "grok": {
+          "provider": "grok",
+          "network_enabled": quotaConsent.grok_api,
+          "plan": "Build",
+          "buckets": [
+            {
+              "account": "demo@tokdash.io",
+              "bucket": "build",
+              "bucket_label": "Build",
+              "used_percent": 18.5,
+              "remaining_percent": 81.5,
+              "resets_at": nextReset + 3600 * 24 * 3,
+              "captured_at": quotaLastRun,
+              "source": "grok_api",
+              "status": "ok"
+            }
+          ],
+          "status": "ok",
+          "status_detail": null,
+          "status_at": quotaLastRun,
+          "updated_at": quotaLastRun,
+          "sources": ["grok_api"]
         }
       },
       "consent": quotaConsent,
       "enabled": quotaTrackingEnabled,
       "poll": {
         "enabled": quotaTrackingEnabled,
-        "network_enabled": quotaConsent.codex_api || quotaConsent.claude_api || quotaConsent.antigravity_api,
+        "network_enabled": quotaConsent.codex_api || quotaConsent.claude_api || quotaConsent.antigravity_api || quotaConsent.minimax_api || quotaConsent.kimi_api || quotaConsent.grok_api,
         "interval": quotaPollIntervalMinutes * 60,
         "interval_source": "config",
         "interval_minutes": quotaPollIntervalMinutes,
@@ -269,13 +341,45 @@
         bucket_label: "claude-3-5-sonnet",
         points: [],
         consumption: []
+      },
+      {
+        provider: "minimax",
+        account: "demo@tokdash.io",
+        bucket: "standard",
+        bucket_label: "Standard",
+        points: [],
+        consumption: []
+      },
+      {
+        provider: "kimi",
+        account: "demo@tokdash.io",
+        bucket: "coding",
+        bucket_label: "Coding",
+        points: [],
+        consumption: []
+      },
+      {
+        provider: "grok",
+        account: "demo@tokdash.io",
+        bucket: "build",
+        bucket_label: "Build",
+        points: [],
+        consumption: []
       }
     ];
 
     for (const s of series) {
       const baseSeed = s.provider === "codex"
         ? (s.bucket === "5h" ? 1.2 : s.bucket === "7d" ? 0.9 : s.bucket === "spark_5h" ? 1.45 : 0.65)
-        : (s.provider === "claude" ? (s.bucket === "session" ? 2.5 : 1.8) : (s.bucket.includes("gemini") ? 0.8 : 1.7));
+        : s.provider === "claude"
+        ? (s.bucket === "session" ? 2.5 : 1.8)
+        : s.provider === "antigravity"
+        ? (s.bucket.includes("gemini") ? 0.8 : 1.7)
+        : s.provider === "minimax"
+        ? 1.1
+        : s.provider === "kimi"
+        ? 1.5
+        : 0.95;
       
       for (let i = limit; i >= 0; i--) {
         const ts = nowSecs - i * period;
