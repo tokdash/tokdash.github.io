@@ -241,6 +241,8 @@
     .tool-pill:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--color-primary) 45%, var(--color-border)); box-shadow: var(--shadow-md); }
     /* White logo chip — keeps every mark (incl. dark monochrome glyphs) legible in light & dark. */
     .tool-logo { width: 30px; height: 30px; flex: none; object-fit: contain; border-radius: 7px; background: #fff; padding: 4px; box-shadow: inset 0 0 0 1px rgba(15,23,42,0.06); }
+    /* Same chip for marks that are wordmarks: they carry the name, so the pill prints no label. */
+    .tool-logo.is-wordmark { width: auto; height: 26px; max-width: 100%; padding: 4px 8px; }
     .tool-dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
 
     /* ---- Hero preview mini-dashboard ---- */
@@ -310,6 +312,433 @@
     .savings-box { border-radius: 12px; padding: 14px;
       background: color-mix(in srgb, var(--color-cost) 12%, transparent);
       border: 1px solid color-mix(in srgb, var(--color-cost) 30%, transparent); }
+
+    /* ---- companion mock (ported from UI_CONCEPT.html) ----
+       Static "connected" rendering of the macOS menu-bar popover and the Windows
+       tray flyout. Every rule is scoped under .comp-mock so nothing leaks into
+       page classes (.dot, .bar, .surface, .chip) or vice versa; the prototype's
+       ".mac-frame.dark" / ".win-frame.dark" variants are rewired to the site
+       theme as "html.dark .comp-mock ...". Mock text stays English. */
+    .comp-mock { position: relative; overflow: hidden; user-select: none; container-type: inline-size; }
+    .comp-mock .os-frame { position: relative; overflow: hidden; height: 580px; font-size: 14px; line-height: 1.45; }
+    @media (prefers-reduced-transparency: reduce) {
+      .comp-mock .mac-pop, .comp-mock .win-fly { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+    }
+
+    /* shared: connection dot (page .dot is only styled inside .chip) */
+    .comp-mock .dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; flex: none; }
+    .comp-mock .dot.ok { background: #30A74C; }
+    .comp-mock .dot.warn, .comp-mock .dot.busy { background: #FF9F0A; }
+    .comp-mock .dot.err { background: #FF453A; }
+
+    /* ===== macOS frame ===== */
+    .comp-mock .mac-frame { background: linear-gradient(160deg, #8FA8B8 0%, #6E8899 34%, #51697C 62%, #3B4F61 100%); }
+    html.dark .comp-mock .mac-frame { background: linear-gradient(160deg, #37444F 0%, #2A3540 45%, #1C242D 100%); }
+
+    .comp-mock .mac-menubar {
+      position: absolute; top: 0; left: 0; right: 0; height: 26px;
+      display: flex; align-items: center; gap: 14px; padding: 0 12px;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+      font-size: 13px; color: rgba(0,0,0,0.85);
+      background: rgba(246, 246, 248, 0.55);
+      backdrop-filter: blur(24px) saturate(1.5);
+      -webkit-backdrop-filter: blur(24px) saturate(1.5);
+      white-space: nowrap; overflow: hidden;
+    }
+    html.dark .comp-mock .mac-menubar { color: rgba(255,255,255,0.92); background: rgba(28,28,30,0.45); }
+    .comp-mock .mac-menubar .app { font-weight: 700; flex: none; }
+    .comp-mock .mac-menubar .dim { opacity: 0.75; }
+    .comp-mock .mac-menubar .mi { min-width: 0; overflow: hidden; }
+    .comp-mock .mac-menubar .apple, .comp-mock .mac-menubar .clock { flex: none; }
+    .comp-mock .mac-menubar .spacer { flex: 1; min-width: 2px; }
+    .comp-mock .mac-menubar .mb-right { display: flex; align-items: center; gap: 12px; flex: none; }
+    .comp-mock .mac-menubar svg { display: block; }
+    @container (max-width: 560px) {
+      .comp-mock .mac-menubar .mi { display: none; }
+    }
+
+    /* menu-bar extra (open state = active) */
+    .comp-mock .mac-extra {
+      position: relative; flex: none;
+      display: flex; align-items: center; justify-content: center;
+      width: 26px; height: 22px; margin: 0 -4px;
+      border: 0; background: transparent; border-radius: 4px;
+      cursor: pointer; color: inherit; padding: 0;
+    }
+    .comp-mock .mac-extra:hover, .comp-mock .mac-extra.active { background: rgba(0,0,0,0.10); }
+    html.dark .comp-mock .mac-extra:hover, html.dark .comp-mock .mac-extra.active { background: rgba(255,255,255,0.14); }
+
+    .comp-mock .mac-tip {
+      position: absolute; top: 30px; left: 50%; transform: translateX(-50%);
+      white-space: nowrap; font-size: 12px; padding: 3px 8px; border-radius: 5px;
+      background: rgba(240, 240, 242, 0.96); color: #1D1D1F;
+      border: 0.5px solid rgba(0,0,0,0.15);
+      box-shadow: 0 3px 10px rgba(0,0,0,0.18);
+      pointer-events: none; opacity: 0; transition: opacity 120ms ease;
+      z-index: 30;
+    }
+    html.dark .comp-mock .mac-tip { background: rgba(56,56,58,0.97); color: #F2F2F2; border-color: rgba(255,255,255,0.18); }
+    .comp-mock .mac-extra:hover .mac-tip { opacity: 1; }
+
+    /* popover (MenuBarExtra .window style) */
+    .comp-mock .mac-pop {
+      position: absolute; top: 34px; right: 10px; width: 352px; max-width: calc(100% - 20px);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+      color: #1D1D1F;
+      background: rgba(242, 242, 245, 0.78);
+      backdrop-filter: blur(30px) saturate(1.7);
+      -webkit-backdrop-filter: blur(30px) saturate(1.7);
+      border: 0.5px solid rgba(0,0,0,0.12);
+      border-radius: 14px;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.28), 0 1px 4px rgba(0,0,0,0.12);
+      z-index: 20;
+    }
+    html.dark .comp-mock .mac-pop { color: #F2F2F2; background: rgba(34, 34, 37, 0.74); border-color: rgba(255,255,255,0.16); }
+    @media (prefers-reduced-transparency: reduce) {
+      .comp-mock .mac-pop { background: #F2F2F5; }
+      html.dark .comp-mock .mac-pop { background: #222225; }
+    }
+    .comp-mock .mac-pop .inner { padding: 4px 0; }
+    .comp-mock .mac-pop section { padding: 12px 16px; }
+    .comp-mock .mac-pop .hairline { border-top: 0.5px solid rgba(60,60,67,0.16); }
+    html.dark .comp-mock .mac-pop .hairline { border-top-color: rgba(235,235,245,0.14); }
+
+    .comp-mock .mac-head { display: flex; align-items: center; gap: 8px; }
+    .comp-mock .mac-head .wordmark { font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 7px; white-space: nowrap; flex: none; }
+    .comp-mock .mac-head .conn { font-size: 12px; color: rgba(60,60,67,0.75); display: flex; align-items: center; gap: 5px; white-space: nowrap; min-width: 0; overflow: hidden; }
+    html.dark .comp-mock .mac-head .conn { color: rgba(235,235,245,0.62); }
+    .comp-mock .mac-head .grow { flex: 1; min-width: 2px; }
+
+    .comp-mock .mac-icon-btn {
+      appearance: none; border: 0; background: transparent; color: rgba(60,60,67,0.8); flex: none;
+      width: 26px; height: 26px; border-radius: 6px; cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center; padding: 0;
+    }
+    .comp-mock .mac-icon-btn:hover { background: rgba(0,0,0,0.07); }
+    html.dark .comp-mock .mac-icon-btn { color: rgba(235,235,245,0.75); }
+    html.dark .comp-mock .mac-icon-btn:hover { background: rgba(255,255,255,0.10); }
+
+    .comp-mock .mac-hero .kicker {
+      font-size: 11px; font-weight: 600; letter-spacing: 0.05em;
+      color: rgba(60,60,67,0.62); text-transform: uppercase; margin: 0 0 2px;
+    }
+    html.dark .comp-mock .mac-hero .kicker { color: rgba(235,235,245,0.55); }
+    .comp-mock .mac-hero .big { font-size: 30px; font-weight: 650; letter-spacing: -0.01em; line-height: 1.15; margin: 0; }
+    .comp-mock .mac-hero .sub { font-size: 12.5px; color: rgba(60,60,67,0.78); margin: 2px 0 0; }
+    html.dark .comp-mock .mac-hero .sub { color: rgba(235,235,245,0.65); }
+    .comp-mock .mac-hero .cmp { font-size: 12.5px; margin: 5px 0 0; display: flex; align-items: center; gap: 4px; }
+    .comp-mock .mac-frame .cmp.down { color: #248A3D; }
+    .comp-mock .mac-frame .cmp.up { color: #D70015; }
+    html.dark .comp-mock .mac-frame .cmp.down { color: #32D74B; }
+    html.dark .comp-mock .mac-frame .cmp.up { color: #FF6961; }
+
+    .comp-mock .mac-month { display: flex; align-items: baseline; gap: 10px; font-size: 12.5px; }
+    .comp-mock .mac-month .kicker {
+      font-size: 11px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase;
+      color: rgba(60,60,67,0.62);
+    }
+    html.dark .comp-mock .mac-month .kicker { color: rgba(235,235,245,0.55); }
+    .comp-mock .mac-month .val { font-weight: 600; }
+    .comp-mock .mac-month .muted { color: rgba(60,60,67,0.72); }
+    html.dark .comp-mock .mac-month .muted { color: rgba(235,235,245,0.6); }
+
+    .comp-mock .mac-quota .kicker {
+      font-size: 11px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase;
+      color: rgba(60,60,67,0.62); margin: 0 0 8px;
+    }
+    html.dark .comp-mock .mac-quota .kicker { color: rgba(235,235,245,0.55); }
+    .comp-mock .qrow { margin: 0 0 10px; }
+    .comp-mock .qrow:last-child { margin-bottom: 0; }
+    .comp-mock .qrow .qtop { display: flex; align-items: baseline; gap: 8px; font-size: 12.5px; }
+    .comp-mock .qrow .qname { font-weight: 500; white-space: nowrap; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+    .comp-mock .qrow .qleft { margin-left: auto; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .comp-mock .qrow .qreset { color: rgba(60,60,67,0.65); font-size: 12px; white-space: nowrap; }
+    html.dark .comp-mock .mac-frame .qrow .qreset { color: rgba(235,235,245,0.55); }
+    .comp-mock .qrow .est { font-size: 10.5px; color: rgba(60,60,67,0.55); border: 0.5px solid rgba(60,60,67,0.3); border-radius: 4px; padding: 0 4px; white-space: nowrap; flex: none; }
+    html.dark .comp-mock .mac-frame .qrow .est { color: rgba(235,235,245,0.5); border-color: rgba(235,235,245,0.3); }
+    .comp-mock .qbar { height: 4px; border-radius: 2px; background: rgba(60,60,67,0.14); margin-top: 5px; overflow: hidden; }
+    html.dark .comp-mock .mac-frame .qbar { background: rgba(235,235,245,0.16); }
+    .comp-mock .qbar > i { display: block; height: 100%; border-radius: 2px; }
+    .comp-mock .mac-frame .qbar > i.fine { background: #30A74C; }
+    .comp-mock .mac-frame .qbar > i.mid { background: #FF9F0A; }
+    .comp-mock .mac-frame .qbar > i.low { background: #FF453A; }
+
+    .comp-mock .mac-activity { font-size: 12px; color: rgba(60,60,67,0.68); }
+    html.dark .comp-mock .mac-activity { color: rgba(235,235,245,0.55); }
+    .comp-mock .mac-activity b { font-weight: 500; color: rgba(29,29,31,0.85); }
+    html.dark .comp-mock .mac-activity b { color: rgba(242,242,242,0.8); }
+
+    .comp-mock .mac-actions { display: flex; gap: 8px; align-items: center; }
+    .comp-mock .mac-btn {
+      appearance: none; font: inherit; font-size: 13px; cursor: pointer;
+      border-radius: 6px; border: 0.5px solid rgba(0,0,0,0.16);
+      background: rgba(255,255,255,0.65); color: #1D1D1F;
+      padding: 3px 12px 4px; box-shadow: 0 0.5px 1.5px rgba(0,0,0,0.08);
+    }
+    .comp-mock .mac-btn:hover { background: rgba(255,255,255,0.85); }
+    html.dark .comp-mock .mac-btn { background: rgba(255,255,255,0.16); color: #F2F2F2; border-color: rgba(255,255,255,0.12); }
+    html.dark .comp-mock .mac-btn:hover { background: rgba(255,255,255,0.22); }
+    .comp-mock .mac-btn.primary { background: #0A6CFF; border-color: transparent; color: #fff; font-weight: 500; }
+    .comp-mock .mac-btn.primary:hover { background: #0A5FE8; }
+    html.dark .comp-mock .mac-btn.primary { background: #0A84FF; }
+    html.dark .comp-mock .mac-btn.primary:hover { background: #2E94FF; }
+    .comp-mock .mac-btn.icon { padding: 3px 7px 4px; display: inline-flex; align-items: center; }
+
+    .comp-mock .mac-foot { display: flex; align-items: center; padding-top: 8px !important; padding-bottom: 10px !important; }
+    .comp-mock .mac-foot .fresh { font-size: 11px; color: rgba(60,60,67,0.55); }
+    html.dark .comp-mock .mac-foot .fresh { color: rgba(235,235,245,0.45); }
+    .comp-mock .mac-foot .grow { flex: 1; }
+    .comp-mock .mac-foot .quit {
+      appearance: none; border: 0; background: transparent; cursor: pointer;
+      font: inherit; font-size: 11px; color: rgba(60,60,67,0.55); padding: 2px 4px; border-radius: 4px;
+    }
+    .comp-mock .mac-foot .quit:hover { color: #1D1D1F; background: rgba(0,0,0,0.06); }
+    html.dark .comp-mock .mac-foot .quit { color: rgba(235,235,245,0.45); }
+    html.dark .comp-mock .mac-foot .quit:hover { color: #F2F2F2; background: rgba(255,255,255,0.1); }
+
+    /* quota section header + Low/All segmented control */
+    .comp-mock .qhead { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin: 0 0 8px; }
+    .comp-mock .qhead .kicker { margin: 0; }
+    .comp-mock .qseg { display: inline-flex; border-radius: 6px; padding: 1px; background: rgba(60,60,67,0.10); flex: none; }
+    html.dark .comp-mock .qseg { background: rgba(235,235,245,0.12); }
+    .comp-mock .qseg button {
+      appearance: none; border: 0; background: transparent; cursor: pointer;
+      font: inherit; font-size: 11px; padding: 1px 9px 2px; border-radius: 5px;
+      color: rgba(60,60,67,0.75);
+    }
+    html.dark .comp-mock .qseg button { color: rgba(235,235,245,0.65); }
+    .comp-mock .qseg button[aria-pressed="true"] {
+      background: rgba(255,255,255,0.95); color: #1D1D1F; font-weight: 500;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.12);
+    }
+    html.dark .comp-mock .mac-frame .qseg button[aria-pressed="true"] { background: rgba(99,99,102,0.85); color: #F2F2F2; }
+    .comp-mock .win-fly .qseg { border-radius: 4px; }
+    .comp-mock .win-fly .qseg button { border-radius: 3px; }
+    .comp-mock .win-fly .qseg button[aria-pressed="true"] { background: #fff; color: #1B1B1B; font-weight: 600; }
+    html.dark .comp-mock .win-fly .qseg button[aria-pressed="true"] { background: rgba(255,255,255,0.18); color: #F3F3F3; }
+
+    /* ===== Windows frame ===== */
+    .comp-mock .win-frame {
+      background:
+        radial-gradient(700px 380px at 30% 30%, rgba(90,140,200,0.35), transparent 70%),
+        radial-gradient(600px 400px at 75% 65%, rgba(70,110,160,0.30), transparent 70%),
+        linear-gradient(150deg, #24425E 0%, #1B3349 50%, #14273A 100%);
+    }
+    html.dark .comp-mock .win-frame {
+      background:
+        radial-gradient(700px 380px at 30% 30%, rgba(60,100,150,0.25), transparent 70%),
+        linear-gradient(150deg, #16242F 0%, #0F1A24 55%, #0A1219 100%);
+    }
+    .comp-mock .win-frame, .comp-mock .win-frame * { font-family: "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif; }
+
+    .comp-mock .win-taskbar {
+      position: absolute; left: 0; right: 0; bottom: 0; height: 48px;
+      display: flex; align-items: center; justify-content: center; gap: 4px;
+      background: rgba(238, 243, 249, 0.78);
+      backdrop-filter: blur(24px) saturate(1.4);
+      -webkit-backdrop-filter: blur(24px) saturate(1.4);
+      border-top: 1px solid rgba(0,0,0,0.08);
+      z-index: 25; overflow: hidden;
+    }
+    html.dark .comp-mock .win-taskbar { background: rgba(28, 32, 38, 0.82); border-top-color: rgba(255,255,255,0.09); }
+    .comp-mock .win-tb-btn {
+      appearance: none; border: 0; background: transparent; cursor: pointer; flex: none;
+      width: 40px; height: 40px; border-radius: 5px;
+      display: inline-flex; align-items: center; justify-content: center; padding: 0;
+    }
+    .comp-mock .win-tb-btn:hover { background: rgba(0,0,0,0.06); }
+    html.dark .comp-mock .win-tb-btn:hover { background: rgba(255,255,255,0.09); }
+    @container (max-width: 560px) {
+      .comp-mock .win-tb-btn.tb-opt { display: none; }
+    }
+    /* The tray is absolutely positioned over the taskbar's right edge (z 26 > 25).
+       Pad the taskbar so the centered pinned group centers in the space left of
+       the tray instead of sliding underneath it at narrow frame widths. */
+    @container (max-width: 660px) {
+      .comp-mock .win-taskbar { padding-right: 190px; }
+    }
+
+    .comp-mock .win-tray {
+      position: absolute; right: 0; bottom: 0; height: 48px;
+      display: flex; align-items: center; gap: 2px; padding-right: 4px;
+      z-index: 26;
+    }
+    .comp-mock .win-tray .sys { display: flex; align-items: center; gap: 2px; flex: none; }
+    .comp-mock .win-clock {
+      appearance: none; border: 0; background: transparent; cursor: pointer; flex: none;
+      font: inherit; font-size: 12px; line-height: 1.25; text-align: right;
+      color: #1B1B1B; padding: 4px 8px; border-radius: 5px;
+    }
+    html.dark .comp-mock .win-clock { color: #F3F3F3; }
+    .comp-mock .win-clock:hover { background: rgba(0,0,0,0.06); }
+    html.dark .comp-mock .win-clock:hover { background: rgba(255,255,255,0.09); }
+    .comp-mock .win-tray-icon {
+      appearance: none; border: 0; background: transparent; cursor: pointer;
+      width: 32px; height: 40px; border-radius: 5px; padding: 0;
+      display: inline-flex; align-items: center; justify-content: center;
+      position: relative; flex: none;
+    }
+    .comp-mock .win-tray-icon:hover { background: rgba(0,0,0,0.06); }
+    html.dark .comp-mock .win-tray-icon:hover { background: rgba(255,255,255,0.09); }
+    .comp-mock .win-tray-icon.active { background: rgba(0,0,0,0.10); }
+    html.dark .comp-mock .win-tray-icon.active { background: rgba(255,255,255,0.14); }
+    .comp-mock .win-desktop-edge { position: absolute; right: 0; bottom: 0; width: 4px; height: 48px; border-left: 1px solid rgba(0,0,0,0.15); z-index: 27; }
+
+    .comp-mock .win-tip {
+      position: absolute; bottom: 52px; right: 0; transform: translateX(30%);
+      white-space: nowrap; font-size: 12px; padding: 5px 9px;
+      background: #F9F9F9; color: #1B1B1B;
+      border: 1px solid #767676; border-radius: 4px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+      pointer-events: none; opacity: 0; transition: opacity 100ms ease;
+      z-index: 50;
+    }
+    html.dark .comp-mock .win-tip { background: #2B2B2B; color: #F3F3F3; border-color: #8A8A8A; }
+    .comp-mock .win-tray-icon:hover .win-tip { opacity: 1; }
+
+    /* Acrylic flyout */
+    .comp-mock .win-fly {
+      position: absolute; right: 8px; bottom: 56px; width: 384px; max-width: calc(100% - 16px);
+      color: #1B1B1B;
+      background:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.03 0'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E"),
+        rgba(242, 244, 247, 0.86);
+      backdrop-filter: blur(32px) saturate(1.25);
+      -webkit-backdrop-filter: blur(32px) saturate(1.25);
+      border: 1px solid rgba(0,0,0,0.10);
+      border-radius: 8px;
+      box-shadow: 0 16px 48px rgba(0,0,0,0.35), 0 2px 8px rgba(0,0,0,0.18);
+      z-index: 40;
+    }
+    html.dark .comp-mock .win-fly {
+      color: #F3F3F3;
+      background:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.04 0'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E"),
+        rgba(38, 42, 48, 0.88);
+      border-color: rgba(255,255,255,0.10);
+    }
+    @media (prefers-reduced-transparency: reduce) {
+      .comp-mock .win-fly { background: #F2F4F7; }
+      html.dark .comp-mock .win-fly { background: #26292F; }
+    }
+    .comp-mock .win-fly .inner { display: flex; flex-direction: column; }
+    .comp-mock .win-fly section { padding: 14px 16px; }
+    .comp-mock .win-fly .divider { border-top: 1px solid rgba(0,0,0,0.07); }
+    html.dark .comp-mock .win-fly .divider { border-top-color: rgba(255,255,255,0.08); }
+
+    .comp-mock .win-head { display: flex; align-items: center; gap: 8px; }
+    .comp-mock .win-head .wordmark { font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 8px; white-space: nowrap; flex: none; }
+    .comp-mock .win-head .conn { font-size: 12px; color: #5F5F5F; display: flex; align-items: center; gap: 6px; white-space: nowrap; min-width: 0; overflow: hidden; }
+    html.dark .comp-mock .win-head .conn { color: #B5B5B5; }
+    .comp-mock .win-head .grow { flex: 1; min-width: 2px; }
+    .comp-mock .win-icon-btn {
+      appearance: none; border: 0; background: transparent; cursor: pointer; color: inherit; flex: none;
+      width: 30px; height: 30px; border-radius: 4px; padding: 0;
+      display: inline-flex; align-items: center; justify-content: center;
+    }
+    .comp-mock .win-icon-btn:hover { background: rgba(0,0,0,0.06); }
+    .comp-mock .win-icon-btn:active { background: rgba(0,0,0,0.10); }
+    html.dark .comp-mock .win-icon-btn:hover { background: rgba(255,255,255,0.09); }
+    html.dark .comp-mock .win-icon-btn:active { background: rgba(255,255,255,0.13); }
+
+    .comp-mock .win-hero .kicker { font-size: 11px; font-weight: 600; letter-spacing: 0.03em; text-transform: uppercase; color: #5F5F5F; margin: 0 0 2px; }
+    html.dark .comp-mock .win-hero .kicker { color: #B0B0B0; }
+    .comp-mock .win-hero .big { font-size: 28px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.2; margin: 0; }
+    .comp-mock .win-hero .sub { font-size: 12.5px; color: #4D4D4D; margin: 3px 0 0; }
+    html.dark .comp-mock .win-hero .sub { color: #C2C2C2; }
+    .comp-mock .win-hero .cmp { font-size: 12.5px; margin: 6px 0 0; display: flex; align-items: center; gap: 5px; }
+    .comp-mock .win-frame .cmp.down { color: #0F7B0F; }
+    .comp-mock .win-frame .cmp.up { color: #C42B1C; }
+    html.dark .comp-mock .win-frame .cmp.down { color: #6CCB5F; }
+    html.dark .comp-mock .win-frame .cmp.up { color: #FF99A4; }
+
+    .comp-mock .win-month { display: flex; align-items: baseline; gap: 10px; font-size: 12.5px; }
+    .comp-mock .win-month .kicker { font-size: 11px; font-weight: 600; letter-spacing: 0.03em; text-transform: uppercase; color: #5F5F5F; }
+    html.dark .comp-mock .win-month .kicker { color: #B0B0B0; }
+    .comp-mock .win-month .val { font-weight: 600; }
+    .comp-mock .win-month .muted { color: #4D4D4D; }
+    html.dark .comp-mock .win-month .muted { color: #C2C2C2; }
+
+    .comp-mock .win-quota .kicker { font-size: 11px; font-weight: 600; letter-spacing: 0.03em; text-transform: uppercase; color: #5F5F5F; margin: 0 0 10px; }
+    html.dark .comp-mock .win-quota .kicker { color: #B0B0B0; }
+    .comp-mock .win-fly .qrow { margin: 0 0 12px; }
+    .comp-mock .win-fly .qrow:last-child { margin-bottom: 0; }
+    .comp-mock .win-fly .qrow .qreset { color: #5F5F5F; font-size: 12px; }
+    html.dark .comp-mock .win-fly .qrow .qreset { color: #B0B0B0; }
+    .comp-mock .win-fly .qrow .est { font-size: 10.5px; color: #5F5F5F; border: 1px solid #ADADAD; border-radius: 3px; }
+    html.dark .comp-mock .win-fly .qrow .est { color: #B0B0B0; border-color: #6E6E6E; }
+    .comp-mock .win-fly .qbar { height: 4px; border-radius: 2px; background: rgba(0,0,0,0.10); margin-top: 6px; }
+    html.dark .comp-mock .win-fly .qbar { background: rgba(255,255,255,0.14); }
+    .comp-mock .win-fly .qbar > i.fine { background: #0F7B0F; }
+    .comp-mock .win-fly .qbar > i.mid { background: #CA5010; }
+    .comp-mock .win-fly .qbar > i.low { background: #C42B1C; }
+    html.dark .comp-mock .win-fly .qbar > i.fine { background: #6CCB5F; }
+    html.dark .comp-mock .win-fly .qbar > i.mid { background: #F7630C; }
+    html.dark .comp-mock .win-fly .qbar > i.low { background: #FF99A4; }
+
+    .comp-mock .win-activity { font-size: 12px; color: #5F5F5F; }
+    html.dark .comp-mock .win-activity { color: #B0B0B0; }
+    .comp-mock .win-activity b { font-weight: 600; color: #2B2B2B; }
+    html.dark .comp-mock .win-activity b { color: #E0E0E0; }
+
+    .comp-mock .win-actions { display: flex; gap: 8px; align-items: center; }
+    .comp-mock .win-btn {
+      appearance: none; font: inherit; font-size: 13px; cursor: pointer;
+      border-radius: 4px; border: 1px solid rgba(0,0,0,0.14);
+      border-bottom-color: rgba(0,0,0,0.28);
+      background: rgba(255,255,255,0.7); color: #1B1B1B;
+      padding: 5px 14px 6px;
+    }
+    .comp-mock .win-btn:hover { background: rgba(0,0,0,0.04); }
+    html.dark .comp-mock .win-btn {
+      background: rgba(255,255,255,0.09); color: #F3F3F3;
+      border-color: rgba(255,255,255,0.10); border-bottom-color: rgba(255,255,255,0.20);
+    }
+    html.dark .comp-mock .win-btn:hover { background: rgba(255,255,255,0.13); }
+    .comp-mock .win-btn.primary {
+      background: #0067C0; border-color: transparent; border-bottom-color: rgba(0,0,0,0.30);
+      color: #fff;
+    }
+    .comp-mock .win-btn.primary:hover { background: #1975C5; }
+    html.dark .comp-mock .win-btn.primary { background: #4CC2FF; color: #0F1A24; font-weight: 600; }
+    html.dark .comp-mock .win-btn.primary:hover { background: #69CDFF; }
+
+    .comp-mock .win-foot {
+      display: flex; align-items: center;
+      background: rgba(0,0,0,0.03);
+      border-top: 1px solid rgba(0,0,0,0.06);
+      border-radius: 0 0 8px 8px;
+      padding: 8px 16px !important;
+    }
+    html.dark .comp-mock .win-foot { background: rgba(255,255,255,0.04); border-top-color: rgba(255,255,255,0.08); }
+    .comp-mock .win-foot .fresh { font-size: 11px; color: #767676; }
+    html.dark .comp-mock .win-foot .fresh { color: #9A9A9A; }
+    .comp-mock .win-foot .grow { flex: 1; min-width: 4px; }
+    /* ===== Claude Code statusline mock (third companion figure) =====
+       Reuses the page's .terminal pattern; only scoped tweaks live here.
+       (.comp-wide spans the section's sm:grid-cols-2 grid — landing.css is
+       purged and has no col-span utility, so the span lives here.) */
+    @media (min-width: 640px) {
+      .comp-wide { grid-column: 1 / -1; }
+    }
+    .comp-mock .terminal { border-radius: 0; box-shadow: none; }
+    .comp-mock .terminal-body { padding: 16px 18px; font-size: 12.5px; line-height: 1.9; overflow-x: auto; }
+    .comp-mock .terminal-body::-webkit-scrollbar { height: 5px; }
+    .comp-mock .terminal-body::-webkit-scrollbar-thumb { background: rgba(148,163,184,0.35); border-radius: 3px; }
+    .comp-mock .sl { margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.08); white-space: nowrap; }
+    .comp-mock .sl-dim { opacity: 0.6; }
+    .comp-mock .sl-sep { color: #5C6370; }
+    .comp-mock .sl-cyan { color: #56B6C2; }
+    .comp-mock .sl-green { color: #98C379; }
+    .comp-mock .sl-magenta { color: #C678DD; }
+    .comp-mock .sl-yellow { color: #E5C07B; }
+    .comp-mock .sl-red { color: #E06C75; }
+    .comp-mock .sl-claude { color: #FF8700; }
+    .comp-mock .sl-codex { color: #00AF87; }
+    @container (max-width: 800px) {
+      .comp-mock .terminal-body { font-size: 11.5px; }
+    }
+    /* ---- end companion mock ---- */
   </style>
 </head>
 
@@ -326,6 +755,7 @@
         <a href="#features" class="nav-link" data-i18n="nav.features">Features</a>
         <a href="#tools" class="nav-link" data-i18n="nav.tools">Tools</a>
         <a href="#privacy" class="nav-link" data-i18n="nav.privacy">Privacy</a>
+        <a href="#companion" class="nav-link" data-i18n="nav.companion">Companion</a>
         <a href="#install" class="nav-link" data-i18n="nav.install">Install</a>
         <a href="/demo/" class="nav-link" data-i18n="nav.demo">Demo</a>
       </nav>
@@ -465,7 +895,7 @@
     <section id="tools" class="max-w-[1180px] mx-auto px-4 sm:px-6 py-14 lg:py-20">
       <div class="text-center max-w-2xl mx-auto reveal">
         <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight" data-i18n="tools.h">One dashboard for every agent</h2>
-        <p class="text-muted mt-3" data-i18n="tools.sub">Tokdash unifies usage across nine AI coding tools — switch agents without losing the bill.</p>
+        <p class="text-muted mt-3" data-i18n="tools.sub">Tokdash unifies usage across twelve AI coding tools — switch agents without losing the bill.</p>
       </div>
 
       <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 mt-10 max-w-3xl mx-auto reveal">
@@ -473,8 +903,11 @@
         <a href="https://www.claude.com/product/claude-code" target="_blank" rel="noopener" class="tool-pill"><img class="tool-logo" src="/static/icons/agents/claude.svg" alt="Claude Code logo" loading="lazy" onerror="this.style.display='none'">Claude Code</a>
         <a href="https://opencode.ai/" target="_blank" rel="noopener" class="tool-pill"><img class="tool-logo" src="/static/icons/agents/opencode.png" alt="OpenCode logo" loading="lazy" onerror="this.style.display='none'">OpenCode</a>
         <a href="https://github.com/google-gemini/gemini-cli" target="_blank" rel="noopener" class="tool-pill"><img class="tool-logo" src="/static/icons/agents/gemini.svg" alt="Gemini CLI logo" loading="lazy" onerror="this.style.display='none'">Gemini CLI</a>
+        <a href="https://antigravity.google/" target="_blank" rel="noopener" class="tool-pill"><img class="tool-logo" src="/static/icons/agents/antigravity.png" alt="Antigravity logo" loading="lazy" onerror="this.style.display='none'">Antigravity</a>
         <a href="https://openclaw.ai/" target="_blank" rel="noopener" class="tool-pill"><img class="tool-logo" src="/static/icons/agents/openclaw.png" alt="OpenClaw logo" loading="lazy" onerror="this.style.display='none'">OpenClaw</a>
         <a href="https://github.com/MoonshotAI/kimi-cli" target="_blank" rel="noopener" class="tool-pill"><img class="tool-logo" src="/static/icons/agents/kimi.png" alt="Kimi CLI logo" loading="lazy" onerror="this.style.display='none'">Kimi CLI</a>
+        <a href="https://mimo.xiaomi.com/coder" target="_blank" rel="noopener" class="tool-pill" title="MiMo Code"><img class="tool-logo is-wordmark" src="/static/icons/agents/mimo.svg" alt="Xiaomi MiMo Code" loading="lazy" onerror="this.style.display='none'"></a>
+        <a href="https://grok.com/build" target="_blank" rel="noopener" class="tool-pill"><img class="tool-logo" src="/static/icons/agents/grok.png" alt="Grok Build logo" loading="lazy" onerror="this.style.display='none'">Grok Build</a>
         <a href="https://pi.dev/" target="_blank" rel="noopener" class="tool-pill"><img class="tool-logo" src="/static/icons/agents/pi.png" alt="Pi logo" loading="lazy" onerror="this.style.display='none'">Pi</a>
         <a href="https://github.com/features/copilot" target="_blank" rel="noopener" class="tool-pill"><img class="tool-logo" src="/static/icons/agents/copilot.svg" alt="GitHub Copilot CLI logo" loading="lazy" onerror="this.style.display='none'">Copilot CLI</a>
         <a href="https://hermes-agent.nousresearch.com/" target="_blank" rel="noopener" class="tool-pill"><img class="tool-logo" src="/static/icons/agents/hermes.png" alt="Hermes logo" loading="lazy" onerror="this.style.display='none'">Hermes</a>
@@ -625,6 +1058,265 @@
       </div>
     </section>
 
+    <!-- ============ COMPANION APP ============ -->
+    <section id="companion" class="max-w-[1180px] mx-auto px-4 sm:px-6 py-14 lg:py-20">
+      <div class="text-center reveal">
+        <span class="chip" data-i18n="comp.eyebrow"><span class="dot"></span> Companion app</span>
+        <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight mt-5" data-i18n="comp.h">Today's spend, one click away in your menu bar</h2>
+        <p class="text-muted mt-3 max-w-2xl mx-auto" data-i18n="comp.sub">Tokdash Companion is a native menu-bar (macOS) and tray (Windows) client for your local Tokdash service. Read-only, privacy-first — no telemetry, and it talks only to the endpoint you configure.</p>
+      </div>
+
+      <!-- HTML/CSS mockups (ported from UI_CONCEPT.html; replaces the old screenshots) -->
+      <div class="grid sm:grid-cols-2 gap-6 mt-10 max-w-3xl mx-auto">
+        <figure class="surface surface-static overflow-hidden reveal">
+          <div class="comp-mock" role="img" aria-label="Tokdash Companion macOS menu-bar popover showing today's spend and quota bars">
+            <div class="os-frame mac-frame">
+              <div class="mac-menubar" aria-hidden="true">
+                <svg class="apple" width="14" height="14" viewBox="0 0 384 512" fill="currentColor" aria-hidden="true"><path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/></svg>
+                <span class="app">Finder</span>
+                <span class="dim mi">File</span><span class="dim mi">Edit</span><span class="dim mi mi-opt">View</span><span class="dim mi mi-opt">Go</span><span class="dim mi mi-opt">Window</span><span class="dim mi mi-opt">Help</span>
+                <span class="spacer"></span>
+                <span class="mb-right">
+                  <svg width="15" height="11" viewBox="0 0 20 14" fill="currentColor" aria-hidden="true"><path d="M10 12.5a1.7 1.7 0 1 0 0 .01M10 9c-1.9 0-3.6.7-4.9 1.9l1.4 1.4A4.9 4.9 0 0 1 10 11c1.3 0 2.6.5 3.5 1.3l1.4-1.4A6.9 6.9 0 0 0 10 9zm0-4C7 5 4.2 6.1 2 8.3l1.4 1.4A9.3 9.3 0 0 1 10 7c2.5 0 4.8 1 6.6 2.7L18 8.3A11.3 11.3 0 0 0 10 5zm0-4C6.1 1 2.5 2.6-.6 5.6L.8 7A14.6 14.6 0 0 1 10 3c3.6 0 6.9 1.4 9.2 4l1.4-1.4A16.6 16.6 0 0 0 10 1z"/></svg>
+                  <svg width="22" height="11" viewBox="0 0 25 12" fill="none" stroke="currentColor" aria-hidden="true"><rect x="0.5" y="0.5" width="21" height="11" rx="3"/><rect x="2" y="2" width="14" height="8" rx="1.5" fill="currentColor" stroke="none"/><path d="M23.5 4v4a2.2 2.2 0 0 0 0-4z" fill="currentColor" stroke="none"/></svg>
+                  <button type="button" class="mac-extra active" tabindex="-1" title="Tokdash — Today $3.42 · 18.7M tokens">
+                    <!-- Monochrome template variant of the Tokdash logo -->
+                    <svg width="16" height="17" viewBox="0 0 371 394" fill="currentColor" aria-hidden="true">
+                      <rect x="24" y="24" width="323" height="296" rx="56" fill="none" stroke="currentColor" stroke-width="26"/>
+                      <path d="M146 312 L146 380 L226 312 Z"/>
+                      <rect x="90" y="228" width="46" height="70" rx="7"/>
+                      <rect x="170" y="192" width="46" height="106" rx="7"/>
+                      <rect x="250" y="142" width="46" height="156" rx="7"/>
+                      <path d="M98 240 L160 158 L216 184 L294 84" fill="none" stroke="currentColor" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+                      <circle cx="98" cy="240" r="20"/><circle cx="160" cy="158" r="20"/><circle cx="216" cy="184" r="20"/><circle cx="294" cy="84" r="20"/>
+                    </svg>
+                    <span class="mac-tip" role="tooltip">Tokdash — Today $3.42 · 18.7M tokens</span>
+                  </button>
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><circle cx="7" cy="7" r="5.2"/><path d="m11 11 3.4 3.4" stroke-linecap="round"/></svg>
+                  <svg width="15" height="11" viewBox="0 0 16 12" fill="currentColor" aria-hidden="true"><rect x="0" y="0" width="16" height="3.4" rx="1.7"/><rect x="0" y="4.3" width="16" height="3.4" rx="1.7"/><rect x="0" y="8.6" width="16" height="3.4" rx="1.7"/></svg>
+                  <span class="dim clock">Sat 25 Jul&nbsp;&nbsp;20:20</span>
+                </span>
+              </div>
+              <div class="mac-pop">
+                <div class="inner">
+                  <section class="mac-head">
+                    <span class="wordmark"><svg width="14" height="15" viewBox="0 0 371 394" aria-hidden="true"><rect x="24" y="24" width="323" height="296" rx="56" fill="#fff" stroke="#08253F" stroke-width="26"/><path d="M146 312 L146 380 L226 312 Z" fill="#08253F"/><rect x="90" y="228" width="46" height="70" rx="7" fill="#437C76"/><rect x="170" y="192" width="46" height="106" rx="7" fill="#437C76"/><rect x="250" y="142" width="46" height="156" rx="7" fill="#437C76"/><path d="M98 240 L160 158 L216 184 L294 84" fill="none" stroke="#B9967D" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/><circle cx="98" cy="240" r="20" fill="#B9967D"/><circle cx="160" cy="158" r="20" fill="#B9967D"/><circle cx="216" cy="184" r="20" fill="#B9967D"/><circle cx="294" cy="84" r="20" fill="#B9967D"/></svg> Tokdash</span>
+                    <span class="conn"><span class="dot ok" aria-hidden="true"></span>Local · Connected</span>
+                    <span class="grow"></span>
+                    <button type="button" class="mac-icon-btn" tabindex="-1" aria-label="Tokdash menu"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-3.6 3.6-3.6 3.6z"/></svg></button>
+                  </section>
+                  <section class="mac-hero hairline">
+                    <p class="kicker">Today</p>
+                    <p class="big">$3.42</p>
+                    <p class="sub"><span title="18,700,000 tokens">18.7M tokens</span> · 248 messages</p>
+                    <p class="cmp down"><svg width="9" height="9" viewBox="0 0 10 10" fill="currentColor" aria-hidden="true"><path d="M5 8.5 1 3.2h8z"/></svg> 12% below yesterday</p>
+                  </section>
+                  <section class="mac-month hairline">
+                    <span class="kicker">July</span>
+                    <span class="val">$48.90</span>
+                    <span class="muted">281M tokens</span>
+                  </section>
+                  <section class="mac-quota hairline">
+                    <div class="qhead"><p class="kicker">Subscription</p><span class="qseg" role="group" aria-label="Subscription view"><button type="button" tabindex="-1" aria-pressed="true" title="Only windows below their alert threshold">Low</button><button type="button" tabindex="-1" aria-pressed="false" title="Every detected subscription window">All</button></span></div>
+                    <div class="qrow">
+                      <div class="qtop">
+                        <span class="qname">Claude · weekly</span>
+                        <span class="est" title="Estimated from local session data">Estimated</span>
+                        <span class="qleft">8% left</span>
+                        <span class="qreset">resets Monday</span>
+                      </div>
+                      <div class="qbar" role="img" aria-label="Claude weekly window: 8 percent remaining"><i class="low" style="width:8%"></i></div>
+                    </div>
+                    <div class="qrow">
+                      <div class="qtop">
+                        <span class="qname">Codex · 5-hour</span>
+                        <span class="qleft">14% left</span>
+                        <span class="qreset">resets 14:40</span>
+                      </div>
+                      <div class="qbar" role="img" aria-label="Codex 5-hour window: 14 percent remaining"><i class="low" style="width:14%"></i></div>
+                    </div>
+                  </section>
+                  <section class="mac-activity hairline"><span>Most used today&nbsp;&nbsp;<b>Codex · gpt-5.6</b></span></section>
+                  <section class="mac-actions hairline">
+                    <button type="button" class="mac-btn primary" tabindex="-1">Open Dashboard</button>
+                    <button type="button" class="mac-btn icon" tabindex="-1" aria-label="Refresh"><span style="display:inline-flex"><svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M12.2 7A5.2 5.2 0 1 1 11 3.2"/><path d="M12.4 1.4v2.6H9.8" stroke-linejoin="round"/></svg></span></button>
+                  </section>
+                  <section class="mac-foot hairline">
+                    <span class="fresh">Updated 2 min ago</span>
+                    <span class="grow"></span>
+                    <button type="button" class="quit" tabindex="-1">Quit</button>
+                  </section>
+                </div>
+              </div>
+            </div>
+          </div>
+          <figcaption class="mono text-xs text-muted" style="padding:10px 16px;border-top:1px solid var(--color-border);" data-i18n="comp.shot.mac">macOS menu-bar popover</figcaption>
+        </figure>
+        <figure class="surface surface-static overflow-hidden reveal">
+          <div class="comp-mock" role="img" aria-label="Tokdash Companion Windows tray flyout showing today's spend and quota bars">
+            <div class="os-frame win-frame">
+              <div class="win-taskbar" aria-hidden="true">
+                <button type="button" class="win-tb-btn" tabindex="-1" aria-label="Start">
+                  <svg width="18" height="18" viewBox="0 0 20 20" aria-hidden="true"><rect x="1" y="1" width="8.5" height="8.5" fill="#00A2ED"/><rect x="10.5" y="1" width="8.5" height="8.5" fill="#00A2ED"/><rect x="1" y="10.5" width="8.5" height="8.5" fill="#00A2ED"/><rect x="10.5" y="10.5" width="8.5" height="8.5" fill="#00A2ED"/></svg>
+                </button>
+                <button type="button" class="win-tb-btn" tabindex="-1" aria-label="Search">
+                  <svg width="17" height="17" viewBox="0 0 16 16" fill="none" stroke="#4A4A4A" stroke-width="1.6" aria-hidden="true"><circle cx="7" cy="7" r="5"/><path d="m11 11 3.6 3.6" stroke-linecap="round"/></svg>
+                </button>
+                <button type="button" class="win-tb-btn" tabindex="-1" aria-label="Task view">
+                  <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true"><rect x="1" y="2.5" width="10" height="8" rx="1.5" stroke="#4A4A4A" stroke-width="1.4"/><rect x="7" y="7.5" width="10" height="8" rx="1.5" fill="#E8ECF2" stroke="#4A4A4A" stroke-width="1.4"/></svg>
+                </button>
+                <button type="button" class="win-tb-btn tb-opt" tabindex="-1" aria-label="Terminal">
+                  <svg width="19" height="19" viewBox="0 0 20 20" aria-hidden="true"><rect x="1" y="1.5" width="18" height="17" rx="2.5" fill="#1F1F1F"/><path d="m4.5 6 3.5 3.5L4.5 13" stroke="#fff" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M9.5 13.5H15" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg>
+                </button>
+                <button type="button" class="win-tb-btn tb-opt" tabindex="-1" aria-label="Editor">
+                  <svg width="18" height="18" viewBox="0 0 20 20" aria-hidden="true"><rect x="1.5" y="1.5" width="17" height="17" rx="3" fill="#2C2C32"/><path d="M6 5.5h8M6 9h8M6 12.5h5" stroke="#7AB8F5" stroke-width="1.5" stroke-linecap="round"/></svg>
+                </button>
+              </div>
+              <div class="win-tray" aria-hidden="true">
+                <div class="sys">
+                  <button type="button" class="win-tray-icon" tabindex="-1" aria-label="Show hidden icons">
+                    <svg width="11" height="11" viewBox="0 0 10 10" fill="none" stroke="#4A4A4A" stroke-width="1.5" aria-hidden="true"><path d="M2.2 3.8 5 6.6l2.8-2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </button>
+                  <button type="button" class="win-tray-icon active" tabindex="-1" title="Tokdash — Today $3.42 · 18.7M tokens" aria-label="Tokdash, notification area icon">
+                    <!-- Color Tokdash logo, white interior for taskbar contrast -->
+                    <svg width="17" height="18" viewBox="0 0 371 394" aria-hidden="true">
+                      <rect x="24" y="24" width="323" height="296" rx="56" fill="#fff" stroke="#08253F" stroke-width="26"/>
+                      <path d="M146 312 L146 380 L226 312 Z" fill="#08253F"/>
+                      <rect x="90" y="228" width="46" height="70" rx="7" fill="#437C76"/>
+                      <rect x="170" y="192" width="46" height="106" rx="7" fill="#437C76"/>
+                      <rect x="250" y="142" width="46" height="156" rx="7" fill="#437C76"/>
+                      <path d="M98 240 L160 158 L216 184 L294 84" fill="none" stroke="#B9967D" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+                      <circle cx="98" cy="240" r="20" fill="#B9967D"/><circle cx="160" cy="158" r="20" fill="#B9967D"/><circle cx="216" cy="184" r="20" fill="#B9967D"/><circle cx="294" cy="84" r="20" fill="#B9967D"/>
+                    </svg>
+                    <span class="win-tip" role="tooltip">Tokdash — Today $3.42 · 18.7M tokens</span>
+                  </button>
+                  <button type="button" class="win-tray-icon" tabindex="-1" aria-label="Network, volume, battery">
+                    <svg width="30" height="14" viewBox="0 0 34 14" fill="none" aria-hidden="true">
+                      <path d="M3 11.5a1.4 1.4 0 1 0 0 .01M3 8.4c-1.6 0-3.1.6-4.2 1.6" stroke="#4A4A4A" stroke-width="1.3" stroke-linecap="round" transform="translate(4 0)"/>
+                      <path d="M7 3.4C5.4 3.4 3.9 4 2.8 5M7 6c-1.1 0-2.2.4-3 1.2" stroke="#4A4A4A" stroke-width="1.3" stroke-linecap="round" fill="none"/>
+                      <path d="M17 5.5v5m3-6.5v8m3-9.5v10" stroke="#4A4A4A" stroke-width="1.6" stroke-linecap="round"/>
+                      <rect x="26" y="3.5" width="7" height="8" rx="1.5" stroke="#4A4A4A" stroke-width="1.2"/>
+                      <rect x="27.2" y="5" width="4.6" height="5" rx="0.8" fill="#4A4A4A"/>
+                    </svg>
+                  </button>
+                </div>
+                <button type="button" class="win-clock" tabindex="-1" aria-label="Date and time">8:20 PM<br/>25/07/2026</button>
+              </div>
+              <div class="win-desktop-edge" aria-hidden="true"></div>
+              <div class="win-fly">
+                <div class="inner">
+                  <section class="win-head">
+                    <span class="wordmark"><svg width="15" height="16" viewBox="0 0 371 394" aria-hidden="true"><rect x="24" y="24" width="323" height="296" rx="56" fill="#fff" stroke="#08253F" stroke-width="26"/><path d="M146 312 L146 380 L226 312 Z" fill="#08253F"/><rect x="90" y="228" width="46" height="70" rx="7" fill="#437C76"/><rect x="170" y="192" width="46" height="106" rx="7" fill="#437C76"/><rect x="250" y="142" width="46" height="156" rx="7" fill="#437C76"/><path d="M98 240 L160 158 L216 184 L294 84" fill="none" stroke="#B9967D" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/><circle cx="98" cy="240" r="20" fill="#B9967D"/><circle cx="160" cy="158" r="20" fill="#B9967D"/><circle cx="216" cy="184" r="20" fill="#B9967D"/><circle cx="294" cy="84" r="20" fill="#B9967D"/></svg> Tokdash</span>
+                    <span class="conn"><span class="dot ok" aria-hidden="true"></span>Local · Connected</span>
+                    <span class="grow"></span>
+                    <button type="button" class="win-icon-btn" tabindex="-1" aria-label="Refresh"><span style="display:inline-flex"><svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M12.2 7A5.2 5.2 0 1 1 11 3.2"/><path d="M12.4 1.4v2.6H9.8" stroke-linejoin="round"/></svg></span></button>
+                    <button type="button" class="win-icon-btn" tabindex="-1" aria-label="Settings"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-3.6 3.6-3.6 3.6z"/></svg></button>
+                  </section>
+                  <section class="win-hero divider">
+                    <p class="kicker">Today</p>
+                    <p class="big">$3.42</p>
+                    <p class="sub"><span title="18,700,000 tokens">18.7M tokens</span> · 248 messages</p>
+                    <p class="cmp down"><svg width="9" height="9" viewBox="0 0 10 10" fill="currentColor" aria-hidden="true"><path d="M5 8.5 1 3.2h8z"/></svg> 12% below yesterday</p>
+                  </section>
+                  <section class="win-month divider">
+                    <span class="kicker">July</span>
+                    <span class="val">$48.90</span>
+                    <span class="muted">281M tokens</span>
+                  </section>
+                  <section class="win-quota divider">
+                    <div class="qhead"><p class="kicker">Subscription</p><span class="qseg" role="group" aria-label="Subscription view"><button type="button" tabindex="-1" aria-pressed="true" title="Only windows below their alert threshold">Low</button><button type="button" tabindex="-1" aria-pressed="false" title="Every detected subscription window">All</button></span></div>
+                    <div class="qrow">
+                      <div class="qtop">
+                        <span class="qname">Claude · weekly</span>
+                        <span class="est" title="Estimated from local session data">Estimated</span>
+                        <span class="qleft">8% left</span>
+                        <span class="qreset">resets Monday</span>
+                      </div>
+                      <div class="qbar" role="img" aria-label="Claude weekly window: 8 percent remaining"><i class="low" style="width:8%"></i></div>
+                    </div>
+                    <div class="qrow">
+                      <div class="qtop">
+                        <span class="qname">Codex · 5-hour</span>
+                        <span class="qleft">14% left</span>
+                        <span class="qreset">resets 14:40</span>
+                      </div>
+                      <div class="qbar" role="img" aria-label="Codex 5-hour window: 14 percent remaining"><i class="low" style="width:14%"></i></div>
+                    </div>
+                  </section>
+                  <section class="win-activity divider"><span>Most used today&nbsp;&nbsp;<b>Codex · gpt-5.6</b></span></section>
+                  <section class="win-actions divider">
+                    <button type="button" class="win-btn primary" tabindex="-1">Open Dashboard</button>
+                  </section>
+                  <div class="win-foot">
+                    <span class="fresh">Updated 2 min ago</span>
+                    <span class="grow"></span>
+                    <span class="fresh">Right-click tray icon for more commands</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <figcaption class="mono text-xs text-muted" style="padding:10px 16px;border-top:1px solid var(--color-border);" data-i18n="comp.shot.win">Windows tray flyout</figcaption>
+        </figure>
+        <figure class="surface surface-static overflow-hidden reveal comp-wide">
+          <div class="comp-mock" role="img" aria-label="Claude Code statusline showing tokdash today and week totals in a terminal">
+            <div class="terminal">
+              <div class="terminal-bar">
+                <span class="dot-r" style="background:#F87171;"></span>
+                <span class="dot-r" style="background:#FBBF24;"></span>
+                <span class="dot-r" style="background:#34D399;"></span>
+                <span class="mono text-xs ml-2" style="color:#94A3B8;">claude — myproject</span>
+              </div>
+              <div class="terminal-body">
+                <div class="o">❯ tighten the cache-hit rate on long sessions</div>
+                <div class="o sl-dim">⏺ Updated 3 files · 248 messages this session</div>
+                <div class="sl">
+                  <div><span class="sl-cyan">[Claude Sonnet 4.6]</span><span class="sl-sep"> | </span>🌿 <span class="sl-green">main</span><span class="sl-sep"> | </span>effort: <span class="sl-magenta">high</span></div>
+                  <div><span class="sl-yellow">████████░░</span> 80% [120kin+18kout/200k]<span class="sl-sep"> | </span><span class="sl-yellow">$4.56</span><span class="sl-sep"> | </span>⏱️ 3m 12s</div>
+                  <div>📁 myproject<span class="sl-sep"> | </span>🐍 <span class="sl-magenta">myenv</span><span class="sl-sep"> | </span>📊 12.3M ($4.56) today<span class="sl-sep"> | </span>📊 84.1M ($61.20) week<span class="sl-sep"> | </span><span class="sl-green">+2staged</span> <span class="sl-yellow">~1changed</span></div>
+                  <div><span class="sl-yellow">Sat Jun 21&nbsp;&nbsp;14:03:51</span><span class="sl-sep"> | </span>🔄 2h 11m [5h:34% 7d:12%]<span class="sl-sep"> | </span><span class="sl-claude">claude</span> 9.8M<span class="sl-sep"> | </span><span class="sl-codex">codex</span> 1.7M<span class="sl-sep"> | </span><span class="sl-red">openclaw</span> 820k</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <figcaption class="mono text-xs text-muted" style="padding:10px 16px;border-top:1px solid var(--color-border);" data-i18n="comp.shot.statusline">Claude Code statusline integration</figcaption>
+        </figure>
+      </div>
+
+      <!-- Feature cards -->
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 mt-10">
+        <div class="surface p-6 reveal">
+          <div class="feature-icon mb-4"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 2v20M17 7H9.5a2.5 2.5 0 0 0 0 5h5a2.5 2.5 0 0 1 0 5H6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <h3 class="text-lg font-bold" data-i18n="comp.1.h">Today's spend at a glance</h3>
+          <p class="text-sm text-muted mt-2" data-i18n="comp.1.p">Cost, tokens, and messages for today, the % change vs yesterday, and a month-to-date line for context.</p>
+        </div>
+        <div class="surface p-6 reveal">
+          <div class="feature-icon mb-4"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="13" r="8" stroke="currentColor" stroke-width="2"/><path d="M12 9v4l2.5 2.5M9 2h6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <h3 class="text-lg font-bold" data-i18n="comp.2.h">Quota bars with reset countdowns</h3>
+          <p class="text-sm text-muted mt-2" data-i18n="comp.2.p">Per-provider subscription windows show remaining quota and relative reset times — "resets in 19 minutes" — plus your most-used tool today.</p>
+        </div>
+        <div class="surface p-6 reveal">
+          <div class="feature-icon mb-4"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M10.3 21a2 2 0 0 0 3.4 0" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <h3 class="text-lg font-bold" data-i18n="comp.3.h">Alerts you control</h3>
+          <p class="text-sm text-muted mt-2" data-i18n="comp.3.p">Opt-in low-quota notifications with your own thresholds, launch at login, and a System&nbsp;/&nbsp;English&nbsp;/&nbsp;简体中文 UI.</p>
+        </div>
+        <div class="surface p-6 reveal">
+          <div class="feature-icon mb-4"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 2 4 6v6c0 5 3.4 8.4 8 10 4.6-1.6 8-5 8-10V6l-8-4z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="m9 12 2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <h3 class="text-lg font-bold" data-i18n="comp.4.h">Private by design</h3>
+          <p class="text-sm text-muted mt-2" data-i18n="comp.4.p">No telemetry, nothing uploaded. The app only talks to the Tokdash endpoint you set — usually your own localhost service.</p>
+        </div>
+      </div>
+
+      <!-- Download -->
+      <div class="flex flex-wrap justify-center gap-3 mt-10 reveal">
+        <a href="https://github.com/JingbiaoMei/Tokdash/releases" target="_blank" rel="noopener" class="btn btn-primary">
+          <span data-i18n="comp.cta">Download from GitHub Releases</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3v12M6 11l6 6 6-6M4 21h16" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
+      <p class="text-xs text-muted text-center mt-4 max-w-xl mx-auto" data-i18n="comp.caveat">Preview v0.1.1: the macOS (universal dmg) and Windows (x64 zip) binaries are unsigned, so Gatekeeper / SmartScreen will warn on first launch — expected for a prerelease. Look for tags <code class="mono">companion-v*</code>.</p>
+    </section>
+
     <!-- ============ GET STARTED ============ -->
     <section id="install" class="max-w-[1180px] mx-auto px-4 sm:px-6 py-14 lg:py-20">
       <div class="grid lg:grid-cols-2 gap-10 lg:gap-14 items-center">
@@ -723,6 +1415,7 @@
       <nav class="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm" aria-label="Footer">
         <a href="/demo/" class="nav-link" style="padding:6px 0;" data-i18n="footer.demo">Live demo</a>
         <a href="#features" class="nav-link" style="padding:6px 0;" data-i18n="footer.features">Features</a>
+        <a href="#companion" class="nav-link" style="padding:6px 0;" data-i18n="footer.companion">Companion</a>
         <a href="https://github.com/JingbiaoMei/Tokdash" target="_blank" rel="noopener" class="nav-link" style="padding:6px 0;">GitHub</a>
         <a href="https://github.com/JingbiaoMei/Tokdash/blob/main/LICENSE" target="_blank" rel="noopener" class="nav-link" style="padding:6px 0;" data-i18n="footer.license">License</a>
       </nav>
@@ -826,6 +1519,7 @@
           'nav.features': `Features`,
           'nav.tools': `Tools`,
           'nav.privacy': `Privacy`,
+          'nav.companion': `Companion`,
           'nav.install': `Install`,
           'nav.demo': `Demo`,
           'hero.eyebrow': `<span class="dot"></span> Open source · Local-first · MIT`,
@@ -843,7 +1537,7 @@
           'trust.pwa.h': `Dashboard installs as a PWA`,
           'trust.pwa.p': `Pin the dashboard like a native app, light or dark, EN&nbsp;/&nbsp;中.`,
           'tools.h': `One dashboard for every agent`,
-          'tools.sub': `Tokdash unifies usage across nine AI coding tools — switch agents without losing the bill.`,
+          'tools.sub': `Tokdash unifies usage across twelve AI coding tools — switch agents without losing the bill.`,
           'feat.eyebrow': `<span class="dot"></span> Features`,
           'feat.h': `Everything you spend, made visible`,
           'feat.sub': `From raw token counts to real dollars, drilled down to a single session.`,
@@ -878,6 +1572,22 @@
           'opt.card.drivers': `Top cost drivers`,
           'opt.card.savings.h': `~$31/mo recoverable`,
           'opt.card.savings.p': `3 sessions ran under 40% cache-hit — reusing context cuts repeated input cost. Opus drove 58% of spend on 19% of turns.`,
+          'comp.eyebrow': `<span class="dot"></span> Companion app`,
+          'comp.h': `Today's spend, one click away in your menu bar`,
+          'comp.sub': `Tokdash Companion is a native menu-bar (macOS) and tray (Windows) client for your local Tokdash service. Read-only, privacy-first — no telemetry, and it talks only to the endpoint you configure.`,
+          'comp.shot.mac': `macOS menu-bar popover`,
+          'comp.shot.win': `Windows tray flyout`,
+          'comp.shot.statusline': `Claude Code statusline integration`,
+          'comp.1.h': `Today's spend at a glance`,
+          'comp.1.p': `Cost, tokens, and messages for today, the % change vs yesterday, and a month-to-date line for context.`,
+          'comp.2.h': `Quota bars with reset countdowns`,
+          'comp.2.p': `Per-provider subscription windows show remaining quota and relative reset times — "resets in 19 minutes" — plus your most-used tool today.`,
+          'comp.3.h': `Alerts you control`,
+          'comp.3.p': `Opt-in low-quota notifications with your own thresholds, launch at login, and a System&nbsp;/&nbsp;English&nbsp;/&nbsp;简体中文 UI.`,
+          'comp.4.h': `Private by design`,
+          'comp.4.p': `No telemetry, nothing uploaded. The app only talks to the Tokdash endpoint you set — usually your own localhost service.`,
+          'comp.cta': `Download from GitHub Releases`,
+          'comp.caveat': `Preview v0.1.1: the macOS (universal dmg) and Windows (x64 zip) binaries are unsigned, so Gatekeeper / SmartScreen will warn on first launch — expected for a prerelease. Look for tags <code class="mono">companion-v*</code>.`,
           'start.eyebrow': `<span class="dot"></span> Get started`,
           'start.h': `Up and running in 30 seconds`,
           'start.sub': `Python package, one command to install, one to set up. Your data never leaves your laptop.`,
@@ -896,6 +1606,7 @@
           'footer.tagline': `Local token & cost dashboard · MIT`,
           'footer.demo': `Live demo`,
           'footer.features': `Features`,
+          'footer.companion': `Companion`,
           'footer.license': `License`,
           'footer.credit': `Demo data is fully synthetic. Built by <a href="https://github.com/JingbiaoMei" target="_blank" rel="noopener" style="color:var(--color-primary);font-weight:600;">Jingbiao Mei</a>.`,
           'meta.title': `Tokdash — Local token & cost dashboard for AI coding tools`
@@ -904,6 +1615,7 @@
           'nav.features': `功能`,
           'nav.tools': `支持工具`,
           'nav.privacy': `隐私`,
+          'nav.companion': `状态栏`,
           'nav.install': `安装`,
           'nav.demo': `演示`,
           'hero.eyebrow': `<span class="dot"></span> 开源 · 本地优先 · MIT`,
@@ -921,7 +1633,7 @@
           'trust.pwa.h': `仪表盘可安装为 PWA`,
           'trust.pwa.p': `像原生应用一样固定仪表盘，支持明暗主题与 EN&nbsp;/&nbsp;中。`,
           'tools.h': `一个仪表盘，统管所有智能体`,
-          'tools.sub': `Tokdash 统一汇总九款 AI 编码工具的用量 —— 随意切换工具，账单始终一目了然。`,
+          'tools.sub': `Tokdash 统一汇总十二款 AI 编码工具的用量 —— 随意切换工具，账单始终一目了然。`,
           'feat.eyebrow': `<span class="dot"></span> 功能`,
           'feat.h': `让每一笔花费都看得见`,
           'feat.sub': `从原始 Token 数量到真实金额，细化到每一次会话。`,
@@ -956,6 +1668,22 @@
           'opt.card.drivers': `主要成本来源`,
           'opt.card.savings.h': `每月约可节省 $31`,
           'opt.card.savings.p': `有 3 个会话的缓存命中率低于 40% —— 复用上下文可削减重复的输入成本。Opus 以 19% 的回合占据了 58% 的花费。`,
+          'comp.eyebrow': `<span class="dot"></span> 状态栏`,
+          'comp.h': `今日花费，菜单栏里一键可达`,
+          'comp.sub': `Tokdash Companion 是本地 Tokdash 服务的原生菜单栏（macOS）/ 托盘（Windows）客户端。只读、隐私优先 —— 零遥测，只与你配置的地址通信。`,
+          'comp.shot.mac': `macOS 菜单栏弹窗`,
+          'comp.shot.win': `Windows 托盘浮窗`,
+          'comp.shot.statusline': `Claude Code 状态栏集成`,
+          'comp.1.h': `今日花费一目了然`,
+          'comp.1.p': `展示今日成本、Token 与消息数、相对昨日的涨跌百分比，以及本月累计供参考。`,
+          'comp.2.h': `配额进度条与重置倒计时`,
+          'comp.2.p': `按提供商展示各订阅窗口的剩余配额与相对重置时间（如“19 分钟后重置”），并标出今日最常用的工具。`,
+          'comp.3.h': `由你掌控的提醒`,
+          'comp.3.p': `可选的低配额通知与自定义阈值，支持开机自启，界面语言可选跟随系统&nbsp;/&nbsp;English&nbsp;/&nbsp;简体中文。`,
+          'comp.4.h': `隐私优先设计`,
+          'comp.4.p': `零遥测、零上传。应用只与你设置的 Tokdash 地址通信 —— 通常就是你本机的服务。`,
+          'comp.cta': `从 GitHub Releases 下载`,
+          'comp.caveat': `预览版 v0.1.1：macOS（通用 dmg）与 Windows（x64 zip）安装包未签名，Gatekeeper / SmartScreen 首次启动会给出警告 —— 预发布版属正常现象。请认准 <code class="mono">companion-v*</code> 标签。`,
           'start.eyebrow': `<span class="dot"></span> 开始使用`,
           'start.h': `30 秒即可上手`,
           'start.sub': `一个 Python 包，一条命令安装、一条命令完成配置。你的数据永远不会离开你的电脑。`,
@@ -974,6 +1702,7 @@
           'footer.tagline': `本地 Token 与成本仪表盘 · MIT`,
           'footer.demo': `在线演示`,
           'footer.features': `功能`,
+          'footer.companion': `状态栏`,
           'footer.license': `许可证`,
           'footer.credit': `演示数据完全为合成数据。由 <a href="https://github.com/JingbiaoMei" target="_blank" rel="noopener" style="color:var(--color-primary);font-weight:600;">Jingbiao Mei</a> 构建。`,
           'meta.title': `Tokdash — 面向 AI 编码工具的本地 Token 与成本仪表盘`
