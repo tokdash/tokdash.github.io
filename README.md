@@ -2,7 +2,7 @@
 
 Official site for [Tokdash](https://github.com/JingbiaoMei/Tokdash) — a local token & cost
 dashboard for AI coding tools (Codex, Claude Code, OpenCode, Gemini CLI, OpenClaw,
-Kimi CLI, Pi, GitHub Copilot CLI, Hermes).
+Kimi CLI, Pi, GitHub Copilot CLI, Hermes, DeepSeek Harness).
 
 - **`/`** — the marketing landing page (`index.html`).
 - **`/demo/`** — the live, interactive dashboard demo (`demo/index.html`).

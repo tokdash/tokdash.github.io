@@ -7,15 +7,17 @@
  *
  * Routes mocked (must match src/tokdash/api.py):
  *   GET  /api/usage     ?period=… | ?date_from=…&date_to=…
- *   GET  /api/sessions  ?tool=codex|claude|opencode|pi_agent (&period=… | &date_from/to)
+ *   GET  /api/sessions  ?tool=codex|claude|opencode|pi_agent|mimo|kimi|dsh (&period=… | &date_from/to)
  *                       (&include_review_sessions=true|false — codex only)
  *   GET  /api/session   ?tool=…&session_id=…
+ *   GET  /api/active-time  ?period=… | ?date_from=…&date_to=… (Overview agent-time KPI)
+ *   GET  /api/activity-insights  (Profile Activity codex insights)
  *   GET  /api/stats     [?year=…]
  *   GET  /api/pricing-db
  *   PUT  /api/pricing-db          (no-op — demo cannot persist)
  *
  * Supported sources: codex, claude_code, opencode, gemini, kimi, openclaw,
- *                    pi_agent, copilot_cli, hermes
+ *                    pi_agent, copilot_cli, hermes, mimo, dsh
  */
 (function () {
   "use strict";
@@ -423,14 +425,16 @@
   // Tools that the dashboard treats as "coding tools".
   // Weights sum to ~1.0 across CODING_TOOLS + OPENCLAW.
   const CODING_TOOLS = [
-    { source: "codex",       label: "Codex",              weight: 0.31 },
-    { source: "claude_code", label: "Claude Code",        weight: 0.27 },
+    { source: "codex",       label: "Codex",              weight: 0.27 },
+    { source: "claude_code", label: "Claude Code",        weight: 0.26 },
     { source: "opencode",    label: "OpenCode",           weight: 0.13 },
     { source: "gemini",      label: "Gemini CLI",         weight: 0.09 },
     { source: "kimi",        label: "Kimi CLI",           weight: 0.05 },
     { source: "pi_agent",    label: "Pi",                 weight: 0.03 },
     { source: "copilot_cli", label: "GitHub Copilot CLI", weight: 0.04 },
     { source: "hermes",      label: "Hermes",             weight: 0.03 },
+    { source: "mimo",        label: "Mimo",               weight: 0.02 },
+    { source: "dsh",         label: "DeepSeek Harness",   weight: 0.03 },
   ];
   // OpenClaw is a separate app (its own panel in the UI).
   const OPENCLAW = { source: "openclaw", label: "OpenClaw", weight: 0.05 };
@@ -447,9 +451,11 @@
     { name: "google/gemini-3-pro-preview",provider: "google",     in: 2.00, out: 12.00, cr: 0.20, cw: 0.375, tools: { gemini: 0.55, openclaw: 0.05 } },
     { name: "google/gemini-3-flash-preview",provider: "google",   in: 0.50, out: 3.00,  cr: 0.05, cw: 0.083333, tools: { gemini: 0.30 } },
     { name: "moonshotai/kimi-k2.6",       provider: "moonshotai", in: 0.60, out: 2.50,  cr: 0.15, cw: 0.60, tools: { kimi: 0.85, openclaw: 0.05 } },
-    { name: "minimax/minimax-m2.7",       provider: "minimax",    in: 0.30, out: 1.20,  cr: 0.06, cw: 0.30,  tools: { pi_agent: 0.80, hermes: 0.30 } },
+    { name: "minimax/minimax-m2.7",       provider: "minimax",    in: 0.30, out: 1.20,  cr: 0.06, cw: 0.30,  tools: { pi_agent: 0.80, hermes: 0.30, mimo: 0.90 } },
     { name: "openai/gpt-5.2",             provider: "openai",     in: 1.75, out: 14.00, cr: 0.175, cw: 1.75, tools: { pi_agent: 0.20 } },
     { name: "z-ai/glm-5.1",               provider: "z-ai",       in: 0.30, out: 1.10,  cr: 0.06, cw: 0.30, tools: { kimi: 0.15, opencode: 0.30, openclaw: 0.05 } },
+    { name: "deepseek/deepseek-v3.2",     provider: "deepseek",   in: 0.28, out: 0.42,  cr: 0.13, cw: 0.28, tools: { dsh: 0.85, opencode: 0.05 } },
+    { name: "deepseek/deepseek-r1",       provider: "deepseek",   in: 0.70, out: 2.50,  cr: 0.028, cw: 0.28, tools: { dsh: 0.15 } },
   ];
 
   function pickModelFor(toolSource) {
@@ -725,9 +731,72 @@
   }
 
   // ---------- /api/sessions and /api/session ----------
-  // The session-explorer panel knows about codex, claude, opencode, pi_agent.
-  const SESSION_TOOL_KEYS = { codex: "codex", claude: "claude_code", opencode: "opencode", pi_agent: "pi_agent" };
-  const TOOL_LABELS = { codex: "Codex", claude: "Claude Code", opencode: "OpenCode", pi_agent: "Pi" };
+  // Mirrors the backend's SESSION_TOOLS (src/tokdash/sessions.py): codex, claude,
+  // opencode, pi_agent, mimo, kimi, dsh. Kimi landed in v1.7.0 and dsh in v1.8.0.
+  const SESSION_TOOL_KEYS = {
+    codex: "codex",
+    claude: "claude_code",
+    opencode: "opencode",
+    pi_agent: "pi_agent",
+    mimo: "mimo",
+    kimi: "kimi",
+    dsh: "dsh",
+  };
+  const TOOL_LABELS = {
+    codex: "Codex",
+    claude: "Claude Code",
+    opencode: "OpenCode",
+    pi_agent: "Pi",
+    mimo: "Mimo",
+    kimi: "Kimi",
+    dsh: "DeepSeek Harness",
+  };
+
+  // ---------- Active-time model (v1.7.0) ----------
+  // Active time counts each gap between a session's token events up to an idle
+  // cap (TOKDASH_ACTIVE_GAP_CAP_SECONDS, default 300s). The demo's turn gaps are
+  // all 10-240s, below the cap, so active time tracks the session span. The demo
+  // runs one stream per session, so clock time (merged intervals) and agent time
+  // (intervals added up) are equal; the payload keeps both fields anyway so the
+  // UI renders the same shapes the real backend sends.
+  const ACTIVE_GAP_CAP_MS = 300 * 1000;
+
+  function turnIntervals(turns) {
+    // turns: sorted by timestamp_ms
+    const intervals = [];
+    for (let i = 1; i < turns.length; i++) {
+      const start = turns[i - 1].timestamp_ms;
+      const end = start + Math.min(turns[i].timestamp_ms - start, ACTIVE_GAP_CAP_MS);
+      if (end > start) intervals.push([start, end]);
+    }
+    return intervals;
+  }
+
+  function mergedIntervalMs(intervals) {
+    if (!intervals.length) return 0;
+    const sorted = intervals.slice().sort((a, b) => a[0] - b[0]);
+    let total = 0;
+    let curStart = sorted[0][0];
+    let curEnd = sorted[0][1];
+    for (let i = 1; i < sorted.length; i++) {
+      const [start, end] = sorted[i];
+      if (start <= curEnd) {
+        if (end > curEnd) curEnd = end;
+      } else {
+        total += curEnd - curStart;
+        curStart = start;
+        curEnd = end;
+      }
+    }
+    return total + (curEnd - curStart);
+  }
+
+  function activePctChange(cur, prv) {
+    // Matches the backend's pct_change: no previous figure means no percentage,
+    // not an infinite jump from zero.
+    if (!prv) return null;
+    return Math.round(((cur - prv) / prv) * 1000) / 10;
+  }
 
   function summarizeSession(session, range) {
     const turns = session.turns.filter((t) =>
@@ -747,6 +816,9 @@
     for (const t of turns) perModel[t.model] = (perModel[t.model] || 0) + (t.tokens || 0);
     const top_model = Object.entries(perModel).sort((a, b) => b[1] - a[1])[0][0];
 
+    const intervals = turnIntervals(turns);
+    const span_ms = turns[turns.length - 1].timestamp_ms - turns[0].timestamp_ms;
+
     return {
       tool: session.tool,
       session_id: session.session_id,
@@ -761,6 +833,12 @@
       cost,
       started_at: isoOf(turns[0].timestamp_ms),
       last_seen_at: isoOf(turns[turns.length - 1].timestamp_ms),
+      // span_ms is first-to-last event wall-clock (idle included); active_ms
+      // subtracts the idle. Both are clipped to the requested window.
+      span_ms: Math.max(0, span_ms),
+      active_ms: mergedIntervalMs(intervals),
+      active_ms_sum: intervals.reduce((a, [s, e]) => a + (e - s), 0),
+      _active_intervals: intervals,
       is_review_session: !!session.is_review_session,
     };
   }
@@ -779,9 +857,14 @@
     );
 
     const summaries = [];
+    const activeIntervals = [];
     for (const s of matching) {
       const summary = summarizeSession(s, range);
-      if (summary) summaries.push(summary);
+      if (summary) {
+        activeIntervals.push(...summary._active_intervals);
+        delete summary._active_intervals;
+        summaries.push(summary);
+      }
     }
     summaries.sort((a, b) => String(b.last_seen_at).localeCompare(String(a.last_seen_at)));
 
@@ -795,6 +878,17 @@
         session_count: summaries.length,
         tokens: summaries.reduce((a, s) => a + s.tokens, 0),
         cost: summaries.reduce((a, s) => a + s.cost, 0),
+        // active_ms is deduplicated wall-clock: sessions running in parallel
+        // overlap and are counted once. active_ms_sum adds them up instead,
+        // i.e. agent-hours rather than clock time.
+        active_ms: mergedIntervalMs(activeIntervals),
+        active_ms_sum: summaries.reduce((a, s) => a + s.active_ms_sum, 0),
+        span_ms: summaries.reduce((a, s) => a + s.span_ms, 0),
+        active_gap_cap_ms: ACTIVE_GAP_CAP_MS,
+        // Inter-event gaps cannot separate a short pause from work, long single
+        // operations are truncated at the cap, and a lone event measures nothing.
+        active_time_estimated: true,
+        active_time_method: "capped-inter-event-gap",
       },
       ...(key === "codex" ? { include_review_sessions: includeReview } : {}),
       timestamp: new Date().toISOString(),
@@ -810,6 +904,7 @@
     if (!found) return { __error: 404, message: `Session not found: ${sessionId}` };
 
     const session = summarizeSession(found, null);
+    delete session._active_intervals;
     const turns = found.turns
       .slice()
       .sort((a, b) => a.timestamp_ms - b.timestamp_ms)
@@ -826,6 +921,124 @@
       }));
     return { session, turns, timestamp: new Date().toISOString() };
   }
+
+  // ---------- /api/active-time (v1.7.0) ----------
+  // Cross-tool runtime for the Overview's agent-time KPI: active_ms is clock time
+  // across all tools (the union of every interval), active_ms_sum is the additive
+  // agent time. Mirrors get_active_time_data() in src/tokdash/sessions.py.
+  function activeTimeWindow(range, includeReview) {
+    const by_tool = {};
+    const allIntervals = [];
+    for (const [key, internalSource] of Object.entries(SESSION_TOOL_KEYS)) {
+      const intervals = [];
+      let agent_ms = 0;
+      let session_count = 0;
+      for (const s of sessions) {
+        if (s.source !== internalSource) continue;
+        if (key === "codex" && s.is_review_session && !includeReview) continue;
+        const summary = summarizeSession(s, range);
+        if (!summary) continue;
+        session_count += 1;
+        intervals.push(...summary._active_intervals);
+        agent_ms += summary.active_ms_sum;
+      }
+      if (!session_count) continue;
+      allIntervals.push(...intervals);
+      by_tool[key] = {
+        tool_label: TOOL_LABELS[key],
+        session_count,
+        active_ms: mergedIntervalMs(intervals),
+        active_ms_sum: agent_ms,
+      };
+    }
+    return {
+      by_tool,
+      active_ms: mergedIntervalMs(allIntervals),
+      active_ms_sum: Object.values(by_tool).reduce((a, row) => a + row.active_ms_sum, 0),
+    };
+  }
+
+  function buildActiveTime(period, dateFrom, dateTo, includeReviewSessions) {
+    const range = periodToRange(period, dateFrom, dateTo);
+    const includeReview = includeReviewSessions === "true";
+    const cur = activeTimeWindow(range, includeReview);
+    const prev = activeTimeWindow(previousRange(range), includeReview);
+    return {
+      period: period || "today",
+      active_ms: cur.active_ms,
+      active_ms_sum: cur.active_ms_sum,
+      comparison: {
+        active_ms_prev: prev.active_ms,
+        active_ms_sum_prev: prev.active_ms_sum,
+        active_ms_pct: activePctChange(cur.active_ms, prev.active_ms),
+        active_ms_sum_pct: activePctChange(cur.active_ms_sum, prev.active_ms_sum),
+      },
+      by_tool: cur.by_tool,
+      unavailable_tools: [],
+      active_gap_cap_ms: ACTIVE_GAP_CAP_MS,
+      active_time_estimated: true,
+      active_time_method: "capped-inter-event-gap",
+      include_review_sessions: includeReview,
+      timestamp: new Date().toISOString(),
+    };
+  }
+
+  // ---------- /api/activity-insights ----------
+  // Codex Profile Activity insights (recorded chats, reasoning effort mix, tool
+  // calls). Mirrors build_activity_insights() in src/tokdash/activity_insights.py.
+  // Derived once from the synthetic codex corpus so every request agrees.
+  const activityInsightsPayload = (function buildActivityInsights() {
+    const codexSessions = sessions.filter((s) => s.source === "codex");
+    const recorded = codexSessions.length;
+    const turns = codexSessions.reduce((a, s) => a + s.turns.length, 0);
+    const effTotals = [["high", 0.38], ["medium", 0.41], ["low", 0.16], ["minimal", 0.05]];
+    const effortCounts = effTotals.map(([effort, share]) => [effort, Math.round(turns * share)]);
+    const toolTotals = [
+      ["shell", 0.31], ["apply_patch", 0.24], ["read_file", 0.18],
+      ["grep", 0.11], ["web_search", 0.09], ["update_plan", 0.07],
+    ];
+    const toolCounts = toolTotals.map(([name, share]) => [name, Math.round(turns * 1.9 * share)]);
+    const dist = (rows, key) => {
+      const total = rows.reduce((a, [, count]) => a + count, 0) || 1;
+      return rows
+        .map(([value, count]) => ({ [key]: value, count, share: Math.round((count / total) * 1e6) / 1e6 }))
+        .sort((a, b) => b.count - a.count);
+    };
+    const effortDist = dist(effortCounts, "effort");
+    const toolDist = dist(toolCounts, "name");
+    return {
+      scope: { tool: "codex", local: true, primary_only: true },
+      recorded_chats: {
+        value: recorded,
+        coverage: {
+          primary_files: recorded,
+          files_with_session_id: recorded,
+          legacy_unavailable_records: Math.round(recorded * 0.08),
+        },
+      },
+      reasoning: {
+        most_used: effortDist[0] || null,
+        distribution: effortDist,
+        coverage: {
+          identified_turns: turns,
+          known_effort_turns: effortCounts.reduce((a, [, c]) => a + c, 0),
+          ambiguous_turns: Math.round(turns * 0.03),
+          excluded_records: Math.round(turns * 0.02),
+        },
+      },
+      tools: {
+        total_calls: toolCounts.reduce((a, [, c]) => a + c, 0),
+        most_used: toolDist[0] || null,
+        distribution: toolDist,
+        coverage: {
+          named_calls: toolCounts.reduce((a, [, c]) => a + c, 0),
+          ambiguous_name_calls: Math.round(turns * 0.04),
+          excluded_records: Math.round(turns * 0.01),
+        },
+      },
+      timestamp: new Date().toISOString(),
+    };
+  })();
 
   // ---------- /api/stats ----------
   function buildStats(year) {
@@ -1000,6 +1213,24 @@
       const out = buildSessionDetail(params.get("tool"), params.get("session_id"));
       if (out.__error) return jsonResponse({ detail: out.message }, out.__error);
       return jsonResponse(out);
+    }
+    if (path === "/api/active-time" && method === "GET") {
+      return jsonResponse(
+        buildActiveTime(params.get("period"), params.get("date_from"), params.get("date_to"), params.get("include_review_sessions"))
+      );
+    }
+    if (path === "/api/activity-insights" && method === "GET") {
+      return jsonResponse(activityInsightsPayload);
+    }
+    if (path === "/api/version" && method === "GET") {
+      // The static demo runs no update checks (opt-in server feature), so the
+      // dashboard's update notice stays in its muted one-click opt-in state.
+      return jsonResponse({
+        service: "tokdash",
+        runtime_version: "demo",
+        install_method: null,
+        update_check_enabled: false,
+      });
     }
     if (path === "/api/stats" && method === "GET") {
       const yr = params.get("year");
