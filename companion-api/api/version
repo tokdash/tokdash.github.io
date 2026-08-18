@@ -1,0 +1,6 @@
+{
+  "service": "tokdash",
+  "runtime_version": "1.8.0",
+  "install_method": "pipx",
+  "update_check_enabled": false
+}

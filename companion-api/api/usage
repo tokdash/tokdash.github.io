@@ -1,0 +1,32 @@
+{
+  "period": "today",
+  "total_tokens": 5430000,
+  "total_cost": 2.85,
+  "total_messages": 132,
+  "cache_hit_rate": 0.9271,
+  "by_tool": {
+    "codex": { "tokens": 3620000, "cost": 1.92, "tokens_in": 214000, "tokens_cache": 3350000, "cache_hit_rate": 0.9254 },
+    "claude": { "tokens": 1480000, "cost": 0.79, "tokens_in": 58000, "tokens_cache": 1390000, "cache_hit_rate": 0.9392 },
+    "opencode": { "tokens": 330000, "cost": 0.14, "tokens_in": 21000, "tokens_cache": 300000, "cache_hit_rate": 0.9091 }
+  },
+  "top_models": [
+    { "name": "openai/gpt-5.1-codex", "tokens": 3120000, "cost": 1.65 },
+    { "name": "anthropic/claude-sonnet-4-5", "tokens": 1480000, "cost": 0.79 },
+    { "name": "openai/codex-mini", "tokens": 500000, "cost": 0.27 }
+  ],
+  "combined_models": [
+    { "name": "openai/gpt-5.1-codex", "tokens": 3120000, "cost": 1.65, "source": "codex" },
+    { "name": "anthropic/claude-sonnet-4-5", "tokens": 1480000, "cost": 0.79, "source": "claude" },
+    { "name": "openai/codex-mini", "tokens": 500000, "cost": 0.27, "source": "codex" }
+  ],
+  "comparison": {
+    "tokens_prev": 6100000,
+    "cost_prev": 3.20,
+    "messages_prev": 149,
+    "tokens_pct": -11.0,
+    "cost_pct": -10.9,
+    "messages_pct": -11.4
+  },
+  "timestamp": "2026-08-18T15:00:00+00:00",
+  "response_cache": { "age_seconds": 45 }
+}

@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#1E40AF" />
+
+  <title>Privacy Policy — Tokdash</title>
+  <meta name="description" content="Privacy policy for Tokdash Companion (the desktop tray/menu-bar app) and for the tokdash.github.io website. Covers what data each one collects — and what it does not." />
+
+  <link rel="icon" href="/static/icons/icon-192.png" sizes="192x192" />
+  <link rel="canonical" href="https://tokdash.github.io/privacy/" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Privacy Policy — Tokdash" />
+  <meta property="og:description" content="What Tokdash Companion collects (nothing) and what tokdash.github.io collects (standard website analytics)." />
+  <meta property="og:url" content="https://tokdash.github.io/privacy/" />
+  <meta property="og:image" content="https://tokdash.github.io/static/icons/icon-512.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <!-- Fonts (Design System: Fira Code / Fira Sans) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Fira+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind: prebuilt static CSS shared with the rest of the site -->
+  <link rel="stylesheet" href="/static/landing.css" />
+
+  <!-- Avoid theme flash: set the class before paint (mirrors index.html) -->
+  <script>
+    (function () {
+      document.documentElement.classList.add('js');
+      try {
+        var saved = localStorage.getItem('tokdash-site-theme');
+        var dark = saved ? saved === 'dark'
+          : (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        if (dark) document.documentElement.classList.add('dark');
+      } catch (e) {}
+    })();
+  </script>
+
+  <style>
+    /* ---- Design tokens (mirrored from index.html) ---- */
+    :root {
+      --color-primary: #1E40AF;
+      --color-secondary: #3B82F6;
+      --color-cta: #F59E0B;
+      --color-bg: #F8FAFC;
+      --color-text: #0F172A;
+      --color-muted: #475569;
+      --color-border: #E2E8F0;
+      --color-cost: #0F766E;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --t-fast: 180ms;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+      --shadow-md: 0 8px 24px rgba(15, 23, 42, 0.08);
+    }
+    html.dark {
+      --color-primary: #60A5FA;
+      --color-secondary: #93C5FD;
+      --color-cta: #FBBF24;
+      --color-bg: #0F172A;
+      --color-text: #E2E8F0;
+      --color-muted: #94A3B8;
+      --color-border: #334155;
+      --color-cost: #34D399;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.4);
+      --shadow-md: 0 8px 24px rgba(0,0,0,0.4);
+    }
+
+    html, body { min-height: 100%; overflow-x: clip; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: "Fira Sans", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans";
+      background: radial-gradient(1200px 600px at 20% -10%, rgba(59,130,246,0.16), transparent 65%),
+                  radial-gradient(900px 600px at 90% 10%, rgba(245,158,11,0.12), transparent 55%),
+                  var(--color-bg);
+      color: var(--color-text);
+      -webkit-font-smoothing: antialiased;
+    }
+    html.dark body {
+      background: radial-gradient(1200px 600px at 20% -10%, rgba(59,130,246,0.10), transparent 65%),
+                  radial-gradient(900px 600px at 90% 10%, rgba(245,158,11,0.06), transparent 55%),
+                  var(--color-bg);
+    }
+
+    .mono { font-family: "Fira Code", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+    .text-muted { color: var(--color-muted); }
+
+    .surface {
+      background: rgba(255, 255, 255, 0.95);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+    }
+    html.dark .surface {
+      background: rgba(30, 41, 59, 0.9);
+      border-color: #334155;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.3), 0 2px 4px -1px rgba(0,0,0,0.2);
+    }
+
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+      border-radius: 10px; padding: 12px 18px; min-height: 48px;
+      font-weight: 600; cursor: pointer; user-select: none; white-space: nowrap;
+      transition: transform var(--t-fast) ease, box-shadow var(--t-fast) ease, background var(--t-fast) ease, border-color var(--t-fast) ease;
+      text-decoration: none;
+    }
+    .btn-ghost {
+      background: rgba(15, 23, 42, 0.04); color: var(--color-text);
+      border: 1px solid rgba(226,232,240,0.9);
+    }
+    .btn-ghost:hover { background: rgba(15, 23, 42, 0.08); transform: translateY(-1px); border-color: rgba(30,64,175,0.3); }
+    html.dark .btn-ghost { background: rgba(148,163,184,0.08); border-color: #475569; }
+    html.dark .btn-ghost:hover { background: rgba(148,163,184,0.15); border-color: rgba(96,165,250,0.4); }
+
+    .site-nav {
+      position: sticky; top: 0; z-index: 50;
+      backdrop-filter: blur(14px);
+      background: color-mix(in srgb, var(--color-bg) 78%, transparent);
+      border-bottom: 1px solid color-mix(in srgb, var(--color-border) 70%, transparent);
+    }
+    .nav-link {
+      font-size: 14px; font-weight: 600; color: var(--color-muted);
+      padding: 8px 12px; border-radius: 8px; transition: color var(--t-fast) ease, background var(--t-fast) ease;
+    }
+    .nav-link:hover { color: var(--color-text); background: rgba(30,64,175,0.06); }
+
+    .divider-grad { height: 1px; background: linear-gradient(90deg, transparent, var(--color-border), transparent); }
+
+    .chip {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 14px; border-radius: 999px; font-size: 12.5px; font-weight: 600;
+      letter-spacing: 0.02em; color: var(--color-primary);
+      background: color-mix(in srgb, var(--color-primary) 10%, transparent);
+      border: 1px solid color-mix(in srgb, var(--color-primary) 24%, transparent);
+    }
+
+    /* ---- Policy article typography (page-local; not part of shared landing.css) ---- */
+    .policy h2 {
+      font-size: 1.35rem; font-weight: 800; letter-spacing: -0.01em;
+      margin-top: 2.5rem; padding-top: 1.5rem;
+      border-top: 1px solid var(--color-border);
+    }
+    .policy h2:first-of-type { margin-top: 0; padding-top: 0; border-top: none; }
+    .policy p { margin-top: 0.9rem; line-height: 1.7; color: var(--color-text); }
+    .policy p.lede { color: var(--color-muted); }
+    .policy ul { margin-top: 0.9rem; padding-left: 1.25rem; line-height: 1.7; }
+    .policy li { list-style: disc; margin-top: 0.4rem; }
+    .policy li::marker { color: var(--color-primary); }
+    .policy a { color: var(--color-primary); font-weight: 600; text-decoration: underline; text-underline-offset: 2px; }
+    .policy code {
+      font-family: "Fira Code", monospace; font-size: 0.9em;
+      background: color-mix(in srgb, var(--color-border) 45%, transparent);
+      padding: 0.15em 0.4em; border-radius: 5px;
+    }
+    .policy strong { font-weight: 700; }
+
+    .callout {
+      border-radius: var(--radius-md);
+      border: 1px solid color-mix(in srgb, var(--color-primary) 26%, var(--color-border));
+      background: color-mix(in srgb, var(--color-primary) 7%, transparent);
+      padding: 1.1rem 1.25rem;
+      margin-top: 1.5rem;
+    }
+    .callout p { margin-top: 0; }
+    .callout p + p { margin-top: 0.6rem; }
+
+    .callout-amber {
+      border-color: color-mix(in srgb, var(--color-cta) 34%, var(--color-border));
+      background: color-mix(in srgb, var(--color-cta) 9%, transparent);
+    }
+  </style>
+</head>
+<body>
+
+  <header class="site-nav">
+    <div class="max-w-[1180px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+      <a href="/" class="flex items-center gap-2.5 shrink-0">
+        <img src="/static/icons/logo.png" alt="Tokdash logo" width="32" height="32" style="width:32px;height:32px;object-fit:contain;" />
+        <span class="mono text-lg font-extrabold tracking-tight">Tokdash</span>
+      </a>
+      <div class="flex items-center gap-2">
+        <button id="themeToggle" class="btn btn-ghost" style="min-height:40px;padding:8px 10px;" aria-label="Toggle dark mode">
+          <svg id="iconMoon" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <svg id="iconSun" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true" style="display:none;"><circle cx="12" cy="12" r="5" stroke="currentColor" stroke-width="2"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </button>
+        <a href="/" class="nav-link">← Back to tokdash.github.io</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="max-w-3xl mx-auto px-4 sm:px-6 pt-12 pb-4">
+      <span class="chip"><span class="dot" style="width:7px;height:7px;border-radius:50%;background:var(--color-cta);display:inline-block;"></span> Privacy policy</span>
+      <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight mt-4">Tokdash privacy policy</h1>
+      <p class="text-muted mt-3">
+        This page covers two different things: the <strong>Tokdash Companion</strong> desktop
+        app (Microsoft Store and portable builds), and <strong>this website</strong>
+        (tokdash.github.io). They behave differently, so each gets its own section below —
+        read the heading before assuming a claim applies to both.
+      </p>
+      <p class="text-xs text-muted mt-4">Last updated: 2026-08-18</p>
+    </section>
+
+    <div class="max-w-3xl mx-auto px-4 sm:px-6"><div class="divider-grad"></div></div>
+
+    <section class="max-w-3xl mx-auto px-4 sm:px-6 py-10">
+      <article class="policy surface" style="padding: 2rem;">
+
+        <h2>What Tokdash Companion is</h2>
+        <p>
+          Tokdash Companion is a notification-area (system tray) client for Tokdash, a
+          service you run on your own machine or on a machine you control. The companion
+          displays usage and quota figures that the Tokdash service reports. It is a
+          viewer; it does not itself gather usage data.
+        </p>
+
+        <h2>Data collected by the app</h2>
+        <p>
+          <strong>None.</strong> Tokdash Companion collects no personal information, sends
+          no analytics or telemetry, and has no server component operated by the
+          developer.
+        </p>
+
+        <h2>Data stored on your device</h2>
+        <p>
+          Your settings — server addresses and labels, notification thresholds, language,
+          launch-at-login preference, and update-check preference — are stored on your
+          device. In the Microsoft Store build they live in the app's own package storage
+          and are removed when you uninstall the app.
+        </p>
+        <p>
+          Usage and quota figures are held in memory while the app is running and are not
+          written to disk.
+        </p>
+
+        <h2>Network connections the app makes</h2>
+        <p>Tokdash Companion connects only to:</p>
+        <ul>
+          <li>
+            <strong>The Tokdash server addresses you configure.</strong> The default is
+            <code>http://127.0.0.1:55423</code> on your own machine. If you add another
+            address, the companion connects to that one too. It connects to nothing you
+            have not entered.
+          </li>
+          <li>
+            <strong>GitHub's public releases API</strong>, only in the portable
+            (non-Store) build, and only if you turn update checking on. It is off by
+            default. The request is unauthenticated and sends no information about you or
+            your usage. <strong>The Microsoft Store build never contacts GitHub</strong>;
+            the Store delivers updates instead.
+          </li>
+        </ul>
+        <p>No data is sent to the developer.</p>
+
+        <h2>What the app does not do</h2>
+        <p>
+          It does not read browser data, credential stores, or session files. It does not
+          scan your network or enumerate ports. It does not run background services
+          beyond its own tray process, and it does not install or download additional
+          software.
+        </p>
+
+        <h2>Permissions</h2>
+        <p>
+          The app runs as a full-trust desktop application (<code>runFullTrust</code>).
+          This is what a packaged WPF desktop application requires; it is not used to
+          access anything described above as out of scope.
+        </p>
+
+        <h2>Website analytics</h2>
+        <p class="lede">
+          This section is about <strong>tokdash.github.io — the website, not the app.</strong>
+          Nothing in this section applies to Tokdash Companion or to the Tokdash server;
+          those remain exactly as described above: no telemetry, no accounts, no
+          phone-home.
+        </p>
+        <p>
+          This website uses <strong>Google Analytics</strong> to understand how visitors
+          use the site. Google Analytics sets cookies in your browser and collects
+          standard web-analytics data such as the pages you visit, approximate location
+          (derived from IP address), and your browser and device type. This data is
+          processed by Google; see
+          <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google's Privacy Policy</a>
+          for how Google handles it. You can limit this via your browser's cookie
+          settings, tracking-protection features, or an ad/tracker blocker.
+        </p>
+        <div class="callout callout-amber">
+          <p>
+            <strong>Why the split.</strong> The Tokdash <em>app</em> is local-first and
+            collects nothing. The Tokdash <em>website</em> — the marketing pages and demo
+            you may have arrived from — runs standard Google Analytics like most websites
+            do. Those are two different pieces of software with two different privacy
+            postures; this page states both plainly instead of letting one claim be read
+            as covering the other.
+          </p>
+        </div>
+
+        <h2>Children</h2>
+        <p>The app is not directed at children and collects no information from anyone.</p>
+
+        <h2>Changes to this policy</h2>
+        <p>Material changes to this policy will be published at this URL with an updated date.</p>
+
+        <h2>Contact</h2>
+        <p>
+          Open an issue at
+          <a href="https://github.com/JingbiaoMei/Tokdash/issues" target="_blank" rel="noopener">github.com/JingbiaoMei/Tokdash/issues</a>.
+        </p>
+
+      </article>
+
+      <p class="text-center mt-8">
+        <a href="/" class="btn btn-ghost">← Back to the Tokdash homepage</a>
+      </p>
+    </section>
+  </main>
+
+  <footer class="border-t" style="border-color: color-mix(in srgb, var(--color-border) 70%, transparent);">
+    <div class="max-w-[1180px] mx-auto px-4 sm:px-6 py-10 flex flex-col sm:flex-row items-center justify-between gap-6">
+      <div class="flex items-center gap-2.5">
+        <img src="/static/icons/logo.png" alt="" width="26" height="26" style="width:26px;height:26px;object-fit:contain;" />
+        <div>
+          <div class="mono font-extrabold leading-tight">Tokdash</div>
+          <div class="text-xs text-muted">Local token &amp; cost dashboard · MIT</div>
+        </div>
+      </div>
+      <nav class="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm" aria-label="Footer">
+        <a href="/demo/" class="nav-link" style="padding:6px 0;">Live demo</a>
+        <a href="https://github.com/JingbiaoMei/Tokdash" target="_blank" rel="noopener" class="nav-link" style="padding:6px 0;">GitHub</a>
+        <a href="https://github.com/JingbiaoMei/Tokdash/blob/main/LICENSE" target="_blank" rel="noopener" class="nav-link" style="padding:6px 0;">License</a>
+      </nav>
+    </div>
+  </footer>
+
+  <script>
+    // ---- Theme toggle (mirrors index.html) ----
+    (function () {
+      var root = document.documentElement;
+      var moon = document.getElementById('iconMoon');
+      var sun = document.getElementById('iconSun');
+      function sync() {
+        var dark = root.classList.contains('dark');
+        moon.style.display = dark ? 'none' : 'block';
+        sun.style.display = dark ? 'block' : 'none';
+      }
+      sync();
+      document.getElementById('themeToggle').addEventListener('click', function () {
+        root.classList.toggle('dark');
+        try { localStorage.setItem('tokdash-site-theme', root.classList.contains('dark') ? 'dark' : 'light'); } catch (e) {}
+        sync();
+      });
+    })();
+  </script>
+</body>
+</html>
