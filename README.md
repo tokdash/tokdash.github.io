@@ -2,7 +2,7 @@
 
 Official site for [Tokdash](https://github.com/JingbiaoMei/Tokdash) — a local token & cost
 dashboard for AI coding tools (Codex, Claude Code, OpenCode, Gemini CLI, OpenClaw,
-Kimi CLI, Pi, GitHub Copilot CLI, Hermes, DeepSeek Harness).
+Kimi CLI, Pi, GitHub Copilot CLI, Hermes, DeepSeek Harness, Reasonix, and ZCode).
 
 - **`/`** — the marketing landing page (`index.html`).
 - **`/demo/`** — the live, interactive dashboard demo (`demo/index.html`).
@@ -17,7 +17,7 @@ Kimi CLI, Pi, GitHub Copilot CLI, Hermes, DeepSeek Harness).
 - Switch tabs (Overview / Sessions / Heatmap / Quota / Pricing).
 - Change the period or pick a custom date range.
 - Toggle light/dark and the 10 style themes.
-- Click into a synthetic Codex / Claude / OpenCode session.
+- Click into synthetic sessions, including ZCode turns and token accounting.
 - On the **Stats** tab, switch the Daily Activity metric chip to **Energy** to recolor the heatmap by estimated energy per day, and read the new Total Energy (kWh) row in the Month Stats sidebar (estimated entirely in the browser from token counts × model-family `J/token` coefficients; order-of-magnitude only).
 - On the **Quota** tab, inspect the mock remaining limits for Codex, Claude, and Antigravity, toggle active providers, adjust the polling interval settings, or trigger a manual refresh.
 - Browse the read-only demo pricing snapshot.

@@ -40,21 +40,21 @@ function assert(cond, msg) {
 // /api/usage
 const usage = await get("/api/usage?period=week");
 assert(usage.total_tokens > 0, "usage has tokens");
-assert(usage.by_tool.dsh && usage.by_tool.mimo, "usage includes dsh and mimo tools");
+assert(usage.by_tool.dsh && usage.by_tool.mimo && usage.by_tool.zcode, "usage includes dsh, mimo, and zcode tools");
 assert(usage.comparison && usage.comparison.tokens_pct !== undefined, "usage comparison present");
 
 // /api/active-time (v1.7.0)
 const active = await get("/api/active-time?period=week");
 assert(active.active_ms > 0 && active.active_ms_sum >= active.active_ms, "active-time figures");
-assert(active.by_tool.codex && active.by_tool.dsh, "active-time by_tool has codex and dsh");
+assert(active.by_tool.codex && active.by_tool.dsh && active.by_tool.zcode, "active-time by_tool has codex, dsh, and zcode");
 assert(active.by_tool.codex.tool_label === "Codex", "active-time by_tool label");
 assert(typeof active.comparison.active_ms_sum_pct === "number" || active.comparison.active_ms_sum_pct === null, "active-time comparison pct");
 assert(active.active_gap_cap_ms === 300000, "active-time gap cap 300s");
 const activeToday = await get("/api/active-time?period=today");
 assert(activeToday.active_ms_sum > 0, "active-time today has agent time");
 
-// /api/sessions for every session tool incl. new kimi/mimo/dsh
-for (const tool of ["codex", "claude", "opencode", "pi_agent", "mimo", "kimi", "dsh"]) {
+// /api/sessions for every session tool.
+for (const tool of ["codex", "claude", "opencode", "pi_agent", "mimo", "kimi", "dsh", "reasonix", "zcode"]) {
   const s = await get(`/api/sessions?tool=${tool}&period=week`);
   assert(s.summary.session_count > 0, `sessions:${tool} has rows`);
   assert(s.summary.active_ms > 0 && s.summary.active_ms_sum > 0, `sessions:${tool} active time summary`);
