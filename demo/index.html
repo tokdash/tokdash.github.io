@@ -1779,7 +1779,7 @@
         </div>
         <div class="surface p-5">
           <div class="text-xs font-semibold uppercase tracking-wider" style="color: var(--color-label);" data-i18n="topModel">Top Model</div>
-          <div id="topModel" class="text-lg sm:text-xl font-extrabold mt-2 mono" style="color: var(--color-text);">-</div>
+          <div id="topModel" class="text-lg sm:text-xl font-extrabold mt-2 mono break-all" style="color: var(--color-text);" title=""></div>
           <div id="topModelMeta" class="text-sm mt-1" style="color: var(--color-muted);">-</div>
         </div>
       </section>
@@ -5178,6 +5178,9 @@
       dsh: { icon: '/static/icons/agents/dsh.svg', color: '#4D6BFE', fallback: 'D' },
       reasonix: { icon: '/static/icons/agents/reasonix.svg', color: '#0153E5', fallback: 'R' },
       zcode: { icon: '/static/icons/agents/zcode.png', color: '#111213', fallback: 'Z', darkInvert: true },
+      workbuddy: { icon: '/static/icons/agents/workbuddy.png', color: '#0CC8A3', fallback: 'W' },
+      qoder: { icon: '/static/icons/agents/qoder.png', color: '#21D664', fallback: 'Q' },
+      qoder_cli: { icon: '/static/icons/agents/qoder.png', color: '#21D664', fallback: 'Q' },
     });
     const toolBrandIconPromises = new Map();
 
@@ -5310,6 +5313,9 @@
         dsh: 'DeepSeek Harness',
         reasonix: 'Reasonix',
         zcode: 'ZCode',
+        workbuddy: 'WorkBuddy',
+        qoder: 'Qoder IDE',
+        qoder_cli: 'Qoder CLI',
         cursor: 'Cursor',
       };
       if (mapping[key]) return mapping[key];
@@ -5822,12 +5828,15 @@
       renderOverviewActiveTime();
       updateComparisonDeltas(data);
 
+      const topModelEl = document.getElementById('topModel');
       if (data.top_models && data.top_models.length > 0) {
         const top = data.top_models[0];
-        document.getElementById('topModel').textContent = top.name;
+        topModelEl.textContent = top.name;
+        topModelEl.title = top.name;
         document.getElementById('topModelMeta').textContent = `${formatCurrency(top.cost)} · ${formatTokenCount(top.tokens, true)}`;
       } else {
-        document.getElementById('topModel').textContent = '—';
+        topModelEl.textContent = '—';
+        topModelEl.title = '';
         document.getElementById('topModelMeta').textContent = '—';
       }
 

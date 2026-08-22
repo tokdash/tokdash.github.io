@@ -40,7 +40,7 @@ function assert(cond, msg) {
 // /api/usage
 const usage = await get("/api/usage?period=week");
 assert(usage.total_tokens > 0, "usage has tokens");
-assert(usage.by_tool.dsh && usage.by_tool.mimo && usage.by_tool.zcode, "usage includes dsh, mimo, and zcode tools");
+assert(usage.by_tool.dsh && usage.by_tool.mimo && usage.by_tool.zcode && usage.by_tool.workbuddy && usage.by_tool.qoder && usage.by_tool.qoder_cli, "usage includes dsh, mimo, zcode, workbuddy, qoder, and qoder_cli tools");
 assert(usage.comparison && usage.comparison.tokens_pct !== undefined, "usage comparison present");
 
 // /api/active-time (v1.7.0)
