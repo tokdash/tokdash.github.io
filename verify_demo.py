@@ -129,7 +129,7 @@ with sync_playwright() as p:
 
     # Every recently added source must show up in the Overview tools table.
     overview_body = page.inner_text("body")
-    for label in ["WorkBuddy", "Qoder IDE", "Qoder CLI"]:
+    for label in ["WorkBuddy", "Qoder IDE", "Qoder CLI", "omp", "Kilo Code", "Cline"]:
         assert label in overview_body, f"{label} missing from Overview tools table"
 
     page.screenshot(path="verify-overview.png")
