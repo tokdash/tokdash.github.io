@@ -1,6 +1,94 @@
 {
-  "current": "2.2.0",
+  "current": "2.4.2",
   "releases": [
+    {
+      "version": "2.4.2",
+      "date": "2026-08-30",
+      "sections": [
+        {
+          "type": "fixed",
+          "items": [
+            "Yesterday and other past date ranges now recompute once the range has ended, instead of showing the partial figures cached while it was still in progress. Previously only the Refresh button corrected them."
+          ]
+        }
+      ]
+    },
+    {
+      "version": "2.4.1",
+      "date": "2026-08-28",
+      "sections": [
+        {
+          "type": "fixed",
+          "items": [
+            "Quota provider visibility menus now list the harnesses reported by their own server and keep every server block synchronized when the shared preference changes."
+          ]
+        }
+      ]
+    },
+    {
+      "version": "2.4.0",
+      "date": "2026-08-28",
+      "sections": [
+        {
+          "type": "added",
+          "items": [
+            "Added Japanese, Korean, Spanish, and Portuguese dashboard languages, with automatic browser-language detection and locale-aware dates and numbers.",
+            "Added opt-in Z.ai Coding Plan quota tracking for 5-hour, weekly credit, and legacy MCP windows.",
+            "Updated pricing data to 2.0.20 with 14 newly listed models."
+          ]
+        },
+        {
+          "type": "changed",
+          "items": [
+            "Refresh reports now appear for every repeat refresh of the displayed range while respecting an explicit dismissal."
+          ]
+        }
+      ]
+    },
+    {
+      "version": "2.3.1",
+      "date": "2026-08-27",
+      "sections": [
+        {
+          "type": "changed",
+          "items": [
+            "Session panels now show each harness's brand logo, and harnesses with no sessions in the selected range are hidden instead of rendering empty panels."
+          ]
+        },
+        {
+          "type": "fixed",
+          "items": [
+            "The first dashboard load after startup no longer returns a transient 503 while the cache warms."
+          ]
+        }
+      ]
+    },
+    {
+      "version": "2.3.0",
+      "date": "2026-08-26",
+      "sections": [
+        {
+          "type": "added",
+          "items": [
+            "Added Session Explorer support for Antigravity CLI, Cline, Grok Build, Hermes, Kilo Code, and omp, with per-turn usage and active time.",
+            "Added a Servers tab for comparing configured Tokdash instances and collapsible per-tool session panels.",
+            "Refresh now reports source-level additions, updates, removals, and unchanged rows from incremental scans."
+          ]
+        },
+        {
+          "type": "changed",
+          "items": [
+            "Overview and session runtime cards now report agent time consistently, and unchanged source files are reused during rescans."
+          ]
+        },
+        {
+          "type": "fixed",
+          "items": [
+            "Fixed queued dashboard refreshes, stale date-range breakdowns, Antigravity WAL metadata invalidation, and Cline project fallback."
+          ]
+        }
+      ]
+    },
     {
       "version": "2.2.0",
       "date": "2026-08-22",

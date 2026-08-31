@@ -1828,14 +1828,14 @@
                     </svg>
                   </span>
                   <div>
-                    <h2 id="refreshReportTitle" class="refresh-report-title">Scan complete</h2>
+                    <h2 id="refreshReportTitle" class="refresh-report-title">Refresh complete</h2>
                     <p id="refreshReportMeta" class="refresh-report-meta"></p>
                   </div>
                   <button id="refreshReportClose" class="refresh-report-close" type="button" aria-label="Close">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                   </button>
                 </div>
-                <div class="refresh-report-deltas" aria-label="Changes after scan">
+                <div class="refresh-report-deltas" aria-label="Changes after refresh">
                   <div class="refresh-report-delta"><strong id="refreshReportTokens" class="mono">—</strong><span data-i18n="refreshReportTokens">Tokens</span></div>
                   <div class="refresh-report-delta"><strong id="refreshReportCost" class="mono">—</strong><span data-i18n="refreshReportCost">Cost</span></div>
                   <div class="refresh-report-delta"><strong id="refreshReportMessages" class="mono">—</strong><span data-i18n="refreshReportMessages">Messages</span></div>
@@ -3576,19 +3576,6 @@
           <option value="30d" data-i18n="quotaRange30d">Last 30 Days</option>
           <option value="all" data-i18n="quotaRangeAll">All Time</option>
         </select>
-        <div id="quotaVisibilityWrap" class="quota-visibility-wrap">
-          <button type="button" id="quotaVisibilityBtn" class="ui-input compact-control quota-visibility-btn" aria-haspopup="true" aria-expanded="false">
-            <span id="quotaVisibilityLabel" data-i18n="quotaVisibilityAll">Show: All</span><span aria-hidden="true" class="quota-visibility-caret">▾</span>
-          </button>
-          <div id="quotaVisibilityPanel" class="quota-visibility-panel hidden" role="menu" aria-label="Show providers">
-            <label class="quota-visibility-item"><input type="checkbox" data-quota-provider="codex" checked><span>Codex</span></label>
-            <label class="quota-visibility-item"><input type="checkbox" data-quota-provider="claude" checked><span>Claude Code</span></label>
-            <label class="quota-visibility-item"><input type="checkbox" data-quota-provider="antigravity" checked><span>Antigravity</span></label>
-            <label class="quota-visibility-item"><input type="checkbox" data-quota-provider="minimax" checked><span>MiniMax</span></label>
-            <label class="quota-visibility-item"><input type="checkbox" data-quota-provider="kimi" checked><span>Kimi Code</span></label>
-            <label class="quota-visibility-item"><input type="checkbox" data-quota-provider="grok" checked><span>Grok Build</span></label>
-          </div>
-        </div>
         <span id="quotaGlobalStatusLine" class="text-xs" style="color:var(--color-muted)"></span>
       </div>
       <section id="quotaSingleServerPanel" class="surface p-5 mb-6">
@@ -3616,6 +3603,7 @@
             </label>
             <span id="quotaIntervalSource" class="text-xs" style="color: var(--color-muted);"></span>
             <span id="quotaGlobalControlsSingleSlot" style="display:contents"></span>
+            <span id="quotaVisibilityHost" style="display:contents"></span>
             <!-- TASK 2: no dedicated quota refresh button anymore — the global #refreshBtn
                  refreshes quota when this tab is active. This line keeps the poll.last_run
                  freshness readout visible, and doubles as the transient status surface for
@@ -4121,6 +4109,7 @@
     let refreshCooldownRemaining = 0;
     let lastUsageResponse = null;
     let lastRefreshReport = null;
+    let refreshReportDismissedWindowKey = null;
     const SESSION_TOOL_KEYS = ['codex', 'claude', 'opencode', 'pi_agent', 'mimo', 'kimi', 'dsh', 'reasonix', 'zcode', 'kilocode', 'omp', 'grok', 'hermes', 'antigravity_cli', 'cline'];
     let lastSessionsResponses = { codex: null, claude: null, opencode: null, pi_agent: null, mimo: null, kimi: null, dsh: null, reasonix: null, zcode: null, kilocode: null, omp: null, grok: null, hermes: null, antigravity_cli: null, cline: null, combined: null };
     let lastCombinedModels = [];
@@ -4216,21 +4205,21 @@
         refreshBusy: 'Busy',
         refreshFailed: 'Failed — retry',
         refreshCooldown: 'Wait {n}s',
-        refreshReportComplete: 'Scan complete',
-        refreshReportPreserved: 'Scan complete · previous data kept',
-        refreshReportPartial: 'Scan incomplete',
-        refreshReportFailed: 'Scan failed · previous data kept',
+        refreshReportComplete: 'Refresh complete',
+        refreshReportPreserved: 'Refresh complete · previous data kept',
+        refreshReportPartial: 'Refresh incomplete',
+        refreshReportFailed: 'Refresh failed · previous data kept',
         refreshReportTokens: 'Tokens',
         refreshReportCost: 'Cost',
         refreshReportMessages: 'Messages',
         refreshReportNoBaseline: 'Baseline saved · {n} tools found',
         refreshReportToolsChanged: '{n} tools changed',
         refreshReportNoChanges: 'No usage changes found',
-        refreshReportRetained: 'Kept the previous result for {names}; this scan could not read complete data.',
+        refreshReportRetained: 'Kept the previous result for {names}; this refresh could not read complete data.',
         refreshReportUnavailable: 'No earlier result was available for {names}; displayed totals may be incomplete.',
         refreshReportRange: '{range} · {time}',
-        refreshReportDiffLabel: 'Changes after scan',
-        refreshReportClose: 'Close scan report',
+        refreshReportDiffLabel: 'Changes after refresh',
+        refreshReportClose: 'Close refresh report',
         settings: 'Settings',
         servers: 'Servers',
         allServers: 'Use all',
@@ -4611,10 +4600,10 @@
         refreshBusy: '繁忙',
         refreshFailed: '失败，请重试',
         refreshCooldown: '{n} 秒后重试',
-        refreshReportComplete: '扫描完成',
-        refreshReportPreserved: '扫描完成 · 已保留旧数据',
-        refreshReportPartial: '扫描不完整',
-        refreshReportFailed: '扫描失败 · 已保留旧数据',
+        refreshReportComplete: '刷新完成',
+        refreshReportPreserved: '刷新完成 · 已保留旧数据',
+        refreshReportPartial: '刷新不完整',
+        refreshReportFailed: '刷新失败 · 已保留旧数据',
         refreshReportTokens: 'Tokens',
         refreshReportCost: '费用',
         refreshReportMessages: '消息数',
@@ -4624,8 +4613,8 @@
         refreshReportRetained: '{names} 本次未能完整读取，已保留该范围的上一次结果。',
         refreshReportUnavailable: '{names} 没有可用的旧结果，当前合计可能不完整。',
         refreshReportRange: '{range} · {time}',
-        refreshReportDiffLabel: '扫描后的变化',
-        refreshReportClose: '关闭扫描报告',
+        refreshReportDiffLabel: '刷新后的变化',
+        refreshReportClose: '关闭刷新报告',
         settings: '设置',
         servers: '服务器',
         allServers: '全部启用',
@@ -7326,9 +7315,12 @@
       document.getElementById('refreshBtn')?.setAttribute('aria-expanded', 'true');
     }
 
-    function hideUsageRefreshReport({ focusButton = false } = {}) {
+    function hideUsageRefreshReport({ focusButton = false, dismissed = false } = {}) {
       const panel = document.getElementById('refreshReport');
       if (panel) panel.hidden = true;
+      // An explicit dismissal remains in effect for this range, so a background
+      // refresh cannot reopen and re-announce the report every five minutes.
+      if (dismissed) refreshReportDismissedWindowKey = lastRefreshReport?.windowKey || null;
       const button = document.getElementById('refreshBtn');
       button?.setAttribute('aria-expanded', 'false');
       if (focusButton) button?.focus();
@@ -7670,15 +7662,15 @@
         lastQuotaServerRows.forEach((row) => renderQuotaServerBlock(row.server, row.payload, row.history));
       } else {
         if (lastQuotaPayload) renderQuotaProviderCards(lastQuotaPayload);
-        if (lastQuotaHistory) renderQuotaCharts(lastQuotaHistory);
+        if (lastQuotaHistory) renderQuotaCharts(lastQuotaHistory, { present: quotaPresentProviders(lastQuotaPayload) });
         if (lastQuotaPayload) renderQuotaSettings(lastQuotaPayload);
+        if (lastQuotaPayload) syncQuotaSingleVisibility(lastQuotaPayload);
       }
       renderServerSettings();
       renderServerFormStatus();
       if (lastRefreshReport && !document.getElementById('refreshReport')?.hidden) {
         showUsageRefreshReport(lastRefreshReport);
       }
-      updateQuotaVisibilityLabel();  // imperative label (data-i18n removed), re-derive on switch
       const quotaUnitEl = document.getElementById('quotaConsumptionUnit');
       if (quotaUnitEl && !quotaUnitEl.hasAttribute('data-i18n')) {
         const granularity = currentQuotaRange() === '24h' ? 'hour' : 'day';
@@ -8590,6 +8582,9 @@
       if (forceRefresh || (lastRefreshReport?.windowKey && lastRefreshReport.windowKey !== windowKey)) {
         hideUsageRefreshReport();
       }
+      // The refresh button is an explicit request for new feedback, so it restores
+      // the report even when the user previously dismissed it for this range.
+      if (forceRefresh) refreshReportDismissedWindowKey = null;
 
       // The date picker moved its label before this ran, so whatever is on screen now
       // sits under a heading that does not name it. Drop the deferred breakdowns and
@@ -8651,6 +8646,12 @@
       const previousUsageForReport = lastWindowKey === windowKey && lastUsageServerKey === usageServerKey
         ? lastUsageResponse
         : null;
+      // A refresh is any re-fetch of the exact range and server selection already
+      // on screen. This includes the five-minute timer and other programmatic
+      // reloads, while the first load and a genuine range change remain ordinary
+      // loads and do not present unrelated values as a before/after comparison.
+      const shouldReportRefresh = (forceRefresh || previousUsageForReport !== null)
+        && refreshReportDismissedWindowKey !== windowKey;
       const reportRangeLabel = refreshReportRangeLabel();
       if (forceRefresh) {
         setRefreshUiState('refreshing');
@@ -8720,6 +8721,10 @@
             const cacheMeta = lastUsageResponse?.response_cache || null;
             setRefreshUiState(cacheMeta?.served_from_cache ? 'cached' : 'updated', { resetAfterMs: 1800 });
           }
+        } else if (refreshUiState !== 'idle') {
+          setRefreshUiState('idle');
+        }
+        if (shouldReportRefresh) {
           const scan = lastUsageResponse?._scan_reconciliation || {};
           showUsageRefreshReport(buildUsageRefreshReport(previousUsageForReport, lastUsageResponse, {
             failed: !!usageFetchError,
@@ -8729,8 +8734,6 @@
             unavailable: scan.unavailable,
             error: usageFetchError?.message || '',
           }));
-        } else if (refreshUiState !== 'idle') {
-          setRefreshUiState('idle');
         }
 
         if (isOverviewActive()) renderOverviewTab(lastUsageResponse);
@@ -8750,6 +8753,8 @@
         setDashboardFetchStatus(error);
         if (forceRefresh) {
           setRefreshUiState(error?.status === 503 ? 'busy' : 'failed', { resetAfterMs: 2600 });
+        }
+        if (shouldReportRefresh) {
           const scan = usageReconciliation || reconcileUsageRows([], windowKey, usageServers);
           showUsageRefreshReport(buildUsageRefreshReport(previousUsageForReport, previousUsageForReport, {
             failed: true,
@@ -10317,6 +10322,7 @@
       if (provider === 'minimax') return 'MiniMax';
       if (provider === 'kimi') return 'Kimi Code';
       if (provider === 'grok') return 'Grok Build';
+      if (provider === 'zai') return 'Z.ai';
       return provider || '—';
     }
 
@@ -10353,6 +10359,7 @@
       if (provider === 'minimax') return { key: 'minimax_api', endpoint: 'api.minimax.io or api.minimaxi.com/v1/token_plan/remains', path: '$MMX_CONFIG_DIR/config.json or a MiniMax Token Plan key' };
       if (provider === 'kimi') return { key: 'kimi_api', endpoint: 'api.kimi.com/coding/v1/usages', path: '$KIMI_CODE_HOME credentials/config or KIMI_API_KEY' };
       if (provider === 'grok') return { key: 'grok_api', endpoint: 'cli-chat-proxy.grok.com/v1/billing', path: '$GROK_HOME/auth.json (xAI OAuth only)' };
+      if (provider === 'zai') return { key: 'zai_api', endpoint: 'api.z.ai/api/monitor/usage/quota/limit', path: '$ZCODE_HOME/v2/config.json, supported tool config, or ZAI_API_KEY' };
       return { key: '', endpoint: '', path: '' };
     }
 
@@ -10772,19 +10779,21 @@
     function renderQuotaProviderCards(payload, containerOverride = null, ownerServer = LOCAL_SERVER) {
       const container = containerOverride || document.getElementById('quotaProviderCards');
       if (!container) return;
-      updateQuotaProviderPresence(payload);
+      // Visibility is scoped to this payload's provider set, not a global union.
+      const present = quotaPresentProviders(payload);
       if (payload?.enabled === false) {
         renderQuotaDisabledCard(container, ownerServer);
         return;
       }
       const providers = payload?.providers || {};
-      const order = ['codex', 'claude', 'antigravity', 'minimax', 'kimi', 'grok'];
+      const order = ['codex', 'claude', 'antigravity', 'minimax', 'kimi', 'grok', 'zai'];
       const cards = document.createDocumentFragment();
       let renderedCards = 0;
 
       order.forEach((providerKey) => {
-        // Provider-visibility dropdown: skip providers the user has hidden.
-        if (!quotaProviderVisible(providerKey)) return;
+        // Provider-visibility dropdown: skip providers the user has hidden or that
+        // this server's payload does not report.
+        if (!quotaProviderVisible(providerKey, present)) return;
         renderedCards += 1;
         const provider = providers[providerKey] || {};
         const buckets = Array.isArray(provider.buckets) ? provider.buckets.filter(isQuotaUsageBucket) : [];
@@ -10965,31 +10974,25 @@
       return [...passthrough, ...pooled];
     }
 
-    // Provider-visibility dropdown state. The user can hide whole providers from both
-    // the cards and the charts; the choice is persisted
-    // in localStorage and defaults to all-visible. Unknown providers default to visible.
-    const QUOTA_PROVIDERS = ['codex', 'claude', 'antigravity', 'minimax', 'kimi', 'grok'];
+    // Provider-visibility dropdown ("Show: All / Codex / …"). The show/hide choice is one
+    // persisted display preference (provider -> bool), but the control is scoped per server:
+    // in multi-server mode every server block carries its own dropdown, and each dropdown
+    // only offers the providers present in THAT server's /api/quota payload — never the
+    // union of harnesses across servers. Single-server mode uses the same control, placed
+    // in the settings row via #quotaVisibilityHost.
+    const QUOTA_PROVIDERS = ['codex', 'claude', 'antigravity', 'minimax', 'kimi', 'grok', 'zai'];
     const QUOTA_VISIBILITY_KEY = 'tokdash-quota-visible';
     let quotaVisibilityState = null;
-    let quotaPresentProviders = null;
 
-    function updateQuotaProviderPresence(payload) {
-      const providers = payload?.providers || {};
-      quotaPresentProviders = new Set(QUOTA_PROVIDERS.filter((provider) => {
+    // Providers actually present in one server's quota payload: detected locally,
+    // network-enabled, or carrying bucket data.
+    function quotaPresentProviders(payload) {
+      const providers = (payload && payload.providers) || {};
+      return new Set(QUOTA_PROVIDERS.filter((provider) => {
         const item = providers[provider] || {};
         const buckets = Array.isArray(item.buckets) ? item.buckets : [];
         return item.detected === true || item.network_enabled === true || buckets.length > 0;
       }));
-      document.querySelectorAll('#quotaVisibilityPanel input[data-quota-provider]').forEach((input) => {
-        const provider = input.getAttribute('data-quota-provider');
-        const row = input.closest('.quota-visibility-item');
-        if (row) row.classList.toggle('hidden', !quotaPresentProviders.has(provider));
-      });
-      updateQuotaVisibilityLabel();
-    }
-
-    function quotaProviderPresent(provider) {
-      return quotaPresentProviders === null || quotaPresentProviders.has(provider);
     }
 
     function loadQuotaVisibility() {
@@ -11006,73 +11009,204 @@
       return state;
     }
 
-    function quotaProviderVisible(provider) {
-      return quotaProviderPresent(provider) && loadQuotaVisibility()[provider] !== false;
+    // `present` is the scope's provider set (that server's payload); omitting it keeps the
+    // legacy all-present behavior for any caller without a scope.
+    function quotaProviderVisible(provider, present) {
+      return (present === null || present === undefined || present.has(provider)) && loadQuotaVisibility()[provider] !== false;
     }
 
     function persistQuotaVisibility() {
       try { localStorage.setItem(QUOTA_VISIBILITY_KEY, JSON.stringify(loadQuotaVisibility())); } catch (e) { /* ignore */ }
     }
 
-    function updateQuotaVisibilityLabel() {
-      const label = document.getElementById('quotaVisibilityLabel');
-      if (!label) return;
+    function quotaVisibilityLabelText(present) {
       const state = loadQuotaVisibility();
-      const available = QUOTA_PROVIDERS.filter(quotaProviderPresent);
-      const shown = available.filter((p) => state[p] !== false);
-      label.removeAttribute('data-i18n');
-      if (available.length === 0 || shown.length === 0) label.textContent = t('quotaVisibilityNone');
-      else if (shown.length === available.length) label.textContent = t('quotaVisibilityAll');
-      else label.textContent = `${t('quotaVisibilityPrefix')} ${shown.map(quotaProviderLabel).join(', ')}`;
+      const available = QUOTA_PROVIDERS.filter((provider) => present.has(provider));
+      const shown = available.filter((provider) => state[provider] !== false);
+      if (available.length === 0 || shown.length === 0) return t('quotaVisibilityNone');
+      if (shown.length === available.length) return t('quotaVisibilityAll');
+      return `${t('quotaVisibilityPrefix')} ${shown.map(quotaProviderLabel).join(', ')}`;
     }
 
-    function closeQuotaVisibilityPanel() {
-      const panel = document.getElementById('quotaVisibilityPanel');
-      const btn = document.getElementById('quotaVisibilityBtn');
-      if (panel) panel.classList.add('hidden');
-      if (btn) btn.setAttribute('aria-expanded', 'false');
+    function buildQuotaVisibilityRow(provider) {
+      const item = document.createElement('label');
+      item.className = 'quota-visibility-item';
+      const input = document.createElement('input');
+      input.type = 'checkbox';
+      input.dataset.provider = provider;
+      input.checked = loadQuotaVisibility()[provider] !== false;
+      input.addEventListener('change', () => {
+        loadQuotaVisibility()[provider] = input.checked;
+        persistQuotaVisibility();
+        // One shared preference: propagate the change to every rendered scope.
+        applyQuotaVisibilityChange();
+      });
+      const span = document.createElement('span');
+      span.textContent = quotaProviderLabel(provider);
+      item.appendChild(input);
+      item.appendChild(span);
+      return item;
     }
 
-    function initQuotaVisibilityControls() {
-      const state = loadQuotaVisibility();
-      const panel = document.getElementById('quotaVisibilityPanel');
-      const btn = document.getElementById('quotaVisibilityBtn');
-      if (!panel || !btn) return;
-      panel.querySelectorAll('input[data-quota-provider]').forEach((input) => {
-        const provider = input.getAttribute('data-quota-provider');
-        input.checked = state[provider] !== false;
-        input.addEventListener('change', () => {
-          state[provider] = input.checked;
-          persistQuotaVisibility();
-          updateQuotaVisibilityLabel();
-          // Re-render from the cached payloads — a visibility change never needs a refetch.
-          if (lastQuotaServerRows.length > 1) lastQuotaServerRows.forEach((row) => renderQuotaServerBlock(row.server, row.payload, row.history));
-          else {
-            if (lastQuotaPayload) renderQuotaProviderCards(lastQuotaPayload);
-            if (lastQuotaHistory) renderQuotaCharts(lastQuotaHistory);
-          }
-        });
+    function createQuotaVisibilityControl(present) {
+      const wrap = document.createElement('div');
+      wrap.className = 'quota-visibility-wrap';
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'ui-input compact-control quota-visibility-btn';
+      btn.setAttribute('aria-haspopup', 'true');
+      btn.setAttribute('aria-expanded', 'false');
+      const label = document.createElement('span');
+      label.className = 'quota-visibility-label';
+      label.textContent = quotaVisibilityLabelText(present);
+      const caret = document.createElement('span');
+      caret.className = 'quota-visibility-caret';
+      caret.setAttribute('aria-hidden', 'true');
+      caret.textContent = '▾';
+      btn.appendChild(label);
+      btn.appendChild(caret);
+      const panel = document.createElement('div');
+      panel.className = 'quota-visibility-panel hidden';
+      panel.setAttribute('role', 'menu');
+      panel.setAttribute('aria-label', 'Show providers');
+      QUOTA_PROVIDERS.forEach((provider) => {
+        if (!present.has(provider)) return;
+        panel.appendChild(buildQuotaVisibilityRow(provider));
       });
       btn.addEventListener('click', (event) => {
         event.stopPropagation();
         const hidden = panel.classList.toggle('hidden');
         btn.setAttribute('aria-expanded', String(!hidden));
       });
+      wrap.appendChild(btn);
+      wrap.appendChild(panel);
+      return wrap;
+    }
+
+    // Rebuild a scope's dropdown when its provider set changes (refresh / i18n / consent
+    // write): options and label follow the new set. Toggles use
+    // syncQuotaVisibilityControlInPlace instead, so the open panel is never rebuilt.
+    function syncQuotaVisibilityControl(control, present) {
+      const panel = control.querySelector('.quota-visibility-panel');
+      if (!panel) return;
+      panel.replaceChildren();
+      QUOTA_PROVIDERS.forEach((provider) => {
+        if (!present.has(provider)) return;
+        panel.appendChild(buildQuotaVisibilityRow(provider));
+      });
+      const label = control.querySelector('.quota-visibility-label');
+      if (label) label.textContent = quotaVisibilityLabelText(present);
+    }
+
+    // Toggle path: update one scope's dropdown in place. Label text and checkbox states
+    // follow the shared preference; rows are not rebuilt, so the open panel keeps its
+    // identity and focus while the user works through the menu.
+    function syncQuotaVisibilityControlInPlace(control, present) {
+      if (!control || !present) return;
+      const label = control.querySelector('.quota-visibility-label');
+      if (label) label.textContent = quotaVisibilityLabelText(present);
+      const state = loadQuotaVisibility();
+      control.querySelectorAll('.quota-visibility-item input').forEach((input) => {
+        if (input.dataset.provider) input.checked = state[input.dataset.provider] !== false;
+      });
+    }
+
+    function closeQuotaVisibilityPanels() {
+      document.querySelectorAll('.quota-visibility-panel:not(.hidden)').forEach((panel) => {
+        panel.classList.add('hidden');
+        const btn = panel.closest('.quota-visibility-wrap')?.querySelector('.quota-visibility-btn');
+        if (btn) btn.setAttribute('aria-expanded', 'false');
+      });
+    }
+
+    function initQuotaVisibilityControls() {
+      // Controls are built dynamically per scope (server block / single-server row), so
+      // document-level listeners close whichever panel(s) are open. A click inside a
+      // wrap keeps that wrap's panel open.
       document.addEventListener('click', (event) => {
-        if (panel.classList.contains('hidden')) return;
-        if (!panel.contains(event.target) && !btn.contains(event.target)) closeQuotaVisibilityPanel();
+        const open = document.querySelectorAll('.quota-visibility-panel:not(.hidden)');
+        if (!open.length) return;
+        const wrap = event.target.closest ? event.target.closest('.quota-visibility-wrap') : null;
+        open.forEach((panel) => {
+          if (panel.closest('.quota-visibility-wrap') === wrap) return;
+          panel.classList.add('hidden');
+          const btn = panel.closest('.quota-visibility-wrap')?.querySelector('.quota-visibility-btn');
+          if (btn) btn.setAttribute('aria-expanded', 'false');
+        });
       });
       document.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape') closeQuotaVisibilityPanel();
+        if (event.key === 'Escape') closeQuotaVisibilityPanels();
       });
-      updateQuotaVisibilityLabel();
+    }
+
+    // Toggle path: re-render one scope's cards and charts, and sync that scope's
+    // dropdown in place (label + checkbox states; the open panel is never rebuilt).
+    function refreshQuotaServerScope(server) {
+      const row = (lastQuotaServerRows || []).find((r) => r.server && r.server.id === server.id);
+      const block = document.querySelector(`#quotaServerBlocks [data-server-id="${CSS.escape(server.id)}"]`);
+      if (!row || !block) return;
+      const present = quotaPresentProviders(row.payload);
+      renderQuotaProviderCards(row.payload, block.querySelector('[data-role="cards"]'), server);
+      renderQuotaCharts(row.history, {
+        serverId: server.id,
+        utilizationCanvas: block.querySelector('[data-role="utilization"]'),
+        consumptionCanvas: block.querySelector('[data-role="consumption"]'),
+        estimatedBanner: block.querySelector('[data-role="estimated"]'),
+        present,
+      });
+      syncQuotaVisibilityControlInPlace(block.querySelector('[data-role="visibility"] .quota-visibility-wrap'), present);
+    }
+
+    function refreshQuotaSingleScope() {
+      if (!lastQuotaPayload) return;
+      const present = quotaPresentProviders(lastQuotaPayload);
+      renderQuotaProviderCards(lastQuotaPayload);
+      if (lastQuotaHistory) renderQuotaCharts(lastQuotaHistory, { present });
+      syncQuotaVisibilityControlInPlace(document.getElementById('quotaVisibilityHost')?.querySelector('.quota-visibility-wrap'), present);
+    }
+
+    // The show/hide preference is shared across scopes, so a toggle in one dropdown
+    // re-renders every rendered scope — the one under the cursor and all the others —
+    // so no block keeps stale cards, charts, labels, or checkbox state. Branch on the
+    // layout (selected server count), not the successful-row count: a partial multi
+    // load (one of two servers answering) still renders server blocks and must update
+    // them, not the hidden single-server UI.
+    function applyQuotaVisibilityChange() {
+      if (selectedServers().length > 1) {
+        lastQuotaServerRows.forEach((row) => refreshQuotaServerScope(row.server));
+      } else {
+        refreshQuotaSingleScope();
+      }
+    }
+
+    // Per-server dropdown slot in the block header; hidden entirely when the server
+    // reports no providers.
+    function syncQuotaServerVisibilityControl(block, payload) {
+      const host = block.querySelector('[data-role="visibility"]');
+      if (!host) return;
+      const present = quotaPresentProviders(payload);
+      if (!present.size) { host.replaceChildren(); return; }
+      const control = host.querySelector('.quota-visibility-wrap');
+      if (control) syncQuotaVisibilityControl(control, present);
+      else host.appendChild(createQuotaVisibilityControl(present));
+    }
+
+    // Single-server dropdown slot in the settings row.
+    function syncQuotaSingleVisibility(payload) {
+      const host = document.getElementById('quotaVisibilityHost');
+      if (!host) return;
+      const present = quotaPresentProviders(payload);
+      if (!present.size) { host.replaceChildren(); return; }
+      const control = host.querySelector('.quota-visibility-wrap');
+      if (control) syncQuotaVisibilityControl(control, present);
+      else host.appendChild(createQuotaVisibilityControl(present));
     }
 
     function renderQuotaCharts(history, targets = {}) {
-      // Provider-visibility filter (dropdown next to the interval selector): drop whole
-      // provider series the user has hidden before any dataset is built.
+      // Provider-visibility filter (per-server "Show: …" dropdown): drop whole provider
+      // series the user has hidden, or that this server does not report.
       const series = collapseAntigravitySeriesForCharts(history?.series || [])
-        .filter((item) => quotaProviderVisible(item.provider));
+        .filter((item) => quotaProviderVisible(item.provider, targets.present));
       const granularity = history?.granularity || 'hour';
       const palette = getChartPalette();
       const utilizationCanvas = targets.utilizationCanvas || document.getElementById('quotaUtilizationChart');
@@ -11246,7 +11380,7 @@
       block.className = 'surface p-5';
       block.dataset.serverId = server.id;
       const minute = t('minuteShort');
-      block.innerHTML = `<div class="flex flex-wrap items-center justify-between gap-3 mb-4"><h2 class="text-base font-extrabold mono"></h2><div class="flex flex-wrap items-center gap-2"><label class="text-sm"><input data-control="enabled" type="checkbox"> <span data-i18n="quotaTracking">${t('quotaTracking')}</span></label><label class="text-sm"><input data-control="credentials" type="checkbox"> <span data-i18n="quotaCredentialScan">${t('quotaCredentialScan')}</span></label><select data-control="interval" class="ui-input compact-control"><option value="15">15 ${minute}</option><option value="30">30 ${minute}</option><option value="60">60 ${minute}</option><option value="120">120 ${minute}</option></select><span data-role="status" class="text-xs" style="color:var(--color-muted)"></span></div></div><div data-role="cards" class="grid grid-cols-1 lg:grid-cols-3 gap-4"></div><div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4"><div class="surface p-5"><h3 class="text-base font-extrabold mono mb-3" data-i18n="utilizationHistory">${t('utilizationHistory')}</h3><div class="h-[280px]"><canvas data-role="utilization"></canvas></div></div><div class="surface p-5"><h3 class="text-base font-extrabold mono mb-3" data-i18n="consumptionHistory">${t('consumptionHistory')}</h3><div data-role="estimated" class="text-xs mb-2 hidden" style="color:var(--color-muted)" data-i18n="quotaConsumptionEstimated">${t('quotaConsumptionEstimated')}</div><div class="h-[280px]"><canvas data-role="consumption"></canvas></div></div></div>`;
+      block.innerHTML = `<div class="flex flex-wrap items-center justify-between gap-3 mb-4"><h2 class="text-base font-extrabold mono"></h2><div class="flex flex-wrap items-center gap-2"><label class="text-sm"><input data-control="enabled" type="checkbox"> <span data-i18n="quotaTracking">${t('quotaTracking')}</span></label><label class="text-sm"><input data-control="credentials" type="checkbox"> <span data-i18n="quotaCredentialScan">${t('quotaCredentialScan')}</span></label><select data-control="interval" class="ui-input compact-control"><option value="15">15 ${minute}</option><option value="30">30 ${minute}</option><option value="60">60 ${minute}</option><option value="120">120 ${minute}</option></select><span data-role="visibility" class="flex items-center gap-2"></span><span data-role="status" class="text-xs" style="color:var(--color-muted)"></span></div></div><div data-role="cards" class="grid grid-cols-1 lg:grid-cols-3 gap-4"></div><div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4"><div class="surface p-5"><h3 class="text-base font-extrabold mono mb-3" data-i18n="utilizationHistory">${t('utilizationHistory')}</h3><div class="h-[280px]"><canvas data-role="utilization"></canvas></div></div><div class="surface p-5"><h3 class="text-base font-extrabold mono mb-3" data-i18n="consumptionHistory">${t('consumptionHistory')}</h3><div data-role="estimated" class="text-xs mb-2 hidden" style="color:var(--color-muted)" data-i18n="quotaConsumptionEstimated">${t('quotaConsumptionEstimated')}</div><div class="h-[280px]"><canvas data-role="consumption"></canvas></div></div></div>`;
       block.querySelector('h2').textContent = server.label;
       return block;
     }
@@ -11264,8 +11398,9 @@
       enabled.onchange = () => setQuotaEnabled(enabled.checked, server).catch(() => { enabled.checked = !enabled.checked; });
       credentials.onchange = () => setQuotaCredentialScan(credentials.checked, server).catch(() => { credentials.checked = !credentials.checked; });
       interval.onchange = () => setQuotaInterval(interval.value, server);
+      syncQuotaServerVisibilityControl(block, payload);
       renderQuotaProviderCards(payload, block.querySelector('[data-role="cards"]'), server);
-      renderQuotaCharts(history, { serverId: server.id, utilizationCanvas: block.querySelector('[data-role="utilization"]'), consumptionCanvas: block.querySelector('[data-role="consumption"]'), estimatedBanner: block.querySelector('[data-role="estimated"]') });
+      renderQuotaCharts(history, { serverId: server.id, utilizationCanvas: block.querySelector('[data-role="utilization"]'), consumptionCanvas: block.querySelector('[data-role="consumption"]'), estimatedBanner: block.querySelector('[data-role="estimated"]'), present: quotaPresentProviders(payload) });
     }
 
     // ---- Servers tab (per-server stats) ----------------------------------------
@@ -11843,8 +11978,9 @@
         quotaLoaded = true;
         if (!multi) {
           renderQuotaSettings(payload);
+          syncQuotaSingleVisibility(payload);
           renderQuotaProviderCards(payload);
-          renderQuotaCharts(history);
+          renderQuotaCharts(history, { present: quotaPresentProviders(payload) });
         }
         return true;
       } catch (error) {
@@ -11852,8 +11988,9 @@
         setQuotaFetchStatus(error);
         if (lastQuotaServerRows.length <= 1) {
           if (lastQuotaPayload) renderQuotaSettings(lastQuotaPayload);
+          if (lastQuotaPayload) syncQuotaSingleVisibility(lastQuotaPayload);
           if (lastQuotaPayload) renderQuotaProviderCards(lastQuotaPayload);
-          if (lastQuotaHistory) renderQuotaCharts(lastQuotaHistory);
+          if (lastQuotaHistory) renderQuotaCharts(lastQuotaHistory, { present: quotaPresentProviders(lastQuotaPayload) });
         }
         // Reported rather than rethrown: callers that follow a write with a reload
         // must not acknowledge "saved" over an active fetch error (which would also
@@ -14649,7 +14786,7 @@
       }
     });
     document.getElementById('refreshReportClose')?.addEventListener('click', () => {
-      hideUsageRefreshReport({ focusButton: true });
+      hideUsageRefreshReport({ focusButton: true, dismissed: true });
     });
 
     document.getElementById('readableTokensToggle')?.addEventListener('click', () => {
@@ -14672,7 +14809,7 @@
         setSettingsPanelOpen(false, true);
       }
       if (event.key === 'Escape' && !document.getElementById('refreshReport')?.hidden) {
-        hideUsageRefreshReport({ focusButton: true });
+        hideUsageRefreshReport({ focusButton: true, dismissed: true });
       }
     });
 

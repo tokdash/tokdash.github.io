@@ -44,7 +44,8 @@
     antigravity_api: true,
     minimax_api: true,
     kimi_api: true,
-    grok_api: true
+    grok_api: true,
+    zai_api: true
   };
   let quotaPollIntervalMinutes = 15;
   let quotaLastRun = Math.floor((Date.now() - 8 * 60 * 1000) / 1000); // 8 min ago
@@ -257,13 +258,47 @@
           "status_at": quotaLastRun,
           "updated_at": quotaLastRun,
           "sources": ["grok_api"]
+        },
+        "zai": {
+          "provider": "zai",
+          "network_enabled": quotaConsent.zai_api,
+          "plan": "Standard",
+          "buckets": [
+            {
+              "account": "demo@tokdash.io",
+              "bucket": "5h",
+              "bucket_label": "5-hour window",
+              "used_percent": 34.0,
+              "remaining_percent": 66.0,
+              "resets_at": nextReset,
+              "captured_at": quotaLastRun,
+              "source": "zai_api",
+              "status": "ok"
+            },
+            {
+              "account": "demo@tokdash.io",
+              "bucket": "7d",
+              "bucket_label": "Weekly",
+              "used_percent": 61.0,
+              "remaining_percent": 39.0,
+              "resets_at": nextReset + 3600 * 24 * 5,
+              "captured_at": quotaLastRun,
+              "source": "zai_api",
+              "status": "ok"
+            }
+          ],
+          "status": "ok",
+          "status_detail": null,
+          "status_at": quotaLastRun,
+          "updated_at": quotaLastRun,
+          "sources": ["zai_api"]
         }
       },
       "consent": quotaConsent,
       "enabled": quotaTrackingEnabled,
       "poll": {
         "enabled": quotaTrackingEnabled,
-        "network_enabled": quotaConsent.codex_api || quotaConsent.claude_api || quotaConsent.antigravity_api || quotaConsent.minimax_api || quotaConsent.kimi_api || quotaConsent.grok_api,
+        "network_enabled": quotaConsent.codex_api || quotaConsent.claude_api || quotaConsent.antigravity_api || quotaConsent.minimax_api || quotaConsent.kimi_api || quotaConsent.grok_api || quotaConsent.zai_api,
         "interval": quotaPollIntervalMinutes * 60,
         "interval_source": "config",
         "interval_minutes": quotaPollIntervalMinutes,
@@ -368,6 +403,22 @@
         bucket_label: "Build",
         points: [],
         consumption: []
+      },
+      {
+        provider: "zai",
+        account: "demo@tokdash.io",
+        bucket: "5h",
+        bucket_label: "5-hour window",
+        points: [],
+        consumption: []
+      },
+      {
+        provider: "zai",
+        account: "demo@tokdash.io",
+        bucket: "7d",
+        bucket_label: "Weekly",
+        points: [],
+        consumption: []
       }
     ];
 
@@ -382,6 +433,8 @@
         ? 1.1
         : s.provider === "kimi"
         ? 1.5
+        : s.provider === "zai"
+        ? (s.bucket === "5h" ? 1.3 : 1.05)
         : 0.95;
       
       for (let i = limit; i >= 0; i--) {
@@ -1290,9 +1343,9 @@
         interval_source: "config"
       });
     }
-    if (path === "/api/quota/refresh" && method === "POST") {
+    if (path === "/api/quota/refresh" && method === "GET") {
       quotaLastRun = Math.floor(Date.now() / 1000);
-      return jsonResponse({ snapshots: 4, inserted: 4 });
+      return jsonResponse({ snapshots: 8, inserted: 8 });
     }
     if (path === "/api/openclaw" && method === "GET") {
       // Not consumed by the current UI but easy to support for parity.
