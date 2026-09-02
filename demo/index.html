@@ -363,6 +363,8 @@
     }
     .refresh-report[data-status="preserved"] .refresh-report-mark,
     .refresh-report[data-status="partial"] .refresh-report-mark,
+    .refresh-report[data-status="cached"] .refresh-report-mark,
+    .refresh-report[data-status="cachedPreserved"] .refresh-report-mark,
     .refresh-report[data-status="failed"] .refresh-report-mark {
       color: #B45309;
       background: color-mix(in srgb, #D97706 13%, transparent);
@@ -3191,6 +3193,146 @@
         </details>
       </section>
 
+      <section class="surface p-5 mb-6">
+        <details class="session-panel" data-panel-details="workbuddy">
+          <summary class="session-panel-summary">
+            <h2 class="text-base font-extrabold mono" data-i18n="workbuddySessions" data-i18n-title="sessionsRangeDesc">WorkBuddy Sessions</h2>
+            <span id="workbuddyPanelCount" class="session-panel-count"><span class="tokdash-loading-label" data-i18n="loading">Loading…</span></span>
+            <span id="workbuddyPanelKpis" class="session-panel-kpis" hidden>
+              <span class="session-panel-kpi"><span class="session-panel-kpi-label" data-i18n="panelTokens">Tokens</span><span id="workbuddyPanelTokens" class="session-panel-kpi-value mono">—</span></span>
+              <span class="session-panel-kpi"><span class="session-panel-kpi-label" data-i18n="cost">Cost</span><span id="workbuddyPanelCost" class="session-panel-kpi-value mono" style="color: var(--color-cost);">—</span></span>
+              <span class="session-panel-kpi"><span id="workbuddyActiveLabel" class="session-panel-kpi-label" data-i18n="agentTime" data-i18n-title="agentTimePanelHint">EST. agent time</span><span class="session-panel-kpi-value mono"><span id="workbuddyActiveAgent">—</span></span></span>
+              <span class="session-panel-kpi"><span class="session-panel-kpi-label" data-i18n="panelLast">Last</span><span id="workbuddyPanelLast" class="session-panel-kpi-value mono">—</span></span>
+            </span>
+            <span class="session-panel-chev" aria-hidden="true">▸</span>
+          </summary>
+          <div class="session-panel-body">
+
+        <div id="workbuddyLatestSession" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-6 gap-4 mb-5">
+          <div class="surface p-4">
+            <div class="text-xs font-semibold uppercase tracking-wider" style="color: var(--color-label);" data-i18n="latestSession">Latest Session</div>
+            <div id="workbuddyLatestProject" class="tokdash-loading-placeholder mt-2 font-extrabold mono"><span class="tokdash-loading-label" data-i18n="loading">Loading…</span></div>
+            <div id="workbuddyLatestMeta" class="text-sm mt-1" style="color: var(--color-muted);">-</div>
+          </div>
+          <div class="surface p-4">
+            <div class="text-xs font-semibold uppercase tracking-wider" style="color: var(--color-label);" data-i18n="input">Input</div>
+            <div id="workbuddyLatestInput" class="mt-2 font-extrabold">-</div>
+          </div>
+          <div class="surface p-4">
+            <div class="text-xs font-semibold uppercase tracking-wider" style="color: var(--color-label);" data-i18n="cacheRead">Cache Read</div>
+            <div id="workbuddyLatestCache" class="mt-2 font-extrabold">-</div>
+            <div id="workbuddyLatestCachePct" class="text-sm mt-1" style="color: var(--color-muted);">-</div>
+          </div>
+          <div class="surface p-4">
+            <div class="text-xs font-semibold uppercase tracking-wider" style="color: var(--color-label);" data-i18n="output">Output</div>
+            <div id="workbuddyLatestOutput" class="mt-2 font-extrabold">-</div>
+          </div>
+          <div class="surface p-4">
+            <div class="text-xs font-semibold uppercase tracking-wider" style="color: var(--color-label);" data-i18n="totalTokens">Total Tokens</div>
+            <div id="workbuddyLatestTotal" class="mt-2 font-extrabold">-</div>
+          </div>
+          <div class="surface p-4">
+            <div class="text-xs font-semibold uppercase tracking-wider" style="color: var(--color-label);" data-i18n="events">Events</div>
+            <div id="workbuddyLatestEvents" class="mt-2 font-extrabold">-</div>
+            <div id="workbuddyLatestSeen" class="text-sm mt-1" style="color: var(--color-muted);">-</div>
+          </div>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm session-table" aria-label="WorkBuddy sessions table" data-panel="workbuddy">
+            <colgroup><col style="width:16%"><col style="width:10%"><col style="width:9%"><col style="width:9%"><col style="width:8%"><col style="width:9%"><col style="width:10%"><col style="width:8%"><col style="width:9%"><col style="width:12%"></colgroup>
+            <thead>
+              <tr class="border-b" style="border-color: var(--color-border);">
+                <th class="text-left py-3 px-4 font-semibold" style="color: var(--color-muted);" data-i18n="session" data-sortable="display_name">Session</th>
+                <th class="text-left py-3 px-4 font-semibold" style="color: var(--color-muted);" data-i18n="model">Model</th>
+                <th class="text-right py-3 px-4 font-semibold" style="color: var(--color-muted);" data-i18n="input" data-sortable="tokens_in">Input</th>
+                <th class="text-right py-3 px-4 font-semibold" style="color: var(--color-muted);" data-i18n="cache" data-sortable="tokens_cache">Cache</th>
+                <th class="text-right py-3 px-4 font-semibold" style="color: var(--color-muted);" data-i18n="hitPct" data-sortable="cache_hit_rate">Hit %</th>
+                <th class="text-right py-3 px-4 font-semibold" style="color: var(--color-muted);" data-i18n="output" data-sortable="tokens_out">Output</th>
+                <th class="text-right py-3 px-4 font-semibold" style="color: var(--color-muted);" data-i18n="total" data-sortable="tokens">Total</th>
+                <th class="text-right py-3 px-4 font-semibold" style="color: var(--color-muted);" data-i18n="cost" data-sortable="cost">Cost</th>
+                <th class="text-right py-3 px-4 font-semibold" style="color: var(--color-muted);" data-i18n="activeTimeColumn" data-i18n-title="activeTimeHint" data-sortable="active_ms" title="Estimated from gaps between token events, each counted up to the idle cap (5 min by default).">Active (est.)</th>
+                <th class="text-right py-3 px-4 font-semibold" style="color: var(--color-muted);" data-i18n="lastUpdated" data-sortable="last_seen_at">Last updated</th>
+              </tr>
+            </thead>
+            <tbody id="workbuddySessionsTable">
+              <tr><td colspan="10" class="tokdash-loading-placeholder text-center py-10" style="color: var(--color-muted);"><span class="tokdash-loading-label" data-i18n="loading">Loading…</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        </div>
+        </details>
+      </section>
+
+      <section class="surface p-5 mb-6">
+        <details class="session-panel" data-panel-details="qoder">
+          <summary class="session-panel-summary">
+            <h2 class="text-base font-extrabold mono" data-i18n="qoderSessions" data-i18n-title="sessionsRangeDesc">Qoder IDE Sessions</h2>
+            <span id="qoderPanelCount" class="session-panel-count"><span class="tokdash-loading-label" data-i18n="loading">Loading…</span></span>
+            <span id="qoderPanelKpis" class="session-panel-kpis" hidden>
+              <span class="session-panel-kpi"><span class="session-panel-kpi-label" data-i18n="panelTokens">Tokens</span><span id="qoderPanelTokens" class="session-panel-kpi-value mono">—</span></span>
+              <span class="session-panel-kpi"><span class="session-panel-kpi-label" data-i18n="cost">Cost</span><span id="qoderPanelCost" class="session-panel-kpi-value mono" style="color: var(--color-cost);">—</span></span>
+              <span class="session-panel-kpi"><span id="qoderActiveLabel" class="session-panel-kpi-label" data-i18n="agentTime" data-i18n-title="agentTimePanelHint">EST. agent time</span><span class="session-panel-kpi-value mono"><span id="qoderActiveAgent">—</span></span></span>
+              <span class="session-panel-kpi"><span class="session-panel-kpi-label" data-i18n="panelLast">Last</span><span id="qoderPanelLast" class="session-panel-kpi-value mono">—</span></span>
+            </span>
+            <span class="session-panel-chev" aria-hidden="true">▸</span>
+          </summary>
+          <div class="session-panel-body">
+
+        <div id="qoderLatestSession" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-6 gap-4 mb-5">
+          <div class="surface p-4">
+            <div class="text-xs font-semibold uppercase tracking-wider" style="color: var(--color-label);" data-i18n="latestSession">Latest Session</div>
+            <div id="qoderLatestProject" class="tokdash-loading-placeholder mt-2 font-extrabold mono"><span class="tokdash-loading-label" data-i18n="loading">Loading…</span></div>
+            <div id="qoderLatestMeta" class="text-sm mt-1" style="color: var(--color-muted);">-</div>
+          </div>
+          <div class="surface p-4">
+            <div class="text-xs font-semibold uppercase tracking-wider" style="color: var(--color-label);" data-i18n="input">Input</div>
+            <div id="qoderLatestInput" class="mt-2 font-extrabold">-</div>
+          </div>
+          <div class="surface p-4">
+            <div class="text-xs font-semibold uppercase tracking-wider" style="color: var(--color-label);" data-i18n="cacheRead">Cache Read</div>
+            <div id="qoderLatestCache" class="mt-2 font-extrabold">-</div>
+            <div id="qoderLatestCachePct" class="text-sm mt-1" style="color: var(--color-muted);">-</div>
+          </div>
+          <div class="surface p-4">
+            <div class="text-xs font-semibold uppercase tracking-wider" style="color: var(--color-label);" data-i18n="output">Output</div>
+            <div id="qoderLatestOutput" class="mt-2 font-extrabold">-</div>
+          </div>
+          <div class="surface p-4">
+            <div class="text-xs font-semibold uppercase tracking-wider" style="color: var(--color-label);" data-i18n="totalTokens">Total Tokens</div>
+            <div id="qoderLatestTotal" class="mt-2 font-extrabold">-</div>
+          </div>
+          <div class="surface p-4">
+            <div class="text-xs font-semibold uppercase tracking-wider" style="color: var(--color-label);" data-i18n="events">Events</div>
+            <div id="qoderLatestEvents" class="mt-2 font-extrabold">-</div>
+            <div id="qoderLatestSeen" class="text-sm mt-1" style="color: var(--color-muted);">-</div>
+          </div>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm session-table" aria-label="Qoder IDE sessions table" data-panel="qoder">
+            <colgroup><col style="width:16%"><col style="width:10%"><col style="width:9%"><col style="width:9%"><col style="width:8%"><col style="width:9%"><col style="width:10%"><col style="width:8%"><col style="width:9%"><col style="width:12%"></colgroup>
+            <thead>
+              <tr class="border-b" style="border-color: var(--color-border);">
+                <th class="text-left py-3 px-4 font-semibold" style="color: var(--color-muted);" data-i18n="session" data-sortable="display_name">Session</th>
+                <th class="text-left py-3 px-4 font-semibold" style="color: var(--color-muted);" data-i18n="model">Model</th>
+                <th class="text-right py-3 px-4 font-semibold" style="color: var(--color-muted);" data-i18n="input" data-sortable="tokens_in">Input</th>
+                <th class="text-right py-3 px-4 font-semibold" style="color: var(--color-muted);" data-i18n="cache" data-sortable="tokens_cache">Cache</th>
+                <th class="text-right py-3 px-4 font-semibold" style="color: var(--color-muted);" data-i18n="hitPct" data-sortable="cache_hit_rate">Hit %</th>
+                <th class="text-right py-3 px-4 font-semibold" style="color: var(--color-muted);" data-i18n="output" data-sortable="tokens_out">Output</th>
+                <th class="text-right py-3 px-4 font-semibold" style="color: var(--color-muted);" data-i18n="total" data-sortable="tokens">Total</th>
+                <th class="text-right py-3 px-4 font-semibold" style="color: var(--color-muted);" data-i18n="cost" data-sortable="cost">Cost</th>
+                <th class="text-right py-3 px-4 font-semibold" style="color: var(--color-muted);" data-i18n="activeTimeColumn" data-i18n-title="activeTimeHint" data-sortable="active_ms" title="Estimated from gaps between token events, each counted up to the idle cap (5 min by default).">Active (est.)</th>
+                <th class="text-right py-3 px-4 font-semibold" style="color: var(--color-muted);" data-i18n="lastUpdated" data-sortable="last_seen_at">Last updated</th>
+              </tr>
+            </thead>
+            <tbody id="qoderSessionsTable">
+              <tr><td colspan="10" class="tokdash-loading-placeholder text-center py-10" style="color: var(--color-muted);"><span class="tokdash-loading-label" data-i18n="loading">Loading…</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        </div>
+        </details>
+      </section>
+
       <section class="surface p-5">
         <details class="session-panel" data-panel-details="combined">
           <summary class="session-panel-summary">
@@ -3906,6 +4048,28 @@
       const sumFields = (target, source, fields) => fields.forEach((field) => {
         if (target[field] !== undefined || source[field] !== undefined) target[field] = number(target[field]) + number(source[field]);
       });
+      // Mirrors model_rank_key on the server: tokens first, cost only to break a
+      // tie. Merging used to re-sort by cost, so combining servers reordered the
+      // very arrays the server had just ranked by usage.
+      // Ordinal, not localeCompare: the Python keys break a tie by comparing the
+      // name's code units, so a locale collation here would order an exact
+      // tokens-and-cost tie differently on the merged path than on one server's.
+      const byName = (a, b) => {
+        const left = String(a.name ?? a.model ?? '');
+        const right = String(b.name ?? b.model ?? '');
+        return left < right ? -1 : left > right ? 1 : 0;
+      };
+      const byModelRank = (a, b) => (
+        (number(b.tokens ?? b.total_tokens) - number(a.tokens ?? a.total_tokens))
+        || (number(b.cost ?? b.total_cost) - number(a.cost ?? a.total_cost))
+        || byName(a, b)
+      );
+      // Mirrors model_cost_rank_key, for the one array that ranks by money.
+      const byCostRank = (a, b) => (
+        (number(b.cost ?? b.total_cost) - number(a.cost ?? a.total_cost))
+        || (number(b.tokens ?? b.total_tokens) - number(a.tokens ?? a.total_tokens))
+        || byName(a, b)
+      );
       const mergeObject = (key) => {
         const merged = {};
         rows.forEach((row) => Object.entries(row[key] || {}).forEach(([name, value]) => {
@@ -3921,14 +4085,14 @@
                   if (!models.has(modelName)) models.set(modelName, { ...item });
                   else sumFields(models.get(modelName), item, ['tokens','total_tokens','tokens_in','tokens_out','tokens_cache','tokens_cache_write','tokens_reasoning','cost','total_cost','messages','total_messages']);
                 });
-                merged[name].models = [...models.values()].sort((a, b) => number(b.cost ?? b.tokens) - number(a.cost ?? a.tokens));
+                merged[name].models = [...models.values()].sort(byModelRank);
               }
             }
           } else merged[name] = number(merged[name]) + number(value);
         }));
         out[key] = merged;
       };
-      const mergeArray = (key) => {
+      const mergeArray = (key, comparator) => {
         const merged = new Map();
         rows.forEach((row) => (row[key] || []).forEach((item) => {
           const name = String(item?.name ?? item?.model ?? item?.tool ?? '');
@@ -3936,12 +4100,40 @@
           if (!merged.has(name)) merged.set(name, { ...item });
           else sumFields(merged.get(name), item, ['tokens','total_tokens','tokens_in','tokens_out','tokens_cache','tokens_cache_write','tokens_reasoning','cost','total_cost','messages','total_messages']);
         }));
-        out[key] = [...merged.values()].sort((a, b) => number(b.cost ?? b.total_cost ?? b.tokens) - number(a.cost ?? a.total_cost ?? a.tokens));
+        out[key] = [...merged.values()].sort(comparator || byModelRank);
       };
       ['total_tokens','total_cost','total_messages'].forEach((field) => { out[field] = rows.reduce((sum, row) => sum + number(row[field]), 0); });
       ['by_tool','apps','coding_apps'].forEach(mergeObject);
-      ['coding_models','top_models','openclaw_models','combined_models'].forEach(mergeArray);
+      ['coding_models','openclaw_models','combined_models'].forEach((key) => mergeArray(key));
+      // Both podiums are the head of the merged full list rather than a merge of
+      // the per-server podiums: a model outside one server's five contributes
+      // nothing from that server, so merging the capped arrays undercounts it.
+      // Only when every row carried the full list, though -- deriving from a
+      // partial combined_models would drop a pre-combined_models server's models
+      // from top_models altogether, where merging the capped arrays keeps them.
+      if (rows.every((row) => Array.isArray(row.combined_models))) {
+        out.top_models = out.combined_models.slice(0, 5);
+        out.top_models_by_cost = [...out.combined_models].sort(byCostRank).slice(0, 5);
+      } else {
+        mergeArray('top_models');
+        mergeArray('top_models_by_cost', byCostRank);
+      }
       out.timestamp = rows.map((row) => row.timestamp).filter(Boolean).sort()[0] || null;
+      // response_cache rides in on the rows[0] deep copy above and is otherwise never
+      // re-derived, so a combined view reported the FIRST server's freshness for
+      // everyone's data — the refresh report could read "complete" off a recomputed
+      // rows[0] while displaying rows[1]'s older cached body. Merge it like every
+      // other field, on the same weakest-link rule out.timestamp just used: cached if
+      // ANY server was served cache, aged by the oldest body in the mix. `status` is
+      // deliberately dropped — it describes one fetch, and nothing reads it here.
+      const cacheMetas = rows.map((row) => row.response_cache).filter(Boolean);
+      if (cacheMetas.length) {
+        const ages = cacheMetas.map((meta) => Number(meta.age_seconds)).filter(Number.isFinite);
+        out.response_cache = {
+          served_from_cache: cacheMetas.some((meta) => !!meta.served_from_cache),
+          age_seconds: ages.length ? Math.max(...ages) : null,
+        };
+      }
       out.comparison = { ...(out.comparison || {}) };
       [['cost','total_cost'],['tokens','total_tokens'],['messages','total_messages']].forEach(([prefix, totalField]) => {
         const prevField = `${prefix}_prev`;
@@ -4110,8 +4302,8 @@
     let lastUsageResponse = null;
     let lastRefreshReport = null;
     let refreshReportDismissedWindowKey = null;
-    const SESSION_TOOL_KEYS = ['codex', 'claude', 'opencode', 'pi_agent', 'mimo', 'kimi', 'dsh', 'reasonix', 'zcode', 'kilocode', 'omp', 'grok', 'hermes', 'antigravity_cli', 'cline'];
-    let lastSessionsResponses = { codex: null, claude: null, opencode: null, pi_agent: null, mimo: null, kimi: null, dsh: null, reasonix: null, zcode: null, kilocode: null, omp: null, grok: null, hermes: null, antigravity_cli: null, cline: null, combined: null };
+    const SESSION_TOOL_KEYS = ['codex', 'claude', 'opencode', 'pi_agent', 'mimo', 'kimi', 'dsh', 'reasonix', 'zcode', 'kilocode', 'omp', 'grok', 'hermes', 'antigravity_cli', 'cline', 'workbuddy', 'qoder'];
+    let lastSessionsResponses = { codex: null, claude: null, opencode: null, pi_agent: null, mimo: null, kimi: null, dsh: null, reasonix: null, zcode: null, kilocode: null, omp: null, grok: null, hermes: null, antigravity_cli: null, cline: null, workbuddy: null, qoder: null, combined: null };
     let lastCombinedModels = [];
     let lastAppsBreakdown = null;
     let lastByTool = {};
@@ -4209,6 +4401,9 @@
         refreshReportPreserved: 'Refresh complete · previous data kept',
         refreshReportPartial: 'Refresh incomplete',
         refreshReportFailed: 'Refresh failed · previous data kept',
+        refreshReportCached: 'Nothing refreshed · served from cache',
+        refreshReportCachedAge: 'cached data {age} old',
+        refreshReportCachedPreserved: 'Nothing refreshed · served from cache · previous data kept',
         refreshReportTokens: 'Tokens',
         refreshReportCost: 'Cost',
         refreshReportMessages: 'Messages',
@@ -4407,6 +4602,8 @@
         hermesSessions: 'Hermes Sessions',
         antigravityCliSessions: 'Antigravity Sessions',
         clineSessions: 'Cline Sessions',
+        qoderSessions: 'Qoder IDE Sessions',
+        workbuddySessions: 'WorkBuddy Sessions',
         piSessions: 'Pi Sessions',
         mimoSessions: 'Mimo Sessions',
         kimiSessions: 'Kimi Sessions',
@@ -4604,6 +4801,9 @@
         refreshReportPreserved: '刷新完成 · 已保留旧数据',
         refreshReportPartial: '刷新不完整',
         refreshReportFailed: '刷新失败 · 已保留旧数据',
+        refreshReportCached: '未刷新 · 返回的是缓存',
+        refreshReportCachedAge: '缓存数据已有 {age}',
+        refreshReportCachedPreserved: '未刷新 · 返回的是缓存 · 已保留旧数据',
         refreshReportTokens: 'Tokens',
         refreshReportCost: '费用',
         refreshReportMessages: '消息数',
@@ -4802,6 +5002,8 @@
         hermesSessions: 'Hermes 会话',
         antigravityCliSessions: 'Antigravity 会话',
         clineSessions: 'Cline 会话',
+        qoderSessions: 'Qoder IDE 会话',
+        workbuddySessions: 'WorkBuddy 会话',
         piSessions: 'Pi 会话',
         mimoSessions: 'Mimo 会话',
         kimiSessions: 'Kimi 会话',
@@ -5000,6 +5202,9 @@
         refreshReportPreserved: 'スキャン完了 · 前回のデータを保持',
         refreshReportPartial: 'スキャン不完全',
         refreshReportFailed: 'スキャン失敗 · 前回のデータを保持',
+        refreshReportCached: 'スキャン未実行 · キャッシュを返しました',
+        refreshReportCachedAge: 'キャッシュは {age} 前のデータ',
+        refreshReportCachedPreserved: 'スキャン未実行 · キャッシュを返しました · 前回のデータを保持',
         refreshReportTokens: 'トークン',
         refreshReportCost: 'コスト',
         refreshReportMessages: 'メッセージ数',
@@ -5198,6 +5403,8 @@
         hermesSessions: 'Hermes セッション',
         antigravityCliSessions: 'Antigravity セッション',
         clineSessions: 'Cline セッション',
+        qoderSessions: 'Qoder IDE セッション',
+        workbuddySessions: 'WorkBuddy セッション',
         piSessions: 'Pi セッション',
         mimoSessions: 'Mimo セッション',
         kimiSessions: 'Kimi セッション',
@@ -5396,6 +5603,9 @@
         refreshReportPreserved: '스캔 완료 · 이전 데이터 유지',
         refreshReportPartial: '스캔 불완전',
         refreshReportFailed: '스캔 실패 · 이전 데이터 유지',
+        refreshReportCached: '스캔 안 함 · 캐시를 반환했습니다',
+        refreshReportCachedAge: '캐시 데이터 {age} 경과',
+        refreshReportCachedPreserved: '스캔 안 함 · 캐시를 반환했습니다 · 이전 데이터 유지',
         refreshReportTokens: '토큰',
         refreshReportCost: '비용',
         refreshReportMessages: '메시지',
@@ -5594,6 +5804,8 @@
         hermesSessions: 'Hermes 세션',
         antigravityCliSessions: 'Antigravity 세션',
         clineSessions: 'Cline 세션',
+        qoderSessions: 'Qoder IDE 세션',
+        workbuddySessions: 'WorkBuddy 세션',
         piSessions: 'Pi 세션',
         mimoSessions: 'Mimo 세션',
         kimiSessions: 'Kimi 세션',
@@ -5792,6 +6004,9 @@
         refreshReportPreserved: 'Escaneo completo · se conservaron los datos anteriores',
         refreshReportPartial: 'Escaneo incompleto',
         refreshReportFailed: 'Fallo del escaneo · se conservaron los datos anteriores',
+        refreshReportCached: 'Sin escaneo · datos de la caché',
+        refreshReportCachedAge: 'datos en caché de hace {age}',
+        refreshReportCachedPreserved: 'Sin escaneo · datos de la caché · se conservaron los datos anteriores',
         refreshReportTokens: 'Tokens',
         refreshReportCost: 'Coste',
         refreshReportMessages: 'Mensajes',
@@ -5990,6 +6205,8 @@
         hermesSessions: 'Sesiones de Hermes',
         antigravityCliSessions: 'Sesiones de Antigravity',
         clineSessions: 'Sesiones de Cline',
+        qoderSessions: 'Sesiones de Qoder IDE',
+        workbuddySessions: 'Sesiones de WorkBuddy',
         piSessions: 'Sesiones de Pi',
         mimoSessions: 'Sesiones de Mimo',
         kimiSessions: 'Sesiones de Kimi',
@@ -6188,6 +6405,9 @@
         refreshReportPreserved: 'Varredura completa · dados anteriores mantidos',
         refreshReportPartial: 'Varredura incompleta',
         refreshReportFailed: 'Varredura falhou · dados anteriores mantidos',
+        refreshReportCached: 'Sem varredura · dados do cache',
+        refreshReportCachedAge: 'dados em cache de {age} atrás',
+        refreshReportCachedPreserved: 'Sem varredura · dados do cache · dados anteriores mantidos',
         refreshReportTokens: 'Tokens',
         refreshReportCost: 'Custo',
         refreshReportMessages: 'Mensagens',
@@ -6386,6 +6606,8 @@
         hermesSessions: 'Sessões do Hermes',
         antigravityCliSessions: 'Sessões do Antigravity',
         clineSessions: 'Sessões do Cline',
+        qoderSessions: 'Sessões do Qoder IDE',
+        workbuddySessions: 'Sessões do WorkBuddy',
         piSessions: 'Sessões do Pi',
         mimoSessions: 'Sessões do Mimo',
         kimiSessions: 'Sessões do Kimi',
@@ -7226,16 +7448,48 @@
       });
       const retained = Array.isArray(details.retained) ? details.retained : [];
       const unavailable = Array.isArray(details.unavailable) ? details.unavailable : [];
+      // A refresh the server answered out of its response cache did not refresh
+      // anything. The backend already says so (response_cache.served_from_cache, set
+      // for both `hit` and `stale`); reporting `complete` over it is the lie this
+      // panel used to tell while the timestamp beside it said "cached".
+      const cacheMeta = after?.response_cache || null;
+      const servedFromCache = !!cacheMeta?.served_from_cache;
+      // Only a FORCED refresh can be "you asked for work and got none". An automatic
+      // five-minute tick answered from cache is the TTL doing its job, and both `hit`
+      // and `stale` set served_from_cache — so gating on that flag alone reopened this
+      // panel, in amber, on essentially every tick of a healthy dashboard. The panel
+      // opens on ticks too (shouldReportRefresh only needs a previous payload), so the
+      // flag is not enough on its own to tell "refused work" from "cache working".
+      const cachedDespiteRequest = !!details.forced && servedFromCache;
+      // `preserved` cannot simply outrank `cached`: it reads "Refresh complete ·
+      // previous data kept", so it claims completion in its first two words. When a
+      // cached body ALSO retained rows both facts are true and the user needs both,
+      // so they compose into one title instead of one shadowing the other. `partial`
+      // and `failed` already say plainly that nothing completed, so they still win.
       const status = details.failed
         ? 'failed'
         : unavailable.length
           ? 'partial'
           : retained.length
-            ? 'preserved'
-            : 'complete';
+            ? (cachedDespiteRequest ? 'cachedPreserved' : 'preserved')
+            : cachedDespiteRequest
+              ? 'cached'
+              : 'complete';
+      // The age describes the body being reported as cached, so it follows the
+      // VERDICT rather than the flag. Keyed off cachedDespiteRequest it outlived the
+      // ladder into `failed` and `partial`, and the panel appended "cached data 1h 11m
+      // old" to a refresh that had errored — the same class of lie as the bug this all
+      // started with. On the failure path `after` IS the previous payload, so that age
+      // is doubly wrong: nothing was served from cache, and the number is whatever was
+      // recorded at the last good load. `>= 1` still guards the note itself, since a
+      // sub-second age stays reachable on a genuinely cached forced refresh.
+      const rawAge = Number(cacheMeta?.age_seconds);
+      const ageSeconds = (status === 'cached' || status === 'cachedPreserved')
+        && Number.isFinite(rawAge) ? rawAge : null;
       return {
         status,
         baseline,
+        ageSeconds,
         windowKey: details.windowKey || '',
         rangeLabel: details.rangeLabel || '',
         completedAt: details.completedAt || new Date().toISOString(),
@@ -7280,15 +7534,21 @@
         preserved: 'refreshReportPreserved',
         partial: 'refreshReportPartial',
         failed: 'refreshReportFailed',
+        cached: 'refreshReportCached',
+        cachedPreserved: 'refreshReportCachedPreserved',
       };
       document.getElementById('refreshReportTitle').textContent = t(titleKeys[report.status] || 'refreshReportComplete');
       const completed = new Date(report.completedAt);
       const time = Number.isNaN(completed.getTime())
         ? ''
         : completed.toLocaleTimeString(langLocale(), { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-      document.getElementById('refreshReportMeta').textContent = t('refreshReportRange')
+      const meta = t('refreshReportRange')
         .replace('{range}', report.rangeLabel || refreshReportRangeLabel())
         .replace('{time}', time);
+      const ageNote = Number.isFinite(report.ageSeconds) && report.ageSeconds >= 1
+        ? t('refreshReportCachedAge').replace('{age}', formatDuration(report.ageSeconds * 1000))
+        : '';
+      document.getElementById('refreshReportMeta').textContent = ageNote ? `${meta} · ${ageNote}` : meta;
       document.getElementById('refreshReportTokens').textContent = signedRefreshValue(report.tokens, (value) => formatTokenCount(value));
       document.getElementById('refreshReportCost').textContent = signedRefreshValue(report.cost, (value) => formatCurrency(value));
       document.getElementById('refreshReportMessages').textContent = signedRefreshValue(report.messages, (value) => formatNumber(value));
@@ -7791,6 +8051,9 @@
       workbuddy: { icon: '/static/icons/agents/workbuddy.png', color: '#0CC8A3', fallback: 'W' },
       qoder: { icon: '/static/icons/agents/qoder.png', color: '#21D664', fallback: 'Q' },
       qoder_cli: { icon: '/static/icons/agents/qoder.png', color: '#21D664', fallback: 'Q' },
+      zed: { icon: '/static/icons/agents/zed.svg', color: '#111111', fallback: 'Z', darkInvert: true },
+      qwen_code: { icon: '/static/icons/agents/qwen_code.svg', color: '#6D44E8', fallback: 'Q' },
+      crush: { icon: '/static/icons/agents/crush.png', color: '#6B50FF', fallback: 'C' },
     });
     const toolBrandIconPromises = new Map();
 
@@ -7938,6 +8201,9 @@
         workbuddy: 'WorkBuddy',
         qoder: 'Qoder IDE',
         qoder_cli: 'Qoder CLI',
+        zed: 'Zed',
+        qwen_code: 'Qwen Code',
+        crush: 'Crush',
         cursor: 'Cursor',
       };
       if (mapping[key]) return mapping[key];
@@ -8462,7 +8728,7 @@
       }
 
       updateToolChart(data.by_tool || {});
-      updateModelChart(data.top_models || []);
+      updateModelChart(data.top_models_by_cost || data.combined_models || data.top_models || []);
       lastByTool = data.by_tool || {};
       updateToolsTable(lastByTool);
       lastCombinedModels = data.combined_models || [];
@@ -8728,6 +8994,7 @@
           const scan = lastUsageResponse?._scan_reconciliation || {};
           showUsageRefreshReport(buildUsageRefreshReport(previousUsageForReport, lastUsageResponse, {
             failed: !!usageFetchError,
+            forced: forceRefresh,
             windowKey,
             rangeLabel: reportRangeLabel,
             retained: scan.retained,
@@ -8758,6 +9025,7 @@
           const scan = usageReconciliation || reconcileUsageRows([], windowKey, usageServers);
           showUsageRefreshReport(buildUsageRefreshReport(previousUsageForReport, previousUsageForReport, {
             failed: true,
+            forced: forceRefresh,
             windowKey,
             rangeLabel: reportRangeLabel,
             retained: scan.retained,
@@ -9171,6 +9439,8 @@
       hermes: { ...DEFAULT_SORT },
       antigravity_cli: { ...DEFAULT_SORT },
       cline: { ...DEFAULT_SORT },
+      workbuddy: { ...DEFAULT_SORT },
+      qoder: { ...DEFAULT_SORT },
       combined: { ...DEFAULT_SORT },
     };
 
@@ -9558,6 +9828,8 @@
       updateSessionPanel("hermes", lastSessionsResponses.hermes);
       updateSessionPanel("antigravity_cli", lastSessionsResponses.antigravity_cli);
       updateSessionPanel("cline", lastSessionsResponses.cline);
+      updateSessionPanel("qoder", lastSessionsResponses.qoder);
+      updateSessionPanel("workbuddy", lastSessionsResponses.workbuddy);
       lastSessionsResponses.combined = buildCombinedSessionsData(lastSessionsResponses);
       updateSessionPanel("combined", lastSessionsResponses.combined, { showTool: true });
 
@@ -9596,6 +9868,8 @@
       initSortHeaders("hermes", renderSessionsTab);
       initSortHeaders("antigravity_cli", renderSessionsTab);
       initSortHeaders("cline", renderSessionsTab);
+      initSortHeaders("qoder", renderSessionsTab);
+      initSortHeaders("workbuddy", renderSessionsTab);
       initSortHeaders("combined", renderSessionsTab);
     }
 
@@ -9892,8 +10166,14 @@
       if (!canvas) return;
       const ctx = canvas.getContext('2d');
 
-      const labels = (topModels || []).slice(0, 5).map((m) => m.name);
-      const values = (topModels || []).slice(0, 5).map((m) => m.cost);
+      // Served pre-ranked as top_models_by_cost. The sort stays because the
+      // fallbacks above (an older server, or a payload without the new field)
+      // hand this a token-ranked list, and this panel is "Top Models by Cost".
+      const byCost = [...(topModels || [])]
+        .sort((a, b) => (Number(b.cost) || 0) - (Number(a.cost) || 0))
+        .slice(0, 5);
+      const labels = byCost.map((m) => m.name);
+      const values = byCost.map((m) => m.cost);
 
       if (!modelChart) {
         modelChart = new Chart(ctx, {

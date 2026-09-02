@@ -1,6 +1,87 @@
 {
-  "current": "2.4.2",
+  "current": "2.5.1",
   "releases": [
+    {
+      "version": "2.5.1",
+      "date": "2026-09-02",
+      "sections": [
+        {
+          "type": "added",
+          "items": [
+            "Claude Fable 5.1 is priced, with fable-5.1 style aliases, instead of showing as $0.",
+            "tokdash serve --dev-fixture dense starts the dashboard against a dense synthetic dataset for UI work, reading none of your real history."
+          ]
+        },
+        {
+          "type": "fixed",
+          "items": [
+            "Refresh while a large Codex session is streaming no longer takes 30-60 s or balloons memory: the Codex and Claude parsers stream their logs, one sync runs per source at a time, and the comparison window reuses the current window's sync."
+          ]
+        },
+        {
+          "type": "changed",
+          "items": [
+            "The first request after upgrading re-parses Codex session files once; on a large history that is a one-off pause of some tens of seconds."
+          ]
+        }
+      ]
+    },
+    {
+      "version": "2.5.0",
+      "date": "2026-09-01",
+      "sections": [
+        {
+          "type": "added",
+          "items": [
+            "Zed, Qwen Code and Charm Crush are new usage sources, read locally from each tool's own store.",
+            "WorkBuddy and Qoder IDE now have their own Session Explorer panels, with per-session turns and active time.",
+            "A new /api/insights endpoint returns hour-of-day, weekday, heatmap, per-project and streak analytics in one request.",
+            "Usage responses carry top_models_by_cost alongside the token-ranked top_models, and stats adds messages, most_used_model and highest_cost_model."
+          ]
+        },
+        {
+          "type": "changed",
+          "items": [
+            "Model lists are ordered by tokens, as the API reference always described. The cost ranking is served separately rather than replacing it.",
+            "The favorite model ranks by tokens rather than cost, so a rarely used but expensive model no longer wins.",
+            "A project name is taken from the last element of a Windows path as well as a POSIX one, so the same project seen from Windows and WSL groups together."
+          ]
+        },
+        {
+          "type": "fixed",
+          "items": [
+            "Calendar heatmap days carry a real intensity instead of always zero, so the calendar shades again.",
+            "Current and longest streaks are computed instead of always returning zero.",
+            "Refresh no longer reports success while serving cached data."
+          ]
+        }
+      ]
+    },
+    {
+      "version": "2.4.3",
+      "date": "2026-09-01",
+      "sections": [
+        {
+          "type": "added",
+          "items": [
+            "Hermes named profiles are scanned by default, so usage kept under ~/.hermes/profiles/<name> no longer goes missing from Overview and Session Explorer.",
+            "Yesterday's figures are warmed just after midnight, so the first Yesterday click of the day is already cached."
+          ]
+        },
+        {
+          "type": "changed",
+          "items": [
+            "The cap on concurrent heavy computes now scales with the CPUs this process may actually use, up to 8, instead of a fixed 2."
+          ]
+        },
+        {
+          "type": "fixed",
+          "items": [
+            "Switching to a date range nothing has computed no longer leaves most Sessions panels failing. Requests that cannot get a compute slot now queue briefly instead of being refused outright."
+          ]
+        }
+      ]
+    },
     {
       "version": "2.4.2",
       "date": "2026-08-30",

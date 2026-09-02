@@ -16,9 +16,10 @@
  *   GET  /api/pricing-db
  *   PUT  /api/pricing-db          (no-op — demo cannot persist)
  *
- * Supported sources: codex, claude_code, opencode, gemini, kimi, openclaw,
- *                    pi_agent, copilot_cli, hermes, mimo, dsh, reasonix, zcode,
- *                    workbuddy, qoder, qoder_cli, omp, kilocode, cline
+ * Supported sources: codex, claude_code, opencode, gemini, grok, antigravity_cli,
+ *                    kimi, openclaw, pi_agent, copilot_cli, hermes, mimo, dsh,
+ *                    reasonix, zcode, workbuddy, qoder, qoder_cli, omp, kilocode,
+ *                    cline, zed, qwen_code, crush
  */
 (function () {
   "use strict";
@@ -479,10 +480,10 @@
   // Tools that the dashboard treats as "coding tools".
   // Weights sum to ~1.0 across CODING_TOOLS + OPENCLAW.
   const CODING_TOOLS = [
-    { source: "codex",       label: "Codex",              weight: 0.20 },
-    { source: "claude_code", label: "Claude Code",        weight: 0.19 },
-    { source: "opencode",    label: "OpenCode",           weight: 0.10 },
-    { source: "gemini",      label: "Gemini CLI",         weight: 0.08 },
+    { source: "codex",       label: "Codex",              weight: 0.17 },
+    { source: "claude_code", label: "Claude Code",        weight: 0.16 },
+    { source: "opencode",    label: "OpenCode",           weight: 0.08 },
+    { source: "gemini",      label: "Gemini CLI",         weight: 0.07 },
     { source: "kimi",        label: "Kimi CLI",           weight: 0.04 },
     { source: "pi_agent",    label: "Pi",                 weight: 0.03 },
     { source: "copilot_cli", label: "GitHub Copilot CLI", weight: 0.04 },
@@ -491,33 +492,40 @@
     { source: "dsh",         label: "DeepSeek Harness",   weight: 0.03 },
     { source: "reasonix",    label: "Reasonix",           weight: 0.02 },
     { source: "zcode",       label: "ZCode",              weight: 0.02 },
-    { source: "workbuddy",   label: "WorkBuddy",          weight: 0.03 },
+    { source: "workbuddy",   label: "WorkBuddy",          weight: 0.02 },
     { source: "qoder",       label: "Qoder IDE",          weight: 0.02 },
     { source: "qoder_cli",   label: "Qoder CLI",          weight: 0.02 },
     { source: "omp",         label: "omp",                weight: 0.03 },
     { source: "kilocode",    label: "Kilo Code",          weight: 0.02 },
     { source: "cline",       label: "Cline",              weight: 0.03 },
+    { source: "grok",            label: "Grok Build",     weight: 0.02 },
+    { source: "antigravity_cli", label: "Antigravity CLI", weight: 0.02 },
+    { source: "zed",             label: "Zed",            weight: 0.02 },
+    { source: "qwen_code",       label: "Qwen Code",      weight: 0.02 },
+    { source: "crush",           label: "Crush",          weight: 0.02 },
   ];
   // OpenClaw is a separate app (its own panel in the UI).
   const OPENCLAW = { source: "openclaw", label: "OpenClaw", weight: 0.05 };
 
   // (model name, provider, $/M input, $/M output, $/M cache_read, $/M cache_write, weight by tool)
   const MODELS = [
-    { name: "openai/gpt-5.2-codex",       provider: "openai",     in: 1.75, out: 14.00, cr: 0.175, cw: 1.75, tools: { codex: 0.55, opencode: 0.20, gemini: 0.05, copilot_cli: 0.30, workbuddy: 0.30, qoder: 0.55, qoder_cli: 0.45, kilocode: 0.35, cline: 0.30 } },
+    { name: "openai/gpt-5.2-codex",       provider: "openai",     in: 1.75, out: 14.00, cr: 0.175, cw: 1.75, tools: { codex: 0.55, opencode: 0.20, gemini: 0.05, copilot_cli: 0.30, workbuddy: 0.30, qoder: 0.55, qoder_cli: 0.45, kilocode: 0.35, cline: 0.30, zed: 0.25 } },
     { name: "openai/gpt-5.1-codex-max",   provider: "openai",     in: 1.25, out: 10.00, cr: 0.125, cw: 1.25, tools: { codex: 0.20 } },
     { name: "openai/gpt-5.1-codex-mini",  provider: "openai",     in: 0.25, out: 2.00,  cr: 0.025, cw: 0.25, tools: { codex: 0.15, gemini: 0.10, opencode: 0.10, qoder: 0.25, qoder_cli: 0.35 } },
     { name: "openai/gpt-5.5",             provider: "openai",     in: 5.00, out: 30.00, cr: 0.50, cw: 5.00,  tools: { copilot_cli: 0.50, hermes: 0.15 } },
     { name: "anthropic/claude-opus-4.7",  provider: "anthropic",  in: 15.0, out: 75.00, cr: 1.50, cw: 15.0, tools: { claude_code: 0.45, opencode: 0.10, openclaw: 0.45, hermes: 0.25 } },
-    { name: "anthropic/claude-sonnet-4.6",provider: "anthropic",  in: 3.00, out: 15.00, cr: 0.30, cw: 3.00, tools: { claude_code: 0.40, opencode: 0.30, openclaw: 0.35, copilot_cli: 0.20, hermes: 0.30, reasonix: 0.45, workbuddy: 0.35, kilocode: 0.35, cline: 0.40 } },
+    { name: "anthropic/claude-sonnet-4.6",provider: "anthropic",  in: 3.00, out: 15.00, cr: 0.30, cw: 3.00, tools: { claude_code: 0.40, opencode: 0.30, openclaw: 0.35, copilot_cli: 0.20, hermes: 0.30, reasonix: 0.45, workbuddy: 0.35, kilocode: 0.35, cline: 0.40, zed: 0.25, crush: 0.30 } },
     { name: "anthropic/claude-haiku-4.5", provider: "anthropic",  in: 0.80, out: 4.00,  cr: 0.08, cw: 0.80, tools: { claude_code: 0.10, openclaw: 0.05, cline: 0.15 } },
-    { name: "google/gemini-3-pro-preview",provider: "google",     in: 2.00, out: 12.00, cr: 0.20, cw: 0.375, tools: { gemini: 0.55, openclaw: 0.05, cline: 0.15 } },
-    { name: "google/gemini-3-flash-preview",provider: "google",   in: 0.50, out: 3.00,  cr: 0.05, cw: 0.083333, tools: { gemini: 0.30 } },
+    { name: "google/gemini-3-pro-preview",provider: "google",     in: 2.00, out: 12.00, cr: 0.20, cw: 0.375, tools: { gemini: 0.55, openclaw: 0.05, cline: 0.15, antigravity_cli: 0.35 } },
+    { name: "google/gemini-3-flash-preview",provider: "google",   in: 0.50, out: 3.00,  cr: 0.05, cw: 0.083333, tools: { gemini: 0.30, antigravity_cli: 0.25, zed: 0.20 } },
     { name: "moonshotai/kimi-k2.6",       provider: "moonshotai", in: 0.60, out: 2.50,  cr: 0.15, cw: 0.60, tools: { kimi: 0.85, openclaw: 0.05 } },
     { name: "minimax/minimax-m2.7",       provider: "minimax",    in: 0.30, out: 1.20,  cr: 0.06, cw: 0.30,  tools: { pi_agent: 0.80, hermes: 0.30, mimo: 0.90, workbuddy: 0.20, omp: 0.55 } },
     { name: "openai/gpt-5.2",             provider: "openai",     in: 1.75, out: 14.00, cr: 0.175, cw: 1.75, tools: { pi_agent: 0.20, omp: 0.30 } },
-    { name: "z-ai/glm-5.1",               provider: "z-ai",       in: 0.30, out: 1.10,  cr: 0.06, cw: 0.30, tools: { kimi: 0.15, opencode: 0.30, openclaw: 0.05, reasonix: 0.55, zcode: 1.00, workbuddy: 0.15, qoder: 0.20, qoder_cli: 0.20, omp: 0.15, kilocode: 0.15 } },
-    { name: "deepseek/deepseek-v3.2",     provider: "deepseek",   in: 0.28, out: 0.42,  cr: 0.13, cw: 0.28, tools: { dsh: 0.85, opencode: 0.05, kilocode: 0.15 } },
+    { name: "z-ai/glm-5.1",               provider: "z-ai",       in: 0.30, out: 1.10,  cr: 0.06, cw: 0.30, tools: { kimi: 0.15, opencode: 0.30, openclaw: 0.05, reasonix: 0.55, zcode: 1.00, workbuddy: 0.15, qoder: 0.20, qoder_cli: 0.20, omp: 0.15, kilocode: 0.15, crush: 0.30 } },
+    { name: "deepseek/deepseek-v3.2",     provider: "deepseek",   in: 0.28, out: 0.42,  cr: 0.13, cw: 0.28, tools: { dsh: 0.85, opencode: 0.05, kilocode: 0.15, crush: 0.20 } },
     { name: "deepseek/deepseek-r1",       provider: "deepseek",   in: 0.70, out: 2.50,  cr: 0.028, cw: 0.28, tools: { dsh: 0.15 } },
+    { name: "xai/grok-4",                 provider: "xai",        in: 3.00, out: 15.00, cr: 0.75, cw: 3.00, tools: { grok: 0.90 } },
+    { name: "qwen/qwen3-coder",           provider: "qwen",       in: 0.30, out: 1.20,  cr: 0.06, cw: 0.30, tools: { qwen_code: 0.90 } },
   ];
 
   function pickModelFor(toolSource) {
@@ -794,7 +802,8 @@
 
   // ---------- /api/sessions and /api/session ----------
   // Mirrors the backend's SESSION_TOOLS (src/tokdash/sessions.py): codex, claude,
-  // opencode, pi_agent, mimo, kimi, dsh, reasonix, zcode.
+  // opencode, pi_agent, omp, mimo, kimi, dsh, reasonix, zcode, kilocode, grok,
+  // hermes, antigravity_cli, cline, workbuddy, qoder.
   const SESSION_TOOL_KEYS = {
     codex: "codex",
     claude: "claude_code",
@@ -805,6 +814,14 @@
     dsh: "dsh",
     reasonix: "reasonix",
     zcode: "zcode",
+    kilocode: "kilocode",
+    omp: "omp",
+    grok: "grok",
+    hermes: "hermes",
+    antigravity_cli: "antigravity_cli",
+    cline: "cline",
+    workbuddy: "workbuddy",
+    qoder: "qoder",
   };
   const TOOL_LABELS = {
     codex: "Codex",
@@ -816,6 +833,14 @@
     dsh: "DeepSeek Harness",
     reasonix: "Reasonix",
     zcode: "ZCode",
+    kilocode: "Kilo Code",
+    omp: "omp",
+    grok: "Grok Build",
+    hermes: "Hermes",
+    antigravity_cli: "Antigravity CLI",
+    cline: "Cline",
+    workbuddy: "WorkBuddy",
+    qoder: "Qoder IDE",
   };
 
   // ---------- Active-time model (v1.7.0) ----------
