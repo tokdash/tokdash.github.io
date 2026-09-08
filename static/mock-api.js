@@ -15,6 +15,11 @@
  *   GET  /api/stats     [?year=…]
  *   GET  /api/pricing-db
  *   PUT  /api/pricing-db          (no-op — demo cannot persist)
+ *   GET  /health                  (fleet fingerprint: service=tokdash)
+ *
+ * Multi-server: the demo ships a three-machine fleet (see SERVER_FLEET below).
+ * Every generated session belongs to exactly one machine, so per-server cards,
+ * the combined totals and the comparison table aggregate the same rows.
  *
  * Supported sources: codex, claude_code, opencode, gemini, grok, antigravity_cli,
  *                    kimi, openclaw, pi_agent, copilot_cli, hermes, mimo, dsh,
@@ -38,6 +43,63 @@
   const rand = mulberry32(0x70B05A1); // anything stable
 
   // ---------- Mock Quota Tracking State & Generators ----------
+  // Provider and bucket shapes are declared once here; each fleet machine chooses
+  // which providers it reports and may override the plan or the used percentage
+  // (SERVER_FLEET[].quota). Quota stays grouped per server in the UI, so a laptop
+  // with only a Claude plan and a build box with only Codex read differently.
+  const QUOTA_CATALOG = {
+    codex: {
+      source: "codex_api",
+      plan: "Pro Lite",
+      buckets: [
+        { bucket: "5h", label: "5-hour window", used: 34.5, resetSeconds: 6 * 3600, drift: 1.2 },
+        { bucket: "7d", label: "7-day window", used: 41.2, resetSeconds: 76 * 3600, drift: 0.9 },
+        { bucket: "spark_5h", label: "GPT-5.3-Codex-Spark \u00b7 5-hour", used: 21.0, resetSeconds: 7 * 3600, drift: 1.45 },
+        { bucket: "spark_7d", label: "GPT-5.3-Codex-Spark \u00b7 7-day", used: 38.0, resetSeconds: 124 * 3600, drift: 0.65 },
+      ],
+      resetCredits: { available: 4, expiresInDays: [10, 15, 17, 30] },
+    },
+    claude: {
+      source: "claude_api",
+      plan: "Pro",
+      buckets: [
+        { bucket: "session", label: "Session", used: 72.1, resetSeconds: 4 * 3600, drift: 2.5 },
+        { bucket: "weekly_all", label: "Weekly All", used: 54.8, resetSeconds: 100 * 3600, drift: 1.8 },
+      ],
+    },
+    antigravity: {
+      source: "antigravity_api",
+      plan: null,
+      buckets: [
+        { bucket: "gemini-2.0-flash", label: "gemini-2.0-flash", used: 15.0, resetSeconds: 4.5 * 3600, drift: 0.8 },
+        { bucket: "claude-3-5-sonnet", label: "claude-3-5-sonnet", used: 45.0, resetSeconds: 4.5 * 3600, drift: 1.7 },
+      ],
+    },
+    minimax: {
+      source: "minimax_api",
+      plan: "Token Plan",
+      buckets: [{ bucket: "standard", label: "Standard", used: 28.0, resetSeconds: 28 * 3600, drift: 1.1 }],
+    },
+    kimi: {
+      source: "kimi_api",
+      plan: "Coding Plan",
+      buckets: [{ bucket: "coding", label: "Coding", used: 52.0, resetSeconds: 172 * 3600, drift: 1.5 }],
+    },
+    grok: {
+      source: "grok_api",
+      plan: "Build",
+      buckets: [{ bucket: "build", label: "Build", used: 18.5, resetSeconds: 76 * 3600, drift: 0.95 }],
+    },
+    zai: {
+      source: "zai_api",
+      plan: "Standard",
+      buckets: [
+        { bucket: "5h", label: "5-hour window", used: 34.0, resetSeconds: 4 * 3600, drift: 1.3 },
+        { bucket: "7d", label: "Weekly", used: 61.0, resetSeconds: 124 * 3600, drift: 1.05 },
+      ],
+    },
+  };
+
   let quotaTrackingEnabled = true;
   let quotaConsent = {
     codex_api: true,
@@ -49,415 +111,132 @@
     zai_api: true
   };
   let quotaPollIntervalMinutes = 15;
-  let quotaLastRun = Math.floor((Date.now() - 8 * 60 * 1000) / 1000); // 8 min ago
+  // Each machine polls on its own cadence, which is what the per-server
+  // "last run" line on the Quota tab is meant to show.
+  const quotaLastRunByServer = new Map();
 
-  function getQuotaState() {
+  function quotaLastRunFor(server) {
+    if (!quotaLastRunByServer.has(server.id)) {
+      quotaLastRunByServer.set(
+        server.id,
+        Math.floor((Date.now() - (server.quotaLastRunMinutesAgo || 8) * 60 * 1000) / 1000)
+      );
+    }
+    return quotaLastRunByServer.get(server.id);
+  }
+
+  function serverQuotaKeys(server) {
+    return Object.keys(server.quota || {}).filter((key) => QUOTA_CATALOG[key]);
+  }
+
+  function quotaProviderPayload(server, key) {
+    const cfg = QUOTA_CATALOG[key];
+    const override = (server.quota || {})[key] || {};
+    const account = override.account || server.account;
+    const lastRun = quotaLastRunFor(server);
     const nowSecs = Math.floor(Date.now() / 1000);
-    const nextReset = nowSecs + 4 * 3600; // 4 hours from now
-    const daySecs = 86400; // reset-credit expiries are inferred from the browser's "now"
+    const buckets = cfg.buckets.map((b) => {
+      const used = (override.used && b.bucket in override.used) ? override.used[b.bucket] : b.used;
+      return {
+        account,
+        bucket: b.bucket,
+        bucket_label: b.label,
+        used_percent: used,
+        remaining_percent: Math.round((100 - used) * 100) / 100,
+        resets_at: nowSecs + b.resetSeconds,
+        captured_at: lastRun,
+        source: cfg.source,
+        status: "ok",
+      };
+    });
+
+    const provider = {
+      provider: key,
+      network_enabled: !!quotaConsent[cfg.source],
+      plan: "plan" in override ? override.plan : cfg.plan,
+      buckets,
+      status: "ok",
+      status_detail: null,
+      status_at: lastRun,
+      updated_at: lastRun,
+      sources: [cfg.source],
+    };
+    // Codex reset credits are a Codex-only surface.
+    if (cfg.resetCredits) {
+      provider.reset_credits = {
+        available_count: cfg.resetCredits.available,
+        credits: cfg.resetCredits.expiresInDays.map((days, idx) => ({
+          id: `rc-${days}d-${server.id}`,
+          title: "Reset credit",
+          expires_at: nowSecs + days * 86400,
+        })),
+      };
+    }
+    return provider;
+  }
+
+  function getQuotaState(server) {
+    const lastRun = quotaLastRunFor(server);
+    const providers = {};
+    for (const key of serverQuotaKeys(server)) providers[key] = quotaProviderPayload(server, key);
+    const networkEnabled = Object.values(quotaConsent).some(Boolean);
 
     return {
-      "providers": {
-        "codex": {
-          "provider": "codex",
-          "network_enabled": quotaConsent.codex_api,
-          "plan": "Pro Lite",
-          "buckets": [
-            {
-              "account": "demo@tokdash.io",
-              "bucket": "5h",
-              "bucket_label": "5-hour window",
-              "used_percent": 34.5,
-              "remaining_percent": 65.5,
-              "resets_at": nextReset + 3600 * 2,
-              "captured_at": quotaLastRun,
-              "source": "codex_api",
-              "status": "ok"
-            },
-            {
-              "account": "demo@tokdash.io",
-              "bucket": "7d",
-              "bucket_label": "7-day window",
-              "used_percent": 41.2,
-              "remaining_percent": 58.8,
-              "resets_at": nextReset + 3600 * 24 * 3,
-              "captured_at": quotaLastRun,
-              "source": "codex_api",
-              "status": "ok"
-            },
-            {
-              "account": "demo@tokdash.io",
-              "bucket": "spark_5h",
-              "bucket_label": "GPT-5.3-Codex-Spark · 5-hour",
-              "used_percent": 21.0,
-              "remaining_percent": 79.0,
-              "resets_at": nextReset + 3600 * 3,
-              "captured_at": quotaLastRun,
-              "source": "codex_api",
-              "status": "ok"
-            },
-            {
-              "account": "demo@tokdash.io",
-              "bucket": "spark_7d",
-              "bucket_label": "GPT-5.3-Codex-Spark · 7-day",
-              "used_percent": 38.0,
-              "remaining_percent": 62.0,
-              "resets_at": nextReset + 3600 * 24 * 5,
-              "captured_at": quotaLastRun,
-              "source": "codex_api",
-              "status": "ok"
-            }
-          ],
-          "reset_credits": {
-            "available_count": 4,
-            "credits": [
-              { "id": "rc-10d", "title": "Reset credit", "expires_at": nowSecs + 10 * daySecs },
-              { "id": "rc-15d", "title": "Reset credit", "expires_at": nowSecs + 15 * daySecs },
-              { "id": "rc-17d", "title": "Reset credit", "expires_at": nowSecs + 17 * daySecs },
-              { "id": "rc-30d", "title": "Reset credit", "expires_at": nowSecs + 30 * daySecs }
-            ]
-          },
-          "status": "ok",
-          "status_detail": null,
-          "status_at": quotaLastRun,
-          "updated_at": quotaLastRun,
-          "sources": ["codex_api"]
-        },
-        "claude": {
-          "provider": "claude",
-          "network_enabled": quotaConsent.claude_api,
-          "plan": "Pro",
-          "buckets": [
-            {
-              "account": "demo@tokdash.io",
-              "bucket": "session",
-              "bucket_label": "Session",
-              "used_percent": 72.1,
-              "remaining_percent": 27.9,
-              "resets_at": nextReset,
-              "captured_at": quotaLastRun,
-              "source": "claude_api",
-              "status": "ok"
-            },
-            {
-              "account": "demo@tokdash.io",
-              "bucket": "weekly_all",
-              "bucket_label": "Weekly All",
-              "used_percent": 54.8,
-              "remaining_percent": 45.2,
-              "resets_at": nextReset + 3600 * 24 * 4,
-              "captured_at": quotaLastRun,
-              "source": "claude_api",
-              "status": "ok"
-            }
-          ],
-          "status": "ok",
-          "status_detail": null,
-          "status_at": quotaLastRun,
-          "updated_at": quotaLastRun,
-          "sources": ["claude_api"]
-        },
-        "antigravity": {
-          "provider": "antigravity",
-          "network_enabled": quotaConsent.antigravity_api,
-          "plan": null,
-          "buckets": [
-            {
-              "account": "demo@tokdash.io",
-              "bucket": "gemini-2.0-flash",
-              "bucket_label": "gemini-2.0-flash",
-              "used_percent": 15.0,
-              "remaining_percent": 85.0,
-              "resets_at": nextReset + 1800,
-              "captured_at": quotaLastRun,
-              "source": "antigravity_api",
-              "status": "ok"
-            },
-            {
-              "account": "demo@tokdash.io",
-              "bucket": "claude-3-5-sonnet",
-              "bucket_label": "claude-3-5-sonnet",
-              "used_percent": 45.0,
-              "remaining_percent": 55.0,
-              "resets_at": nextReset + 1800,
-              "captured_at": quotaLastRun,
-              "source": "antigravity_api",
-              "status": "ok"
-            }
-          ],
-          "status": "ok",
-          "status_detail": null,
-          "status_at": quotaLastRun,
-          "updated_at": quotaLastRun,
-          "sources": ["antigravity_api"]
-        },
-        "minimax": {
-          "provider": "minimax",
-          "network_enabled": quotaConsent.minimax_api,
-          "plan": "Token Plan",
-          "buckets": [
-            {
-              "account": "demo@tokdash.io",
-              "bucket": "standard",
-              "bucket_label": "Standard",
-              "used_percent": 28.0,
-              "remaining_percent": 72.0,
-              "resets_at": nextReset + 3600 * 24,
-              "captured_at": quotaLastRun,
-              "source": "minimax_api",
-              "status": "ok"
-            }
-          ],
-          "status": "ok",
-          "status_detail": null,
-          "status_at": quotaLastRun,
-          "updated_at": quotaLastRun,
-          "sources": ["minimax_api"]
-        },
-        "kimi": {
-          "provider": "kimi",
-          "network_enabled": quotaConsent.kimi_api,
-          "plan": "Coding Plan",
-          "buckets": [
-            {
-              "account": "demo@tokdash.io",
-              "bucket": "coding",
-              "bucket_label": "Coding",
-              "used_percent": 52.0,
-              "remaining_percent": 48.0,
-              "resets_at": nextReset + 3600 * 24 * 7,
-              "captured_at": quotaLastRun,
-              "source": "kimi_api",
-              "status": "ok"
-            }
-          ],
-          "status": "ok",
-          "status_detail": null,
-          "status_at": quotaLastRun,
-          "updated_at": quotaLastRun,
-          "sources": ["kimi_api"]
-        },
-        "grok": {
-          "provider": "grok",
-          "network_enabled": quotaConsent.grok_api,
-          "plan": "Build",
-          "buckets": [
-            {
-              "account": "demo@tokdash.io",
-              "bucket": "build",
-              "bucket_label": "Build",
-              "used_percent": 18.5,
-              "remaining_percent": 81.5,
-              "resets_at": nextReset + 3600 * 24 * 3,
-              "captured_at": quotaLastRun,
-              "source": "grok_api",
-              "status": "ok"
-            }
-          ],
-          "status": "ok",
-          "status_detail": null,
-          "status_at": quotaLastRun,
-          "updated_at": quotaLastRun,
-          "sources": ["grok_api"]
-        },
-        "zai": {
-          "provider": "zai",
-          "network_enabled": quotaConsent.zai_api,
-          "plan": "Standard",
-          "buckets": [
-            {
-              "account": "demo@tokdash.io",
-              "bucket": "5h",
-              "bucket_label": "5-hour window",
-              "used_percent": 34.0,
-              "remaining_percent": 66.0,
-              "resets_at": nextReset,
-              "captured_at": quotaLastRun,
-              "source": "zai_api",
-              "status": "ok"
-            },
-            {
-              "account": "demo@tokdash.io",
-              "bucket": "7d",
-              "bucket_label": "Weekly",
-              "used_percent": 61.0,
-              "remaining_percent": 39.0,
-              "resets_at": nextReset + 3600 * 24 * 5,
-              "captured_at": quotaLastRun,
-              "source": "zai_api",
-              "status": "ok"
-            }
-          ],
-          "status": "ok",
-          "status_detail": null,
-          "status_at": quotaLastRun,
-          "updated_at": quotaLastRun,
-          "sources": ["zai_api"]
-        }
+      providers,
+      consent: quotaConsent,
+      enabled: quotaTrackingEnabled,
+      poll: {
+        enabled: quotaTrackingEnabled,
+        network_enabled: networkEnabled,
+        interval: quotaPollIntervalMinutes * 60,
+        interval_source: "config",
+        interval_minutes: quotaPollIntervalMinutes,
+        interval_choices: [15, 30, 60, 120],
+        last_run: lastRun,
+        kill_switch: false,
       },
-      "consent": quotaConsent,
-      "enabled": quotaTrackingEnabled,
-      "poll": {
-        "enabled": quotaTrackingEnabled,
-        "network_enabled": quotaConsent.codex_api || quotaConsent.claude_api || quotaConsent.antigravity_api || quotaConsent.minimax_api || quotaConsent.kimi_api || quotaConsent.grok_api || quotaConsent.zai_api,
-        "interval": quotaPollIntervalMinutes * 60,
-        "interval_source": "config",
-        "interval_minutes": quotaPollIntervalMinutes,
-        "interval_choices": [15, 30, 60, 120],
-        "last_run": quotaLastRun,
-        "kill_switch": false
-      },
-      "timestamp": nowSecs
+      timestamp: Math.floor(Date.now() / 1000),
     };
   }
 
-  function buildQuotaHistory(granularity, start) {
+  function buildQuotaHistory(server, granularity, start) {
     const nowSecs = Math.floor(Date.now() / 1000);
-    const period = granularity === 'day' ? 86400 : 3600;
-    const limit = granularity === 'day' ? 30 : 24;
-    
-    const series = [
-      {
-        provider: "codex",
-        account: "demo@tokdash.io",
-        bucket: "5h",
-        bucket_label: "5-hour window",
-        points: [],
-        consumption: []
-      },
-      {
-        provider: "codex",
-        account: "demo@tokdash.io",
-        bucket: "7d",
-        bucket_label: "7-day window",
-        points: [],
-        consumption: []
-      },
-      {
-        provider: "codex",
-        account: "demo@tokdash.io",
-        bucket: "spark_5h",
-        bucket_label: "GPT-5.3-Codex-Spark · 5-hour",
-        points: [],
-        consumption: []
-      },
-      {
-        provider: "codex",
-        account: "demo@tokdash.io",
-        bucket: "spark_7d",
-        bucket_label: "GPT-5.3-Codex-Spark · 7-day",
-        points: [],
-        consumption: []
-      },
-      {
-        provider: "claude",
-        account: "demo@tokdash.io",
-        bucket: "session",
-        bucket_label: "Session",
-        points: [],
-        consumption: []
-      },
-      {
-        provider: "claude",
-        account: "demo@tokdash.io",
-        bucket: "weekly_all",
-        bucket_label: "Weekly All",
-        points: [],
-        consumption: []
-      },
-      {
-        provider: "antigravity",
-        account: "demo@tokdash.io",
-        bucket: "gemini-2.0-flash",
-        bucket_label: "gemini-2.0-flash",
-        points: [],
-        consumption: []
-      },
-      {
-        provider: "antigravity",
-        account: "demo@tokdash.io",
-        bucket: "claude-3-5-sonnet",
-        bucket_label: "claude-3-5-sonnet",
-        points: [],
-        consumption: []
-      },
-      {
-        provider: "minimax",
-        account: "demo@tokdash.io",
-        bucket: "standard",
-        bucket_label: "Standard",
-        points: [],
-        consumption: []
-      },
-      {
-        provider: "kimi",
-        account: "demo@tokdash.io",
-        bucket: "coding",
-        bucket_label: "Coding",
-        points: [],
-        consumption: []
-      },
-      {
-        provider: "grok",
-        account: "demo@tokdash.io",
-        bucket: "build",
-        bucket_label: "Build",
-        points: [],
-        consumption: []
-      },
-      {
-        provider: "zai",
-        account: "demo@tokdash.io",
-        bucket: "5h",
-        bucket_label: "5-hour window",
-        points: [],
-        consumption: []
-      },
-      {
-        provider: "zai",
-        account: "demo@tokdash.io",
-        bucket: "7d",
-        bucket_label: "Weekly",
-        points: [],
-        consumption: []
-      }
-    ];
+    const period = granularity === "day" ? 86400 : 3600;
+    const limit = granularity === "day" ? 30 : 24;
+    // Same sawtooth per bucket, shifted per machine so three servers do not draw
+    // three identical curves.
+    const offset = hash32(server.id) % 37;
 
-    for (const s of series) {
-      const baseSeed = s.provider === "codex"
-        ? (s.bucket === "5h" ? 1.2 : s.bucket === "7d" ? 0.9 : s.bucket === "spark_5h" ? 1.45 : 0.65)
-        : s.provider === "claude"
-        ? (s.bucket === "session" ? 2.5 : 1.8)
-        : s.provider === "antigravity"
-        ? (s.bucket.includes("gemini") ? 0.8 : 1.7)
-        : s.provider === "minimax"
-        ? 1.1
-        : s.provider === "kimi"
-        ? 1.5
-        : s.provider === "zai"
-        ? (s.bucket === "5h" ? 1.3 : 1.05)
-        : 0.95;
-      
-      for (let i = limit; i >= 0; i--) {
-        const ts = nowSecs - i * period;
-        const resetInterval = granularity === 'day' ? 5 : 6;
-        const step = (limit - i) % resetInterval;
-        let used = (step * baseSeed * 12 + 10) % 100;
-        
-        s.points.push({
-          captured_at: ts,
-          used_percent: Number(used.toFixed(4))
-        });
-        
-        let prevUsed = (((step - 1 + resetInterval) % resetInterval) * baseSeed * 12 + 10) % 100;
-        let consumed = used > prevUsed ? (used - prevUsed) : used;
-        s.consumption.push({
-          period_start: ts,
-          consumed_percent: Number(consumed.toFixed(4))
-        });
+    const series = [];
+    for (const key of serverQuotaKeys(server)) {
+      const cfg = QUOTA_CATALOG[key];
+      const override = (server.quota || {})[key] || {};
+      for (const b of cfg.buckets) {
+        const entry = {
+          provider: key,
+          account: override.account || server.account,
+          bucket: b.bucket,
+          bucket_label: b.label,
+          points: [],
+          consumption: [],
+        };
+        const resetInterval = granularity === "day" ? 5 : 6;
+        const usedAt = (step) => (step * b.drift * 12 + 10 + offset) % 100;
+        for (let i = limit; i >= 0; i--) {
+          const ts = nowSecs - i * period;
+          const step = (limit - i) % resetInterval;
+          const used = usedAt(step);
+          const prev = usedAt((step - 1 + resetInterval) % resetInterval);
+          entry.points.push({ captured_at: ts, used_percent: Number(used.toFixed(4)) });
+          entry.consumption.push({
+            period_start: ts,
+            consumed_percent: Number((used > prev ? used - prev : used).toFixed(4)),
+          });
+        }
+        series.push(entry);
       }
     }
-    
+
     return { series };
   }
 
@@ -561,6 +340,80 @@
     "the onboarding flow", "the health check", "background jobs", "the export job", "pagination cursors",
   ];
 
+  // ---------- Demo server fleet ----------
+  // Multi-server is a headline feature, so the demo ships a fleet of three Tokdash
+  // servers: the origin serving this page ("Local") plus two synthetic remotes.
+  // Their URLs never leave the browser — window.fetch is patched, so a request for
+  // https://wsl-desktop.ts.net/api/usage is answered from this file with that
+  // machine's slice of the synthetic history.
+  //
+  // weight    relative share of each tool the machine runs (normalized per tool)
+  // exclude   tool sources this machine does not run, so its cards differ by mix
+  // projects  project pool the machine renames its sessions into (null = keep)
+  const SERVER_FLEET = [
+    {
+      id: "local",
+      label: "Local",
+      baseUrl: "",                       // same origin as the demo page
+      account: "demo@tokdash.io",
+      weight: 1.0,
+      exclude: [],
+      projects: null,
+      stalenessSeconds: 0,               // its last refresh is "now"
+      quotaLastRunMinutesAgo: 8,
+      quota: { codex: {}, claude: {}, antigravity: {}, minimax: {}, kimi: {}, grok: {}, zai: {} },
+    },
+    {
+      id: "wsl",
+      label: "WSL workstation",
+      baseUrl: "https://wsl-desktop.ts.net",
+      account: "builds@wsl-desktop",
+      weight: 0.45,
+      exclude: ["openclaw", "copilot_cli", "zcode", "qoder", "qoder_cli", "kilocode", "workbuddy"],
+      projects: ["ingest-runner", "postgres-ops", "rust-gateway", "k8s-runners", "dotfiles-wsl",
+                 "build-cache", "terraform-vpc", "nightly-bench", "kernel-module", "backup-daemon"],
+      stalenessSeconds: 42,
+      quotaLastRunMinutesAgo: 3,
+      quota: {
+        codex: { used: { "5h": 71.5, "7d": 88.2, spark_5h: 60.0, spark_7d: 74.5 } },
+        kimi: { plan: "Moderato", used: { coding: 12.5 } },
+        minimax: { used: { standard: 63.0 } },
+      },
+    },
+    {
+      id: "studio",
+      label: "Mac Studio",
+      baseUrl: "https://mac-studio.ts.net",
+      account: "me@studio-mac",
+      weight: 0.2,
+      exclude: ["openclaw", "dsh", "mimo", "qwen_code", "crush", "gemini", "antigravity_cli",
+                "qoder", "qoder_cli", "hermes"],
+      projects: ["photo-pipeline", "swift-render", "audio-plugin", "shorts-renderer", "logic-scripts",
+                 "home-automation", "family-photo-app", "midi-tools", "studio-dash", "film-scratch"],
+      stalenessSeconds: 191,
+      quotaLastRunMinutesAgo: 34,
+      quota: {
+        claude: { plan: "Max", used: { session: 22.4, weekly_all: 63.9 } },
+        grok: { used: { build: 47.0 } },
+      },
+    },
+  ];
+  const LOCAL_FLEET_ID = "local";
+  const FLEET_BY_HOST = new Map(
+    SERVER_FLEET.filter((s) => s.baseUrl).map((s) => [new URL(s.baseUrl).host, s])
+  );
+
+  // Deterministic FNV-1a over the session id: a session lands on the same machine
+  // across reloads, so drill-downs and per-server counts never disagree.
+  function hash32(value) {
+    let h = 0x811c9dc5;
+    for (let i = 0; i < value.length; i++) {
+      h ^= value.charCodeAt(i);
+      h = Math.imul(h, 0x01000193);
+    }
+    return h >>> 0;
+  }
+
   // ---------- Time helpers ----------
   const MS_DAY = 24 * 60 * 60 * 1000;
   function startOfDay(d) {
@@ -582,7 +435,10 @@
   // One pass: build per-tool sessions, each with a list of timestamped turns.
   // Aggregations for /api/usage and /api/stats are computed from these turns,
   // mirroring how the real backend aggregates session logs.
-  const sessions = []; // [{ tool, source, session_id, project, turns: [{ ts_ms, model, tokens_in, tokens_out, tokens_cache, tokens_reasoning, tokens, cost }] }]
+  const allSessions = []; // [{ tool, source, session_id, project, turns: [{ ts_ms, model, tokens_in, tokens_out, tokens_cache, tokens_reasoning, tokens, cost }] }]
+  // The slice the builders below aggregate. Swapped per request by useServer() when
+  // the request was addressed to one of the demo's remote fleet URLs.
+  let sessions = allSessions;
 
   function makeSession(toolSpec, dayMs) {
     const startMs = dayMs + randInt(8, 22) * 3600 * 1000 + randInt(0, 59) * 60 * 1000;
@@ -647,10 +503,46 @@
         // purpose is to showcase all supported tools, not to vary which ones
         // are visible from day to day.
         const count = Math.max(1, Math.round(gauss(expected, expected * 0.6)));
-        for (let i = 0; i < count; i++) sessions.push(makeSession(tool, dayMs));
+        for (let i = 0; i < count; i++) allSessions.push(makeSession(tool, dayMs));
       }
     }
   })();
+
+  // ---------- Fleet partition ----------
+  // One pass over the generated sessions: each lands on exactly one machine, drawn
+  // from that tool's owner weights. Owners are disjoint, so the project rename below
+  // is safe to do in place.
+  const sessionsByServer = new Map();
+
+  (function partitionFleet() {
+    const cdf = new Map(); // source -> [{ server, limit }] with limits ending at 1
+    for (const tool of [...CODING_TOOLS, OPENCLAW]) {
+      const owners = SERVER_FLEET.filter((s) => !s.exclude.includes(tool.source));
+      const total = owners.reduce((sum, s) => sum + s.weight, 0) || 1;
+      let acc = 0;
+      cdf.set(tool.source, owners.map((s) => ({
+        server: s,
+        limit: (acc += s.weight / total),
+      })));
+    }
+    for (const s of SERVER_FLEET) sessionsByServer.set(s.id, []);
+    for (const s of allSessions) {
+      const rows = cdf.get(s.source);
+      let owner = rows ? rows[rows.length - 1].server : SERVER_FLEET[0];
+      if (rows) {
+        const roll = (hash32(s.session_id) % 10000) / 10000;
+        for (const row of rows) if (roll < row.limit) { owner = row.server; break; }
+      }
+      if (owner.projects) {
+        s.project = owner.projects[hash32(s.session_id + "#p") % owner.projects.length];
+      }
+      sessionsByServer.get(owner.id).push(s);
+    }
+  })();
+
+  function useServer(server) {
+    sessions = sessionsByServer.get(server.id) || allSessions;
+  }
 
   // ---------- Query helpers ----------
   function periodToRange(period, dateFrom, dateTo) {
@@ -673,6 +565,23 @@
     return { since, until: todayStart + MS_DAY };
   }
 
+  // Every period-taking response names the window it actually read, so a caller can tell
+  // a widened window from the token it asked for. `recognized` is false for a period this
+  // shim does not know, which is the whole point of the block.
+  function rangeBlock(period, range) {
+    const days = Math.max(1, Math.round((range.until - range.since) / MS_DAY));
+    const known = { today: 1, "3days": 3, week: 7, "14days": 14, month: 30, year: 365 };
+    const recognized = period === null || period === "" || period in known
+      || (!isNaN(parseInt(period, 10)) && parseInt(period, 10) > 0);
+    return {
+      period_requested: period || null,
+      period_resolved: period || null,
+      days,
+      recognized,
+      from: ymd(range.since),
+      to: ymd(range.until - MS_DAY),
+    };
+  }
   function previousRange(curRange) {
     const span = curRange.until - curRange.since;
     return { since: curRange.since - span, until: curRange.since };
@@ -697,16 +606,31 @@
     return den > 0 ? cache / den : null;
   }
 
+  // Upstream ranks every model array by tokens, with cost and then the name's
+  // code units breaking ties, and ships the money podium as its own field. The
+  // demo mirrors both so the two Overview podiums cannot disagree.
+  function ordinal(a, b) {
+    const left = String(a), right = String(b);
+    return left < right ? -1 : left > right ? 1 : 0;
+  }
+  function modelRank(a, b) {
+    return (b.tokens - a.tokens) || (b.cost - a.cost) || ordinal(a.name, b.name);
+  }
+  function costRank(a, b) {
+    return (b.cost - a.cost) || (b.tokens - a.tokens) || ordinal(a.name, b.name);
+  }
+
   // ---------- /api/usage ----------
   function buildUsage(period, dateFrom, dateTo) {
     const range = periodToRange(period, dateFrom, dateTo);
 
-    const byApp = {};         // source -> aggregate (incl. models map)
+    const range_block = rangeBlock(period, range);
+    const byApp = {};         // tool key -> aggregate (incl. models map)
     const combinedModels = {}; // model name -> aggregate
     let total_tokens = 0, total_cost = 0, total_messages = 0, total_in = 0, total_cache = 0;
 
     for (const { session, turn } of iterTurnsInRange(range)) {
-      const src = session.source;
+      const src = toolKey(session.source);
       const app = (byApp[src] ||= {
         tokens: 0, tokens_in: 0, tokens_out: 0, tokens_cache: 0, cost: 0, messages: 0, _models: {},
       });
@@ -741,7 +665,7 @@
     for (const [src, agg] of Object.entries(byApp)) {
       const models = Object.values(agg._models)
         .map((m) => ({ ...m, cache_hit_rate: hitRate(m.tokens_in, m.tokens_cache) }))
-        .sort((a, b) => b.cost - a.cost);
+        .sort(modelRank);
       delete agg._models;
       apps[src] = { ...agg, cache_hit_rate: hitRate(agg.tokens_in, agg.tokens_cache), models };
     }
@@ -753,10 +677,10 @@
     for (const [src, v] of Object.entries(codingApps)) {
       for (const m of v.models) codingModels.push({ source: src, ...m });
     }
-    codingModels.sort((a, b) => b.cost - a.cost);
+    codingModels.sort(modelRank);
 
     const openclawApp = apps.openclaw || { tokens: 0, tokens_in: 0, tokens_out: 0, tokens_cache: 0, cost: 0, messages: 0, models: [] };
-    const openclawModels = openclawApp.models.map((m) => ({ ...m })).sort((a, b) => b.cost - a.cost);
+    const openclawModels = openclawApp.models.map((m) => ({ ...m })).sort(modelRank);
 
     const by_tool = {};
     for (const [src, v] of Object.entries(apps)) {
@@ -765,7 +689,7 @@
 
     const combined = Object.values(combinedModels)
       .map((c) => ({ ...c, cache_hit_rate: hitRate(c.tokens_in, c.tokens_cache) }))
-      .sort((a, b) => b.cost - a.cost);
+      .sort(modelRank);
 
     // Comparison: previous window aggregates.
     const prev = previousRange(range);
@@ -777,6 +701,7 @@
 
     return {
       period: period || "today",
+      range: range_block,
       total_tokens,
       total_cost: Math.round(total_cost * 100) / 100,
       total_messages,
@@ -786,6 +711,7 @@
       coding_apps: codingApps,
       coding_models: codingModels,
       top_models: combined.slice(0, 5),
+      top_models_by_cost: [...combined].sort(costRank).slice(0, 5),
       openclaw_models: openclawModels,
       combined_models: combined,
       timestamp: new Date().toISOString(),
@@ -850,6 +776,11 @@
   // runs one stream per session, so clock time (merged intervals) and agent time
   // (intervals added up) are equal; the payload keeps both fields anyway so the
   // UI renders the same shapes the real backend sends.
+  // One tool-key space across /api/usage, /api/insights and /api/active-time, because
+  // the server has one. The Report tab joins all three on this key, so an alias here
+  // would render as an em dash in its agent table rather than a merged row.
+  const TOOL_KEY_BY_SOURCE = { claude_code: "claude", gemini: "gemini_cli" };
+  function toolKey(source) { return TOOL_KEY_BY_SOURCE[source] || source; }
   const ACTIVE_GAP_CAP_MS = 300 * 1000;
 
   function turnIntervals(turns) {
@@ -991,7 +922,10 @@
     const internalSource = SESSION_TOOL_KEYS[key];
     if (!internalSource) return { __error: 400, message: `Unsupported session tool: ${tool}` };
 
-    const found = sessions.find((s) => s.source === internalSource && s.session_id === sessionId);
+    let found = sessions.find((s) => s.source === internalSource && s.session_id === sessionId);
+    if (!found) {
+      found = allSessions.find((s) => s.source === internalSource && s.session_id === sessionId);
+    }
     if (!found) return { __error: 404, message: `Session not found: ${sessionId}` };
 
     const session = summarizeSession(found, null);
@@ -1077,8 +1011,8 @@
   // ---------- /api/activity-insights ----------
   // Codex Profile Activity insights (recorded chats, reasoning effort mix, tool
   // calls). Mirrors build_activity_insights() in src/tokdash/activity_insights.py.
-  // Derived once from the synthetic codex corpus so every request agrees.
-  const activityInsightsPayload = (function buildActivityInsights() {
+  // Derived from the requesting machine's slice of the synthetic codex corpus.
+  function buildActivityInsights() {
     const codexSessions = sessions.filter((s) => s.source === "codex");
     const recorded = codexSessions.length;
     const turns = codexSessions.reduce((a, s) => a + s.turns.length, 0);
@@ -1129,9 +1063,267 @@
       },
       timestamp: new Date().toISOString(),
     };
-  })();
+  }
+
+  // Cached per machine: the profile-activity panel asks once per server.
+  const activityInsightsCache = new Map();
+  function activityInsightsFor(server) {
+    if (!activityInsightsCache.has(server.id)) {
+      useServer(server);
+      activityInsightsCache.set(server.id, buildActivityInsights());
+    }
+    return activityInsightsCache.get(server.id);
+  }
 
   // ---------- /api/stats ----------
+  // ---------- /api/insights ----------
+  // The Report tab's facet scan, folded from the same synthetic turns every other
+  // endpoint reads so the report's day map, podium and rhythm cannot disagree with
+  // Overview or Stats. Facet names, Monday-zero weekdays, the 22:00-02:00 night
+  // window and the rank-quartile day intensity follow src/tokdash/insights.py and
+  // compute.assign_contribution_intensity.
+  const INSIGHTS_FACETS = ["hourly", "weekday", "heatmap", "daily", "models", "tools",
+    "projects", "streaks", "firsts"];
+  const INSIGHTS_DEFAULT_FACETS = ["hourly", "weekday", "heatmap", "models", "tools",
+    "streaks", "firsts"];
+  const INSIGHTS_WEEKDAY_NAMES = ["Monday", "Tuesday", "Wednesday", "Thursday",
+    "Friday", "Saturday", "Sunday"];
+  const INSIGHTS_NIGHT_HOURS = [0, 1, 22, 23];
+
+  function insightsTimezoneLabel() {
+    try {
+      const parts = new Intl.DateTimeFormat("en-US", { timeZoneName: "short" })
+        .formatToParts(new Date());
+      const zone = parts.find((part) => part.type === "timeZoneName");
+      if (zone && zone.value) return zone.value;
+      return Intl.DateTimeFormat().resolvedOptions().timeZone || "local";
+    } catch (_error) {
+      return "local";
+    }
+  }
+
+  // An unknown facet is refused, not dropped: a missing facet renders as a blank
+  // section labelled as data, which is the reason the server answers 400.
+  function parseInsightsFacets(raw) {
+    const asList = (values) => values.slice();
+    if (raw === null || String(raw).trim() === "") return { facets: asList(INSIGHTS_DEFAULT_FACETS) };
+    const requested = String(raw).split(",")
+      .map((token) => token.trim().toLowerCase()).filter(Boolean);
+    if (!requested.length) return { facets: asList(INSIGHTS_DEFAULT_FACETS) };
+    const unknown = [...new Set(requested.filter((f) => !INSIGHTS_FACETS.includes(f)))].sort();
+    if (unknown.length) {
+      return {
+        error: "unknown facet(s): " + unknown.join(", ") +
+          ". Accepted: " + INSIGHTS_FACETS.join(", "),
+      };
+    }
+    return { facets: [...new Set(requested)] };
+  }
+
+  function insightsIntensity(rows) {
+    // Quartiles over the active days of the window, by rank rather than by value:
+    // a few very heavy days would otherwise flatten every ordinary day into the
+    // bottom bucket. Mirrors compute.assign_contribution_intensity.
+    const active = rows.map((row) => row.tokens).filter((t) => t > 0).sort((a, b) => a - b);
+    for (const row of rows) {
+      if (row.tokens <= 0) { row.intensity = 0; continue; }
+      if (!active.length) { row.intensity = 0; continue; }
+      let lo = 0, hi = active.length;
+      while (lo < hi) {
+        const mid = (lo + hi) >> 1;
+        if (active[mid] <= row.tokens) lo = mid + 1; else hi = mid;
+      }
+      row.intensity = Math.min(4, Math.max(1, Math.ceil((lo / active.length) * 4)));
+    }
+  }
+
+  function insightsStreaks(dates, windowEndDay) {
+    // (current, longest) runs of consecutive active days. A day still in progress
+    // has not broken anything, so a run ending today or yesterday is still current.
+    if (!dates.length) return { current_streak: 0, longest_streak: 0 };
+    let longest = 1, run = 1;
+    for (let i = 1; i < dates.length; i += 1) {
+      const gap = (new Date(dates[i] + "T00:00:00") - new Date(dates[i - 1] + "T00:00:00")) / MS_DAY;
+      run = gap === 1 ? run + 1 : 1;
+      if (run > longest) longest = run;
+    }
+    const last = dates[dates.length - 1];
+    const current = (last === windowEndDay || last === ymd(new Date(windowEndDay + "T00:00:00").getTime() - MS_DAY))
+      ? run : 0;
+    return { current_streak: current, longest_streak: longest };
+  }
+
+  function buildInsights(period, dateFrom, dateTo, facetsRaw, includeProjectNames) {
+    const parsed = parseInsightsFacets(facetsRaw);
+    if (parsed.error) return { __error: 400, message: parsed.error };
+    const facets = parsed.facets;
+    const range = periodToRange(period, dateFrom, dateTo);
+
+    const zero = () => ({ tokens: 0, cost: 0, messages: 0, entries: 0 });
+    const add = (row, turn) => {
+      row.tokens += turn.tokens;
+      row.cost += turn.cost;
+      row.messages += 1;
+      row.entries += 1;
+    };
+    const getOr = (map, key) => {
+      let row = map.get(key);
+      if (!row) { row = zero(); map.set(key, row); }
+      return row;
+    };
+
+    const days = new Map();
+    const hourly = Array.from({ length: 24 }, (_, hour) => Object.assign(zero(), { hour }));
+    const weekdays = Array.from({ length: 7 }, (_, index) =>
+      Object.assign(zero(), { weekday: index, name: INSIGHTS_WEEKDAY_NAMES[index] }));
+    const heat = Array.from({ length: 168 }, () => zero());
+    const tools = new Map();
+    const models = new Map();
+    const projects = new Map();
+    const sources = new Set();
+    const totals = zero();
+
+    for (const { session, turn } of iterTurnsInRange(range)) {
+      const stamp = new Date(turn.timestamp_ms);
+      const date = ymd(turn.timestamp_ms);
+      const hour = stamp.getHours();
+      const weekday = (stamp.getDay() + 6) % 7; // the server counts from Monday
+      const tool = toolKey(session.source);
+
+      sources.add(tool);
+      add(totals, turn);
+      add(getOr(days, date), turn);
+      add(hourly[hour], turn);
+      add(weekdays[weekday], turn);
+      add(heat[weekday * 24 + hour], turn);
+      add(getOr(tools, tool), turn);
+      add(getOr(models, turn.model), turn);
+      add(getOr(projects, session.project || ""), turn);
+    }
+
+    const money = (value) => Math.round(value * 1e6) / 1e6;
+    const dayRows = [...days.entries()]
+      .map(([date, row]) => Object.assign({ tokens: row.tokens, cost: money(row.cost),
+        messages: row.messages, entries: row.entries, date }, {}))
+      .sort((a, b) => (a.date < b.date ? -1 : 1));
+    insightsIntensity(dayRows);
+
+    const rankRows = (map, keyName) => [...map.entries()]
+      .map(([name, row]) => ({ [keyName]: name, tokens: row.tokens, cost: money(row.cost),
+        messages: row.messages, entries: row.entries }))
+      .sort((a, b) => (b.tokens - a.tokens) || (b.cost - a.cost)
+        || String(a[keyName]).localeCompare(String(b[keyName])));
+
+    const response = {
+      schema_version: 1,
+      range: rangeBlock(period, range),
+      facets,
+      timezone: insightsTimezoneLabel(),
+      coverage: {
+        // Live-parsed sources are the ones /api/usage cannot rank from stored rows.
+        stored_sources: [...sources].filter((tool) => tool !== "openclaw").sort(),
+        live_sources: [...sources].filter((tool) => tool === "openclaw").sort(),
+        group_count: totals.entries,
+      },
+      totals: { tokens: totals.tokens, cost: money(totals.cost),
+        messages: totals.messages, entries: totals.entries },
+      timestamp: new Date().toISOString(),
+    };
+
+    if (facets.includes("hourly")) {
+      const busiest = hourly.filter((row) => row.tokens > 0)
+        .sort((a, b) => b.tokens - a.tokens)[0] || null;
+      const night = hourly.filter((row) => INSIGHTS_NIGHT_HOURS.includes(row.hour))
+        .reduce((sum, row) => sum + row.tokens, 0);
+      response.hourly = {
+        buckets: hourly.map((row) => Object.assign({}, row, { cost: money(row.cost) })),
+        peak_hour: busiest ? busiest.hour : null,
+        night_share: totals.tokens ? Math.round((night / totals.tokens) * 1e4) / 1e4 : null,
+        night_hours: INSIGHTS_NIGHT_HOURS.slice(),
+      };
+    }
+
+    if (facets.includes("weekday")) {
+      const peak = weekdays.filter((row) => row.tokens > 0)
+        .sort((a, b) => b.tokens - a.tokens)[0] || null;
+      response.weekday = {
+        buckets: weekdays.map((row) => Object.assign({}, row, { cost: money(row.cost) })),
+        peak_weekday: peak ? peak.weekday : null,
+      };
+    }
+
+    if (facets.includes("heatmap")) {
+      response.heatmap = {
+        cells: heat.map((row, index) => Object.assign({}, row, {
+          cost: money(row.cost),
+          weekday: Math.floor(index / 24),
+          hour: index % 24,
+        })),
+      };
+    }
+
+    if (facets.includes("daily")) response.daily = dayRows;
+
+    if (facets.includes("tools")) response.tools = { ranked: rankRows(tools, "tool") };
+
+    if (facets.includes("models")) {
+      const ranked = rankRows(models, "model");
+      response.models = {
+        ranked,
+        most_used: ranked.length ? ranked[0].model : null,
+        highest_cost: ranked.length
+          ? [...ranked].sort((a, b) => (b.cost - a.cost) || (b.tokens - a.tokens))[0].model
+          : null,
+      };
+    }
+
+    if (facets.includes("projects")) {
+      // Every synthetic session belongs to a project, so nothing lands in
+      // `unattributed`; the key stays because the report reconciles against it.
+      let ranked = rankRows(projects, "project");
+      const named = includeProjectNames !== false;
+      if (!named) ranked = ranked.map((row, index) => Object.assign({}, row, { project: `project-${index + 1}` }));
+      response.projects = {
+        projects: ranked,
+        unattributed: zero(),
+        attributed_project_count: ranked.length,
+        names_included: named,
+      };
+    }
+
+    if (facets.includes("streaks") || facets.includes("firsts")) {
+      const activeDates = dayRows.filter((row) => row.tokens > 0).map((row) => row.date);
+      const streaks = insightsStreaks(activeDates, ymd(range.until - MS_DAY));
+      if (facets.includes("streaks")) {
+        response.streaks = {
+          current_streak: streaks.current_streak,
+          longest_streak: streaks.longest_streak,
+          active_days: activeDates.length,
+          total_days: Math.max(1, Math.round((range.until - range.since) / MS_DAY)),
+        };
+      }
+      if (facets.includes("firsts")) {
+        const busiest = dayRows.filter((row) => row.tokens > 0)
+          .sort((a, b) => b.tokens - a.tokens)[0] || null;
+        const hourPeak = response.hourly ? response.hourly.peak_hour
+          : (() => {
+              const busiestHour = hourly.filter((row) => row.tokens > 0)
+                .sort((a, b) => b.tokens - a.tokens)[0];
+              return busiestHour ? busiestHour.hour : null;
+            })();
+        response.firsts = {
+          first_active_day: activeDates.length ? activeDates[0] : null,
+          last_active_day: activeDates.length ? activeDates[activeDates.length - 1] : null,
+          busiest_day: busiest ? busiest.date : null,
+          busiest_day_tokens: busiest ? busiest.tokens : null,
+          peak_hour: hourPeak,
+        };
+      }
+    }
+
+    return response;
+  }
+
   function buildStats(year) {
     let range;
     if (year) {
@@ -1145,6 +1337,7 @@
 
     const days = {};
     const modelCosts = {};
+    const modelTokens = {};
     let totalSessions = 0;
 
     for (const { session, turn } of iterTurnsInRange(range)) {
@@ -1178,6 +1371,7 @@
         messages: 1,
       });
       modelCosts[turn.model] = (modelCosts[turn.model] || 0) + turn.cost;
+      modelTokens[turn.model] = (modelTokens[turn.model] || 0) + turn.tokens;
     }
     totalSessions = sessions.reduce(
       (a, s) =>
@@ -1220,7 +1414,10 @@
     const total_days = dayList.length
       ? Math.round((new Date(dayList[dayList.length - 1].date) - new Date(dayList[0].date)) / MS_DAY) + 1
       : 0;
+    // "Favorite" means most used, not most expensive (upstream ranks by tokens).
     const favorite_model =
+      Object.entries(modelTokens).sort((a, b) => b[1] - a[1])[0]?.[0] || "N/A";
+    const highest_cost_model =
       Object.entries(modelCosts).sort((a, b) => b[1] - a[1])[0]?.[0] || "N/A";
 
     return {
@@ -1229,6 +1426,8 @@
       contributions: dayList,
       stats: {
         favorite_model,
+        most_used_model: favorite_model,
+        highest_cost_model,
         total_tokens,
         sessions: totalSessions,
         current_streak,
@@ -1282,15 +1481,47 @@
     return new URL(urlStr, window.location.origin);
   }
 
+  // Which machine a request was addressed to. The dashboard builds remote URLs
+  // from the server registry, so host matching is the whole routing table.
+  function serverForUrl(url) {
+    return FLEET_BY_HOST.get(url.host) || SERVER_FLEET[0];
+  }
+
+  // Each machine last refreshed at its own minute; the Servers tab shows the
+  // per-card time and names the stalest server in the combined header.
+  function stampForServer(payload, server) {
+    if (!server.stalenessSeconds || !payload || !payload.timestamp) return payload;
+    const at = Date.parse(payload.timestamp) - server.stalenessSeconds * 1000;
+    if (!Number.isNaN(at)) payload.timestamp = new Date(at).toISOString();
+    return payload;
+  }
+
   async function dispatch(input, init) {
     const url = parseUrl(input);
+    const server = serverForUrl(url);
     const path = localPath(url.pathname);
-    if (!path.startsWith("/api/")) return null; // not ours
     const method = (init && init.method) || (input instanceof Request ? input.method : "GET");
+
+    // /health is the fleet fingerprint: the dashboard probes it before it will add
+    // a server, and refuses any answer that does not identify itself as Tokdash.
+    if (path === "/health" && method === "GET") {
+      return jsonResponse({
+        status: "ok",
+        service: "tokdash",
+        version: "demo",
+        hostname: server.id === LOCAL_FLEET_ID ? window.location.hostname : url.hostname,
+        demo: true,
+      });
+    }
+    if (!path.startsWith("/api/")) return null; // not ours
+
+    // Point every dataset-backed builder at the machine this request addressed.
+    useServer(server);
     const params = url.searchParams;
 
     if (path === "/api/usage" && method === "GET") {
-      return jsonResponse(buildUsage(params.get("period"), params.get("date_from"), params.get("date_to")));
+      return jsonResponse(stampForServer(
+        buildUsage(params.get("period"), params.get("date_from"), params.get("date_to")), server));
     }
     if (path === "/api/sessions" && method === "GET") {
       const out = buildSessions(
@@ -1310,8 +1541,16 @@
         buildActiveTime(params.get("period"), params.get("date_from"), params.get("date_to"), params.get("include_review_sessions"))
       );
     }
+    if (path === "/api/insights" && method === "GET") {
+      const out = buildInsights(
+        params.get("period"), params.get("date_from"), params.get("date_to"),
+        params.get("facets"), params.get("include_project_names") !== "false"
+      );
+      if (out.__error) return jsonResponse({ detail: out.message }, out.__error);
+      return jsonResponse(stampForServer(out, server));
+    }
     if (path === "/api/activity-insights" && method === "GET") {
-      return jsonResponse(activityInsightsPayload);
+      return jsonResponse(activityInsightsFor(server));
     }
     if (path === "/api/version" && method === "GET") {
       // The static demo runs no update checks (opt-in server feature), so the
@@ -1341,10 +1580,10 @@
       return jsonResponse({ token: "demo" });
     }
     if (path === "/api/quota" && method === "GET") {
-      return jsonResponse(getQuotaState());
+      return jsonResponse(getQuotaState(server));
     }
     if (path === "/api/quota/history" && method === "GET") {
-      return jsonResponse(buildQuotaHistory(params.get("granularity") || "hour", params.get("start")));
+      return jsonResponse(buildQuotaHistory(server, params.get("granularity") || "hour", params.get("start")));
     }
     if (path === "/api/quota/consent" && method === "POST") {
       try {
@@ -1369,8 +1608,10 @@
       });
     }
     if (path === "/api/quota/refresh" && method === "GET") {
-      quotaLastRun = Math.floor(Date.now() / 1000);
-      return jsonResponse({ snapshots: 8, inserted: 8 });
+      quotaLastRunByServer.set(server.id, Math.floor(Date.now() / 1000));
+      const buckets = serverQuotaKeys(server)
+        .reduce((sum, key) => sum + QUOTA_CATALOG[key].buckets.length, 0);
+      return jsonResponse({ snapshots: buckets, inserted: buckets });
     }
     if (path === "/api/openclaw" && method === "GET") {
       // Not consumed by the current UI but easy to support for parity.
@@ -1378,9 +1619,6 @@
     }
     if (path === "/api/tools" && method === "GET") {
       return jsonResponse({ entries: [] });
-    }
-    if (path === "/health" && method === "GET") {
-      return jsonResponse({ status: "ok", demo: true });
     }
     return jsonResponse({ detail: `Demo: not implemented (${method} ${path})` }, 501);
   }
@@ -1401,10 +1639,37 @@
     return origFetch(input, init);
   };
 
+  // ---------- Seed the fleet into the dashboard's server registry ----------
+  // Without this the Servers tab stays hidden (it appears once a second server
+  // exists) and the multi-server selector in Settings has nothing to offer. Only
+  // ever written once, and never over a registry the visitor built themselves.
+  (function seedDemoServers(storage) {
+    const MARKER = "tokdash-demo-servers-seeded";
+    const VERSION = "1";
+    try {
+      if (storage.getItem(MARKER) === VERSION) return;
+      storage.setItem(MARKER, VERSION);
+      if (storage.getItem("tokdash-servers")) return; // a hand-built registry wins
+      storage.setItem("tokdash-servers", JSON.stringify(
+        SERVER_FLEET
+          .filter((s) => s.baseUrl)
+          .map((s) => ({ id: s.id, label: s.label, baseUrl: s.baseUrl }))
+      ));
+    } catch (_error) {
+      // Private mode / storage disabled: the demo still runs as a single server.
+    }
+  })(window.localStorage);
+
   // Expose a tiny info API on the window for debugging / banner labels.
   window.__TOKDASH_DEMO__ = {
-    sessionsCount: sessions.length,
+    sessionsCount: allSessions.length,
     historyDays: HISTORY_DAYS,
     seed: 0x70B05A1,
+    servers: SERVER_FLEET.map((s) => ({
+      id: s.id,
+      label: s.label,
+      baseUrl: s.baseUrl,
+      sessions: sessionsByServer.get(s.id)?.length || 0,
+    })),
   };
 })();

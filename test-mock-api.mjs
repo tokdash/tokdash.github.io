@@ -91,4 +91,54 @@ assert(stats.contributions.length > 0 && stats.stats.favorite_model, "stats summ
 const pricing = await get("/api/pricing-db");
 assert(pricing.data && pricing.data.models && Object.keys(pricing.data.models).length > 300, "pricing-db snapshot loads");
 
+
+// /api/insights (the Report tab's facet scan)
+const REPORT_FACETS = "daily,streaks,firsts,hourly,weekday,tools,models,projects";
+const report = await get(`/api/insights?period=week&facets=${REPORT_FACETS}`);
+assert(report.schema_version === 1 && report.facets.join(",") === REPORT_FACETS,
+  "insights echoes the requested facets in caller order");
+assert(report.range && report.range.from && report.range.to && report.range.days >= 1,
+  "insights names the window it read");
+assert(report.totals.tokens === usage.total_tokens && report.totals.messages === usage.total_messages,
+  "insights totals agree with /api/usage for the same window");
+const dailySum = report.daily.reduce((a, row) => a + row.tokens, 0);
+assert(dailySum === report.totals.tokens, "daily facet sums to the scan total");
+assert(report.daily.every((row, i) => (i === 0 || row.date > report.daily[i - 1].date)
+  && row.intensity >= 1 && row.intensity <= 4), "daily rows are dated ascending with 1-4 intensity");
+assert(report.hourly.buckets.length === 24 && report.hourly.night_hours.join(",") === "0,1,22,23"
+  && report.hourly.peak_hour >= 0 && report.hourly.peak_hour <= 23,
+  "hourly facet covers 24 hours and names the night window");
+assert(report.weekday.buckets.length === 7 && report.weekday.buckets[0].name === "Monday",
+  "weekday facet is Monday-first like the server");
+assert(report.tools.ranked.length > 0
+  && report.tools.ranked.every((row) => usage.by_tool[row.tool] !== undefined),
+  "insights tool keys join the /api/usage rows the Report tab reads them from");
+assert(report.models.ranked.every((row, i) => i === 0
+  || report.models.ranked[i - 1].tokens >= row.tokens), "models ranked by tokens");
+assert(report.models.most_used === report.models.ranked[0].model
+  && typeof report.models.highest_cost === "string", "models facet names both podiums");
+assert(report.projects.attributed_project_count > 0 && report.projects.names_included === true
+  && report.projects.projects[0].project.length > 0, "projects facet keeps names by default");
+assert(report.streaks.active_days === report.daily.length
+  && report.streaks.longest_streak >= 1 && report.streaks.total_days >= report.streaks.active_days,
+  "streaks facet agrees with the day count");
+assert(report.firsts.first_active_day <= report.firsts.busiest_day
+  && report.firsts.busiest_day_tokens > 0 && report.firsts.peak_hour !== undefined,
+  "firsts facet names the busiest day and peak hour");
+
+const anon = await get("/api/insights?period=week&facets=projects&include_project_names=false");
+assert(anon.projects.names_included === false && anon.projects.projects[0].project === "project-1"
+  && anon.projects.projects.length === anon.projects.attributed_project_count,
+  "include_project_names=false anonymizes project rows in rank order");
+
+const defaults = await get("/api/insights?period=week");
+assert(defaults.daily === undefined && defaults.heatmap.cells.length === 168
+  && defaults.facets.join(",") === "hourly,weekday,heatmap,models,tools,streaks,firsts",
+  "omitted facets return the server default set, heatmap included");
+
+const res400 = await fetchMock("/api/insights?facets=bogus");
+const body400 = await res400.json();
+assert(res400.status === 400 && /unknown facet/.test(body400.detail),
+  "an unknown facet is refused with 400 rather than dropped");
+
 console.log("\nDone.", process.exitCode ? "FAILURES ABOVE" : "All checks passed.");

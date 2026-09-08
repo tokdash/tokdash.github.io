@@ -1,8 +1,9 @@
 # tokdash.github.io
 
 Official site for [Tokdash](https://github.com/JingbiaoMei/Tokdash) — a local token & cost
-dashboard for AI coding tools (Codex, Claude Code, OpenCode, Gemini CLI, OpenClaw,
-Kimi CLI, Pi, GitHub Copilot CLI, Hermes, DeepSeek Harness, Reasonix, and ZCode).
+dashboard for AI coding tools. It reads the session logs your agents already write to disk:
+Codex, Claude Code, OpenCode, Gemini CLI, Kimi CLI, ZCode, and
+[18 more](https://github.com/JingbiaoMei/Tokdash/blob/main/docs/reference/SUPPORTED_CLIENTS.md).
 
 - **`/`** — the marketing landing page (`index.html`).
 - **`/demo/`** — the live, interactive dashboard demo (`demo/index.html`).
@@ -14,13 +15,31 @@ Kimi CLI, Pi, GitHub Copilot CLI, Hermes, DeepSeek Harness, Reasonix, and ZCode)
 
 ## What you can try
 
-- Switch tabs (Overview / Sessions / Heatmap / Quota / Pricing).
+- Switch tabs (Overview / Sessions / Stats / Report / Quota / Servers / Pricing).
 - Change the period or pick a custom date range.
-- Toggle light/dark and the 10 style themes.
-- Click into synthetic sessions, including ZCode turns and token accounting.
-- On the **Stats** tab, switch the Daily Activity metric chip to **Energy** to recolor the heatmap by estimated energy per day, and read the new Total Energy (kWh) row in the Month Stats sidebar (estimated entirely in the browser from token counts × model-family `J/token` coefficients; order-of-magnitude only).
-- On the **Quota** tab, inspect the mock remaining limits for Codex, Claude, and Antigravity, toggle active providers, adjust the polling interval settings, or trigger a manual refresh.
+- Toggle light/dark and the 17 style themes.
+- Click into synthetic sessions, including turns and per-turn token accounting.
+- Open the **Servers** tab. The demo pre-loads three machines — Local, WSL workstation, and
+  Mac Studio — split by session id, so each one reports its own tokens, cost, share bars,
+  top tools and top models, and the compare table puts them side by side. Reachable counts,
+  combined totals, and the stalest timestamp sit in the strip above the cards.
+- Narrow the fleet with the header server picker or Settings → Servers. Every tab re-scopes
+  to the selection, including the Quota tab.
+- On the **Quota** tab, read the mock subscription windows grouped per machine (each demo
+  server advertises a different provider set), toggle active providers, change the polling
+  interval, or trigger a manual refresh.
+- On the **Report** tab, step the period chips (this week / last week, a named month, a
+  year) and read the day map, the harness / model / project podiums, the hour-and-weekday rhythm,
+  and the per-agent runtime table. The tab covers one server at a time and says which one; the
+  picker above it switches machines. Both share cards download as light + dark PNGs.
+- On the **Stats** tab, switch the Daily Activity metric chip to **Energy** to recolor the
+  heatmap by estimated energy per day, and read the Total Energy (kWh) row in the Month Stats
+  sidebar (estimated in the browser from token counts × model-family `J/token` coefficients;
+  order-of-magnitude only).
 - Browse the read-only demo pricing snapshot.
+
+The demo registry is seeded once, into `localStorage`, and never overwrites servers you add
+yourself — clear site data to get the three-machine fleet back.
 
 ## Local preview
 
@@ -32,34 +51,46 @@ python3 -m http.server 8000
 
 ## How it works
 
-| File                       | Purpose                                                                |
-| -------------------------- | ---------------------------------------------------------------------- |
-| `index.html`               | Official marketing landing page (self-contained, reuses the design tokens). |
-| `static/landing.css`       | Prebuilt Tailwind utilities for the landing page (so it renders without JS). |
-| `demo/index.html`          | Tokdash dashboard shell — upstream frontend + the demo-only edits listed below. |
-| `static/themes.css`        | Verbatim copy of the production stylesheet.                            |
-| `static/theme-config.js`   | Verbatim copy of the production theme palettes.                        |
-| `static/mock-api.js`       | Demo-only fetch shim that builds and serves synthetic data.            |
-| `static/icons/agents/`     | Per-agent logos used by the landing page "supported tools" row.        |
-| `sw.js`                    | Service worker (PWA install + offline app shell), served at `/sw.js`.   |
-| `pricing_db.json`          | Sanitized pricing snapshot for the read-only Pricing tab.              |
+|  File                       | Purpose                                                                |
+|  -------------------------- | ---------------------------------------------------------------------- |
+|  `index.html`               | Official marketing landing page (self-contained, reuses the design tokens). |
+|  `static/landing.css`       | Prebuilt Tailwind utilities for the landing page (so it renders without JS). |
+|  `demo/index.html`          | Tokdash dashboard shell — upstream frontend + the demo-only edits listed below. |
+|  `static/themes.css`        | Verbatim copy of the production stylesheet.                            |
+|  `static/theme-config.js`   | Verbatim copy of the production theme palettes.                        |
+|  `static/mock-api.js`       | Demo-only fetch shim that builds and serves synthetic data.            |
+| `static/release-notes.json` | Verbatim copy of the shipped release notes the header reads.           |
+|  `static/icons/agents/`     | Per-agent logos used by the landing page "supported tools" row.        |
+|  `sw.js`                    | Service worker (PWA install + offline app shell), served at `/sw.js`.   |
+|  `pricing_db.json`          | Sanitized pricing snapshot for the read-only Pricing tab.              |
+|  `build_demo.py`            | Rebuilds `demo/index.html` from an upstream checkout.                  |
+|  `verify_demo.py`           | Headless-Chromium check of `/demo/` (fleet split, Servers tab, quota).  |
+|  `verify_landing.py`        | Headless-Chromium check of `/` (render, copy, six-language parity, mobile). |
 
 ### Refreshing the demo from upstream
 
-`demo/index.html` is a verbatim copy of `src/tokdash/static/index.html` from the
-[Tokdash repo](https://github.com/JingbiaoMei/Tokdash) plus four demo-only edits. To
-re-sync, copy the upstream file over `demo/index.html` and re-apply:
+`demo/index.html` is the upstream `src/tokdash/static/index.html` plus three injections: the
+Google Analytics tag, the `mock-api.js` loader, and the "Live demo" banner. Rebuild it with
+the script rather than editing by hand:
 
-1. The `<script src="/static/mock-api.js">` include in `<head>` (the synthetic backend).
-2. The "Live demo" banner block immediately after `<body>` (links back to `/`).
-3. `pi_agent: 'Pi'` in the `formatToolName` map (display name; the rest matches upstream).
-4. The Google Analytics `gtag.js` snippet in `<head>`.
+```bash
+git -C ../tokdash fetch origin main
+git -C ../tokdash worktree add /tmp/tokdash-demo-build origin/main --detach
+python3 build_demo.py --upstream /tmp/tokdash-demo-build/src/tokdash/static/index.html
+```
 
-Keep `static/themes.css` / `static/theme-config.js` in sync the same way (currently
-byte-identical to upstream), and sanitize `pricing_db.json` so the public demo does not
-advertise unreleased or placeholder model ids. When upstream adds API fields (e.g.
-`cache_hit_rate`), mirror them in `static/mock-api.js` so the new UI shows real synthetic
-values instead of `n/a`.
+Build from a released tree. Without `--upstream` the script reads `../tokdash`, which is
+usually a work in progress, and the public demo must not ship unreleased UI. The build fails
+loudly if an injection anchor no longer matches the upstream file.
+
+Keep `static/themes.css`, `static/theme-config.js` and `static/release-notes.json` in sync the same way — all three
+byte-identical to upstream — and sanitize `pricing_db.json` so the public demo does not
+advertise unreleased or placeholder model ids. When upstream adds API routes or fields
+(e.g. `/api/insights`, `top_models_by_cost`, `cache_hit_rate`), mirror them in
+`static/mock-api.js` so the new UI shows real synthetic values instead of `n/a`. `/api/insights`
+folds its nine facets from the same synthetic turns that feed `/api/usage`, so the Report tab's
+totals agree with Overview's, and one tool-key space serves `/api/usage`, `/api/insights`, and
+`/api/active-time` alike because the Report tab joins them on it.
 
 ### Rebuilding the landing CSS
 
@@ -75,6 +106,20 @@ npx tailwindcss@3 -i /tmp/in.css -o static/landing.css --minify \
 
 (Equivalently, point a `tailwind.config.js` at `index.html` with `darkMode: 'class'`.)
 No Node tooling is committed — this is a one-off build step that only touches `static/landing.css`.
+
+## Checking the site
+
+```bash
+node test-mock-api.mjs     # mock API routes, no browser
+python3 verify_landing.py  # landing page: renders offline, all six languages, 390px mobile
+python3 verify_demo.py     # demo: server fleet, Servers tab, per-machine quota, console errors
+```
+
+Both `verify_*.py` scripts need Playwright and Chromium, serve the repo over 127.0.0.1, and
+print `LANDING-CHECK-OK` / `BROWSER-CHECK-OK` on success. They write `verify-*.png` previews
+to the repo root; those are gitignored. The landing page's copy lives in a six-language
+dictionary inside `index.html`, and every `data-i18n` key must have an entry in all six —
+`verify_landing.py` fails on drift in either direction.
 
 ## License
 

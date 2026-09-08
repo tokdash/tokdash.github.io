@@ -318,9 +318,26 @@
     .opt-ic { width: 34px; height: 34px; border-radius: 9px; flex: none; display: inline-flex; align-items: center; justify-content: center;
       background: linear-gradient(135deg, color-mix(in srgb, var(--color-cta) 22%, transparent), color-mix(in srgb, var(--color-cta) 10%, transparent));
       color: var(--color-cta); border: 1px solid color-mix(in srgb, var(--color-cta) 26%, transparent); }
-    .savings-box { border-radius: 12px; padding: 14px;
+    .readout-box { border-radius: 12px; padding: 14px;
       background: color-mix(in srgb, var(--color-cost) 12%, transparent);
       border: 1px solid color-mix(in srgb, var(--color-cost) 30%, transparent); }
+
+    /* Multi-server card (servers section) */
+    .srv-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 12px; align-items: baseline;
+      padding: 11px 0; border-bottom: 1px solid color-mix(in srgb, var(--color-border) 60%, transparent); }
+    .srv-row.last { border-bottom: 0; }
+    .srv-name { font-weight: 700; font-size: 13px; min-width: 0; }
+    .srv-host { display: block; font-weight: 500; font-size: 11px; color: var(--color-muted);
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .srv-fig { font-weight: 700; font-size: 13px; white-space: nowrap; }
+    .srv-fig .cost { color: var(--color-cost); margin-left: 8px; }
+    .srv-bar { grid-column: 1 / -1; height: 6px; }
+    .srv-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .srv-chip { display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; padding: 5px 9px;
+      border-radius: 8px; border: 1px solid var(--color-border);
+      background: color-mix(in srgb, var(--color-bg) 30%, rgba(255, 255, 255, 0.55)); }
+    .srv-chip b { font-weight: 700; }
+    .srv-chip span { color: var(--color-muted); font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; }
 
     /* ---- companion mock (ported from UI_CONCEPT.html) ----
        Static "connected" rendering of the macOS menu-bar popover and the Windows
@@ -806,13 +823,14 @@
           </h1>
 
           <p class="reveal text-base sm:text-lg text-muted mt-5 max-w-xl" data-i18n="hero.sub">
-            Tokdash reads your CLI logs on your own machine and shows exactly how many tokens you burn — and what they
-            cost — across Codex, Claude Code, OpenCode, Gemini CLI and more. No account, no upload, no telemetry.
+            Tokdash reads the logs already on your machine and shows exactly how many tokens you burn — and what they
+            cost — across twenty-four coding agents. Add the rest of your machines as servers and read them as one
+            total. No account, no upload, no telemetry.
           </p>
 
-          <div class="reveal flex flex-wrap items-center gap-2.5 mt-5" aria-label="Tokdash performance benchmark">
-            <span class="chip" data-i18n="hero.perf1"><span class="dot"></span> v0.6.0: 30× faster cold scans</span>
-            <span class="chip" data-i18n="hero.perf2">15× faster than ccusage</span>
+          <div class="reveal flex flex-wrap items-center gap-2.5 mt-5" aria-label="Tokdash at a glance">
+            <span class="chip" data-i18n="hero.tag1"><span class="dot"></span> Twenty-four agents, one dashboard</span>
+            <span class="chip" data-i18n="hero.tag2">WSL, macOS and Linux servers, combined</span>
           </div>
 
           <div class="reveal flex flex-wrap items-center gap-3 mt-8">
@@ -902,7 +920,7 @@
           <div class="reveal">
             <div class="feature-icon mb-3"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="14" rx="2" stroke="currentColor" stroke-width="2"/><path d="M8 21h8M12 18v3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
             <h3 class="font-bold" data-i18n="trust.pwa.h">Dashboard installs as a PWA</h3>
-            <p class="text-sm text-muted mt-1" data-i18n="trust.pwa.p">Pin the dashboard like a native app, light or dark, EN&nbsp;/&nbsp;中.</p>
+            <p class="text-sm text-muted mt-1" data-i18n="trust.pwa.p">Pin the dashboard like a native app, light or dark, in 6 languages.</p>
           </div>
         </div>
       </div>
@@ -957,14 +975,14 @@
         <!-- 1 -->
         <div class="surface p-6 reveal">
           <div class="feature-icon mb-4"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M4 19V5M4 19h16M8 16V9M12 16V6M16 16v-4M20 16v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
-          <h3 class="text-lg font-bold" data-i18n="feat.1.h">Exact token accounting</h3>
-          <p class="text-sm text-muted mt-2" data-i18n="feat.1.p">Input, output, and cache tokens broken out per tool, model, and day — no estimates, the real counts from your logs.</p>
+          <h3 class="text-lg font-bold" data-i18n="feat.1.h">Exact tokens, billed in real money</h3>
+          <p class="text-sm text-muted mt-2" data-i18n="feat.1.p">Input, output, and cache tokens per tool, model, and day — the real counts from your logs, turned into dollars by a built-in pricing database.</p>
         </div>
         <!-- 2 -->
         <div class="surface p-6 reveal">
-          <div class="feature-icon mb-4"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><path d="M12 7v10M14.5 9.5C14 8.5 13 8 12 8c-1.5 0-2.5.8-2.5 2s1 1.7 2.5 2 2.5.9 2.5 2-1 2-2.5 2c-1 0-2-.5-2.5-1.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
-          <h3 class="text-lg font-bold" data-i18n="feat.2.h">Cost in real money</h3>
-          <p class="text-sm text-muted mt-2" data-i18n="feat.2.p">A built-in pricing database turns tokens into dollars across providers and models, so you see the bill, not just the volume.</p>
+          <div class="feature-icon mb-4"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8l-5-5Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M14 3v5h5" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 17v-3M12 17v-5M15 17v-2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
+          <h3 class="text-lg font-bold" data-i18n="feat.2.h">Report tab, ready to share</h3>
+          <p class="text-sm text-muted mt-2" data-i18n="feat.2.p">A week, month, or year-to-date report on a calendar-aligned window — day map, podiums for harness, model and project, hour and weekday rhythm, and PNG share cards.</p>
         </div>
         <!-- 3 -->
         <div class="surface p-6 reveal">
@@ -987,8 +1005,8 @@
         <!-- 6 -->
         <div class="surface p-6 reveal">
           <div class="feature-icon mb-4"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
-          <h3 class="text-lg font-bold" data-i18n="feat.6.h">10 themes, light &amp; dark</h3>
-          <p class="text-sm text-muted mt-2" data-i18n="feat.6.p">Classic, Midnight, Terminal, Arcade and more — with system-preference detection, custom date ranges, and English&nbsp;/&nbsp;中文.</p>
+          <h3 class="text-lg font-bold" data-i18n="feat.6.h">17 themes, light &amp; dark</h3>
+          <p class="text-sm text-muted mt-2" data-i18n="feat.6.p">Classic, Midnight, Terminal, Arcade and more — with system-preference detection, custom date ranges, and UI in six languages (English&nbsp;/&nbsp;中文&nbsp;/&nbsp;日本語&nbsp;/&nbsp;한국어&nbsp;/&nbsp;Español&nbsp;/&nbsp;Português).</p>
         </div>
         <!-- 7 -->
         <div class="surface p-6 reveal">
@@ -1001,6 +1019,87 @@
           <div class="feature-icon mb-4"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 2a10 10 0 0 0-10 10c0 5.523 4.477 10 10 10s10-4.477 10-10A10 10 0 0 0 12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M12 12 16 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="2" fill="currentColor"/></svg></div>
           <h3 class="text-lg font-bold" data-i18n="feat.8.h">Subscription quota tracking</h3>
           <p class="text-sm text-muted mt-2" data-i18n="feat.8.p">Monitor remaining Codex, Claude Code, and Antigravity quotas. Track your consumption history, view usage graphs, and set custom update intervals in a single view.</p>
+        </div>
+        <!-- 9 -->
+        <div class="surface p-6 reveal">
+          <div class="feature-icon mb-4"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="7" rx="2" stroke="currentColor" stroke-width="2"/><rect x="3" y="13" width="18" height="7" rx="2" stroke="currentColor" stroke-width="2"/><path d="M7 7.5h.01M7 16.5h.01" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></div>
+          <h3 class="text-lg font-bold" data-i18n="feat.9.h">Multi-server views</h3>
+          <p class="text-sm text-muted mt-2" data-i18n="feat.9.p">Add a Tokdash server for each machine in Settings. Any selection of them aggregates into one Overview, one Sessions list, one heatmap.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="max-w-[1180px] mx-auto px-4 sm:px-6"><div class="divider-grad"></div></div>
+
+    <!-- ============ MULTI-SERVER ============ -->
+    <section id="servers" class="max-w-[1180px] mx-auto px-4 sm:px-6 py-14 lg:py-20">
+      <div class="grid lg:grid-cols-2 gap-10 lg:gap-14 items-center">
+        <!-- Copy -->
+        <div class="reveal">
+          <span class="chip" data-i18n="srv.eyebrow"><span class="dot"></span> Multi-server</span>
+          <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight mt-5" data-i18n="srv.h">Every machine you code on, one total</h2>
+          <p class="text-muted mt-3 max-w-md" data-i18n="srv.sub">Add a Tokdash server for your WSL box, your Mac, or a spare machine. Select any combination and every tab follows it, while quota stays grouped by the machine that owns it.</p>
+
+          <ul class="mt-7 space-y-4">
+            <li class="opt-li">
+              <span class="opt-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="6" rx="2" stroke="currentColor" stroke-width="2"/><rect x="3" y="14" width="10" height="6" rx="2" stroke="currentColor" stroke-width="2"/></svg></span>
+              <div><h3 class="font-bold text-[15px]" data-i18n="srv.1.h">Combine or isolate</h3><p class="text-sm text-muted" data-i18n="srv.1.p">Pick all servers or just one. Totals, charts and session lists follow the selection, and it sticks between visits.</p></div>
+            </li>
+            <li class="opt-li">
+              <span class="opt-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>
+              <div><h3 class="font-bold text-[15px]" data-i18n="srv.2.h">Nothing to install to look</h3><p class="text-sm text-muted" data-i18n="srv.2.p">A server is a URL you add in Settings. Each machine keeps its own logs, its own pricing overrides and its own credentials.</p></div>
+            </li>
+            <li class="opt-li">
+              <span class="opt-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><path d="M12 12 16 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>
+              <div><h3 class="font-bold text-[15px]" data-i18n="srv.3.h">Quota stays per machine</h3><p class="text-sm text-muted" data-i18n="srv.3.p">Subscription windows render under the server that owns them, so two machines on one Codex plan never blur into a single bar.</p></div>
+            </li>
+            <li class="opt-li">
+              <span class="opt-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 3 3 7v6c0 4.4 3.6 8 9 8s9-3.6 9-8V7l-9-4z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M12 9v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M12 16h.01" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></span>
+              <div><h3 class="font-bold text-[15px]" data-i18n="srv.4.h">A dead server says so</h3><p class="text-sm text-muted" data-i18n="srv.4.p">An unreachable server is flagged, and the combined total keeps the last good read instead of pretending to be fresh.</p></div>
+            </li>
+          </ul>
+
+          <a href="/demo/" class="btn btn-primary mt-8">
+            <span data-i18n="srv.cta">Open the three-server demo</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+        </div>
+
+        <!-- Fleet mockup (decorative; the live demo renders this for real) -->
+        <div class="reveal preview-wrap">
+          <div class="surface surface-static overflow-hidden" aria-hidden="true">
+            <div class="preview-topbar">
+              <span class="dot-r" style="background:#34D399;"></span>
+              <span class="mono text-xs text-muted ml-2">3 / 3 reachable</span>
+              <span class="ml-auto text-[11px] font-bold px-2.5 py-1 rounded-md" style="background:color-mix(in srgb, var(--color-primary) 12%, transparent); color:var(--color-primary);">Combined 54.8M · $281.56</span>
+            </div>
+            <div class="p-4 sm:p-5">
+              <div class="srv-row">
+                <div class="srv-name">Local<span class="srv-host">this host</span></div>
+                <div class="srv-fig mono">35.9M<span class="cost">$153.61</span></div>
+                <div class="bar srv-bar"><div class="bar-fill" style="width:66%;"></div></div>
+              </div>
+              <div class="srv-row">
+                <div class="srv-name">WSL workstation<span class="srv-host">wsl-desktop.ts.net</span></div>
+                <div class="srv-fig mono">16.7M<span class="cost">$122.29</span></div>
+                <div class="bar srv-bar"><div class="bar-fill" style="width:31%;"></div></div>
+              </div>
+              <div class="srv-row last">
+                <div class="srv-name">Mac Studio<span class="srv-host">mac-studio.ts.net</span></div>
+                <div class="srv-fig mono">2.3M<span class="cost">$5.66</span></div>
+                <div class="bar srv-bar"><div class="bar-fill" style="width:4%;"></div></div>
+              </div>
+
+              <div class="kpi-label mt-5 mb-2">Quota, grouped by machine</div>
+              <div class="srv-chips">
+                <span class="srv-chip">Codex · Pro Lite <b>65.5% left</b><span>Local</span></span>
+                <span class="srv-chip">Claude Code · Pro <b>27.9% left</b><span>Local</span></span>
+                <span class="srv-chip">Codex · Pro Lite <b>28.5% left</b><span>WSL</span></span>
+                <span class="srv-chip">Kimi · Moderato <b>87.5% left</b><span>WSL</span></span>
+                <span class="srv-chip">Claude Code · Max <b>77.6% left</b><span>Studio</span></span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -1026,12 +1125,12 @@
               <div><h3 class="font-bold text-[15px]" data-i18n="opt.2.h">Spot low cache-hit sessions</h3><p class="text-sm text-muted" data-i18n="opt.2.p">A low hit rate means you're re-paying full price for context you could reuse.</p></div>
             </li>
             <li class="opt-li">
-              <span class="opt-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 3v18M7 8l5-5 5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-              <div><h3 class="font-bold text-[15px]" data-i18n="opt.3.h">Flag output-heavy turns</h3><p class="text-sm text-muted" data-i18n="opt.3.p">Output tokens cost ~5–10× input — see which sessions lean on them.</p></div>
+              <span class="opt-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 12h10M4 18h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="19" cy="15" r="3" stroke="currentColor" stroke-width="2"/><path d="m21.4 17.4 1.6 1.6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>
+              <div><h3 class="font-bold text-[15px]" data-i18n="opt.3.h">Follow a session down to the turn</h3><p class="text-sm text-muted" data-i18n="opt.3.p">Turn trends, cache reads and estimated agent time per session — not one blurred daily total.</p></div>
             </li>
             <li class="opt-li">
               <span class="opt-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M16 3h5v5M21 3l-7 7M8 21H3v-5M3 21l7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-              <div><h3 class="font-bold text-[15px]" data-i18n="opt.4.h">Compare models for cheaper swaps</h3><p class="text-sm text-muted" data-i18n="opt.4.p">Find where a lighter model would do the job for a fraction of the cost.</p></div>
+              <div><h3 class="font-bold text-[15px]" data-i18n="opt.4.h">Compare machines side by side</h3><p class="text-sm text-muted" data-i18n="opt.4.p">Tokens, cost and cache-hit rate per Tokdash server, with the combined column beside them.</p></div>
             </li>
           </ul>
 
@@ -1072,12 +1171,12 @@
                 </div>
               </div>
 
-              <div class="savings-box mt-5">
+              <div class="readout-box mt-5">
                 <div class="flex items-start gap-2.5">
-                  <span class="text-base leading-none mt-0.5" aria-hidden="true">💡</span>
+                  <span class="mt-0.5" style="color:var(--color-cost);" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M21 12a9 9 0 1 1-6.2-8.56" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M21 4v5h-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
                   <div>
-                    <div class="text-sm font-bold" data-i18n="opt.card.savings.h">~$31/mo recoverable</div>
-                    <div class="text-xs text-muted mt-0.5" data-i18n="opt.card.savings.p">3 sessions ran under 40% cache-hit — reusing context cuts repeated input cost. Opus drove 58% of spend on 19% of turns.</div>
+                    <div class="text-sm font-bold" data-i18n="opt.card.readout.h">Cache hit 67.4%</div>
+                    <div class="text-xs text-muted mt-0.5" data-i18n="opt.card.readout.p">Two thirds of prompt input came from cache; the rest was paid at full price. Hit % is a sortable Sessions column.</div>
                   </div>
                 </div>
               </div>
@@ -1327,7 +1426,7 @@
         <div class="surface p-6 reveal">
           <div class="feature-icon mb-4"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M10.3 21a2 2 0 0 0 3.4 0" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
           <h3 class="text-lg font-bold" data-i18n="comp.3.h">Alerts you control</h3>
-          <p class="text-sm text-muted mt-2" data-i18n="comp.3.p">Opt-in low-quota notifications with your own thresholds, launch at login, and a System&nbsp;/&nbsp;English&nbsp;/&nbsp;简体中文 UI.</p>
+          <p class="text-sm text-muted mt-2" data-i18n="comp.3.p">Opt-in low-quota notifications with your own thresholds, launch at login, and a UI in System&nbsp;/&nbsp;English&nbsp;/&nbsp;简体中文&nbsp;/&nbsp;日本語&nbsp;/&nbsp;한국어&nbsp;/&nbsp;Español&nbsp;/&nbsp;Português.</p>
         </div>
         <div class="surface p-6 reveal">
           <div class="feature-icon mb-4"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 2 4 6v6c0 5 3.4 8.4 8 10 4.6-1.6 8-5 8-10V6l-8-4z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="m9 12 2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
@@ -1573,9 +1672,9 @@
           'nav.demo': `Demo`,
           'hero.eyebrow': `<span class="dot"></span> Open source · Local-first · MIT`,
           'hero.h1': `Local token & cost dashboard <span class="grad-text">for your AI coding tools</span>`,
-          'hero.sub': `Tokdash reads your CLI logs on your own machine and shows exactly how many tokens you burn — and what they cost — across Codex, Claude Code, OpenCode, Gemini CLI and more. No account, no upload, no telemetry.`,
-          'hero.perf1': `<span class="dot"></span> v0.6.0: 30× faster cold scans`,
-          'hero.perf2': `15× faster than ccusage`,
+          'hero.sub': `Tokdash reads the logs already on your machine and shows exactly how many tokens you burn — and what they cost — across twenty-four coding agents. Add the rest of your machines as servers and read them as one total. No account, no upload, no telemetry.`,
+          'hero.tag1': `<span class="dot"></span> Twenty-four agents, one dashboard`,
+          'hero.tag2': `WSL, macOS and Linux servers, combined`,
           'hero.cta_demo': `View live demo`,
           'trust.local.h': `100% local`,
           'trust.local.p': `Reads logs already on your disk. Nothing is ever uploaded.`,
@@ -1590,22 +1689,36 @@
           'feat.eyebrow': `<span class="dot"></span> Features`,
           'feat.h': `Everything you spend, made visible`,
           'feat.sub': `From raw token counts to real dollars, drilled down to a single session.`,
-          'feat.1.h': `Exact token accounting`,
-          'feat.1.p': `Input, output, and cache tokens broken out per tool, model, and day — no estimates, the real counts from your logs.`,
-          'feat.2.h': `Cost in real money`,
-          'feat.2.p': `A built-in pricing database turns tokens into dollars across providers and models, so you see the bill, not just the volume.`,
+          'feat.1.h': `Exact tokens, billed in real money`,
+          'feat.1.p': `Input, output, and cache tokens per tool, model, and day — the real counts from your logs, turned into dollars by a built-in pricing database.`,
+          'feat.2.h': `Report tab, ready to share`,
+          'feat.2.p': `A week, month, or year-to-date report on a calendar-aligned window — day map, podiums for harness, model and project, hour and weekday rhythm, and PNG share cards.`,
           'feat.3.h': `Contribution heatmap`,
           'feat.3.p': `A GitHub-style calendar of your activity — with a 3D isometric view and an energy estimate to recolor days by kWh.`,
           'feat.4.h': `Session explorer`,
           'feat.4.p': `Drill into any session, grouped by project and across tools, to find exactly what ran up the cost.`,
           'feat.5.h': `Statusline integration`,
           'feat.5.p': `Surface live token and cost indicators right in your shell prompt while you work — no need to switch windows.`,
-          'feat.6.h': `10 themes, light & dark`,
+          'feat.6.h': `17 themes, light & dark`,
           'feat.6.p': `Classic, Midnight, Terminal, Arcade and more — with system-preference detection, custom date ranges, and UI in six languages (English&nbsp;/&nbsp;中文&nbsp;/&nbsp;日本語&nbsp;/&nbsp;한국어&nbsp;/&nbsp;Español&nbsp;/&nbsp;Português).`,
           'feat.7.h': `Managed background service`,
           'feat.7.p': `<code class="mono" style="color:var(--color-primary);">tokdash setup</code> configures a reversible, no-sudo systemd/launchd service in one step — <code class="mono" style="color:var(--color-primary);">doctor</code>, <code class="mono" style="color:var(--color-primary);">update</code>, and <code class="mono" style="color:var(--color-primary);">uninstall</code> keep it healthy and fully removable.`,
           'feat.8.h': `Subscription quota tracking`,
           'feat.8.p': `Monitor remaining Codex, Claude Code, and Antigravity quotas. Track your consumption history, view usage graphs, and set custom update intervals in a single view.`,
+          'feat.9.h': `Multi-server views`,
+          'feat.9.p': `Add a Tokdash server for each machine in Settings. Any selection of them aggregates into one Overview, one Sessions list, one heatmap.`,
+          'srv.eyebrow': `<span class="dot"></span> Multi-server`,
+          'srv.h': `Every machine you code on, one total`,
+          'srv.sub': `Add a Tokdash server for your WSL box, your Mac, or a spare machine. Select any combination and every tab follows it, while quota stays grouped by the machine that owns it.`,
+          'srv.1.h': `Combine or isolate`,
+          'srv.1.p': `Pick all servers or just one. Totals, charts and session lists follow the selection, and it sticks between visits.`,
+          'srv.2.h': `Nothing to install to look`,
+          'srv.2.p': `A server is a URL you add in Settings. Each machine keeps its own logs, its own pricing overrides and its own credentials.`,
+          'srv.3.h': `Quota stays per machine`,
+          'srv.3.p': `Subscription windows render under the server that owns them, so two machines on one Codex plan never blur into a single bar.`,
+          'srv.4.h': `A dead server says so`,
+          'srv.4.p': `An unreachable server is flagged, and the combined total keeps the last good read instead of pretending to be fresh.`,
+          'srv.cta': `Open the three-server demo`,
           'opt.eyebrow': `<span class="dot"></span> Cost optimization`,
           'opt.h': `See where every dollar goes`,
           'opt.sub': `Tokdash breaks spend down to the session, model, and project — so you can find waste and cut it, not just watch the number climb.`,
@@ -1613,14 +1726,14 @@
           'opt.1.p': `Rank exactly what's running up the bill across every tool.`,
           'opt.2.h': `Spot low cache-hit sessions`,
           'opt.2.p': `A low hit rate means you're re-paying full price for context you could reuse.`,
-          'opt.3.h': `Flag output-heavy turns`,
-          'opt.3.p': `Output tokens cost ~5–10× input — see which sessions lean on them.`,
-          'opt.4.h': `Compare models for cheaper swaps`,
-          'opt.4.p': `Find where a lighter model would do the job for a fraction of the cost.`,
+          'opt.3.h': `Follow a session down to the turn`,
+          'opt.3.p': `Turn trends, cache reads and estimated agent time per session — not one blurred daily total.`,
+          'opt.4.h': `Compare machines side by side`,
+          'opt.4.p': `Tokens, cost and cache-hit rate per Tokdash server, with the combined column beside them.`,
           'opt.cta': `Explore it in the live demo`,
           'opt.card.drivers': `Top cost drivers`,
-          'opt.card.savings.h': `~$31/mo recoverable`,
-          'opt.card.savings.p': `3 sessions ran under 40% cache-hit — reusing context cuts repeated input cost. Opus drove 58% of spend on 19% of turns.`,
+          'opt.card.readout.h': `Cache hit 67.4%`,
+          'opt.card.readout.p': `Two thirds of prompt input came from cache; the rest was paid at full price. Hit % is a sortable Sessions column.`,
           'comp.eyebrow': `<span class="dot"></span> Companion app`,
           'comp.h': `Today's spend, one click away in your menu bar`,
           'comp.sub': `Tokdash Companion is a native menu-bar (macOS) and tray (Windows) client for your local Tokdash service. Read-only, privacy-first — no telemetry, and it talks only to the endpoint you configure.`,
@@ -1632,7 +1745,7 @@
           'comp.2.h': `Quota bars with reset countdowns`,
           'comp.2.p': `Per-provider subscription windows show remaining quota and relative reset times — "resets in 19 minutes" — plus your most-used tool today.`,
           'comp.3.h': `Alerts you control`,
-          'comp.3.p': `Opt-in low-quota notifications with your own thresholds, launch at login, and a System&nbsp;/&nbsp;English&nbsp;/&nbsp;简体中文 UI.`,
+          'comp.3.p': `Opt-in low-quota notifications with your own thresholds, launch at login, and a UI in System&nbsp;/&nbsp;English&nbsp;/&nbsp;简体中文&nbsp;/&nbsp;日本語&nbsp;/&nbsp;한국어&nbsp;/&nbsp;Español&nbsp;/&nbsp;Português.`,
           'comp.4.h': `Private by design`,
           'comp.4.p': `No telemetry, nothing uploaded. The app only talks to the Tokdash endpoint you set — usually your own localhost service.`,
           'comp.store': `<a href="https://apps.microsoft.com/detail/9ppnmpdq8b52?mode=direct" target="_blank" rel="noopener" class="ms-badge" aria-label="Get Tokdash Companion from the Microsoft Store"><img class="ms-badge-l" src="https://get.microsoft.com/images/en-us%20dark.svg" alt="Get Tokdash Companion from the Microsoft Store" width="161" height="44" /><img class="ms-badge-d" src="https://get.microsoft.com/images/en-us%20light.svg" alt="Get Tokdash Companion from the Microsoft Store" width="161" height="44" /></a>`,
@@ -1677,9 +1790,9 @@
           'nav.demo': `演示`,
           'hero.eyebrow': `<span class="dot"></span> 开源 · 本地优先 · MIT`,
           'hero.h1': `本地 Token 与成本仪表盘，<span class="grad-text">为你的 AI 编码工具而生</span>`,
-          'hero.sub': `Tokdash 在你自己的机器上读取 CLI 日志，精确显示你消耗了多少 Token、花费多少成本 —— 覆盖 Codex、Claude Code、OpenCode、Gemini CLI 等多种工具。无需账号，不上传，零遥测。`,
-          'hero.perf1': `<span class="dot"></span> v0.6.0：冷启动扫描快 30×`,
-          'hero.perf2': `比 ccusage 快 15×`,
+          'hero.sub': `Tokdash 在你自己的机器上读取日志，精确显示你消耗了多少 Token、花费多少成本 —— 覆盖二十四款 AI 编码工具。把其他机器也添加为服务器，就能合并成一个总量。无需账号，不上传，零遥测。`,
+          'hero.tag1': `<span class="dot"></span> 二十四款工具，一个仪表盘`,
+          'hero.tag2': `WSL、macOS、Linux 服务器合并统计`,
           'hero.cta_demo': `查看在线演示`,
           'trust.local.h': `100% 本地`,
           'trust.local.p': `直接读取你磁盘上已有的日志，任何数据都不会上传。`,
@@ -1694,22 +1807,36 @@
           'feat.eyebrow': `<span class="dot"></span> 功能`,
           'feat.h': `让每一笔花费都看得见`,
           'feat.sub': `从原始 Token 数量到真实金额，细化到每一次会话。`,
-          'feat.1.h': `精确的 Token 统计`,
-          'feat.1.p': `按工具、模型和日期拆分输入、输出与缓存 Token —— 不是估算，而是来自日志的真实数字。`,
-          'feat.2.h': `真实货币成本`,
-          'feat.2.p': `内置价格数据库将 Token 换算成各家提供商与模型的金额，让你看到的是账单，而不只是用量。`,
+          'feat.1.h': `精确 Token，换算成真实金额`,
+          'feat.1.p': `按工具、模型和日期拆分输入、输出与缓存 Token —— 全部来自日志的真实数字，再由内置价格数据库直接换算成金额。`,
+          'feat.2.h': `报告标签页，直接可分享`,
+          'feat.2.p': `按日历对齐的本周 / 本月 / 年初至今报告 —— 每日地图、harness、模型与项目三组榜首、时段与星期节律，还能导出 PNG 分享卡片。`,
           'feat.3.h': `贡献热力图`,
           'feat.3.p': `类似 GitHub 的活动日历 —— 提供 3D 等距视图，并可按估算能耗（kWh）为每天重新着色。`,
           'feat.4.h': `会话浏览器`,
           'feat.4.p': `深入任意会话，按项目与工具分组，精准定位是什么推高了成本。`,
           'feat.5.h': `状态栏集成`,
           'feat.5.p': `在 shell 提示符中实时显示 Token 与成本指标，工作时无需切换窗口。`,
-          'feat.6.h': `10 种主题，明暗随心`,
+          'feat.6.h': `17 种主题，明暗随心`,
           'feat.6.p': `Classic、Midnight、Terminal、Arcade 等多种主题 —— 支持跟随系统、自定义日期范围，以及六种界面语言（English&nbsp;/&nbsp;中文&nbsp;/&nbsp;日本語&nbsp;/&nbsp;한국어&nbsp;/&nbsp;Español&nbsp;/&nbsp;Português）。`,
           'feat.7.h': `托管后台服务`,
           'feat.7.p': `<code class="mono" style="color:var(--color-primary);">tokdash setup</code> 一步配置可逆、无需 sudo 的 systemd/launchd 服务 —— <code class="mono" style="color:var(--color-primary);">doctor</code>、<code class="mono" style="color:var(--color-primary);">update</code>、<code class="mono" style="color:var(--color-primary);">uninstall</code> 让它始终健康且可完全卸载。`,
           'feat.8.h': `订阅配额追踪`,
           'feat.8.p': `监控 Codex、Claude Code 和 Antigravity 的剩余配额。在统一视图中追踪您的额度消耗历史、查看使用趋势图，并自定义更新轮询间隔。`,
+          'feat.9.h': `多服务器视图`,
+          'feat.9.p': `在设置里为每台机器添加一个 Tokdash 服务器。任意勾选几台，Overview、会话列表与热力图就会合并成一份。`,
+          'srv.eyebrow': `<span class="dot"></span> 多服务器`,
+          'srv.h': `你编码的每一台机器，一个总量`,
+          'srv.sub': `为你的 WSL 机器、Mac 或备用机各添加一个 Tokdash 服务器。任意选择几台，所有标签页都会跟随；配额始终按所属机器分组。`,
+          'srv.1.h': `合并或单独查看`,
+          'srv.1.p': `可以全选，也可以只看一台。总量、图表与会话列表都会跟随选择，并且下次访问仍然记住。`,
+          'srv.2.h': `查看端无需安装`,
+          'srv.2.p': `服务器只是设置里的一条 URL。每台机器保留自己的日志、自己的价格覆盖和自己的凭据。`,
+          'srv.3.h': `配额按机器分组`,
+          'srv.3.p': `订阅额度窗口显示在拥有它的服务器下方，同一 Codex 套餐下的两台机器不会糊成一根进度条。`,
+          'srv.4.h': `失联的服务器会自己说清楚`,
+          'srv.4.p': `无法访问的服务器会被标记，合并总量保留上一次的有效读数，而不是假装是最新的。`,
+          'srv.cta': `打开三服务器演示`,
           'opt.eyebrow': `<span class="dot"></span> 成本优化`,
           'opt.h': `看清每一分钱的去向`,
           'opt.sub': `Tokdash 将花费细分到会话、模型和项目 —— 让你发现并削减浪费，而不只是眼看着数字上涨。`,
@@ -1717,14 +1844,14 @@
           'opt.1.p': `精确排出每款工具中究竟是什么在推高账单。`,
           'opt.2.h': `发现缓存命中率低的会话`,
           'opt.2.p': `命中率低，意味着你在为本可复用的上下文重复支付全价。`,
-          'opt.3.h': `标记输出密集的回合`,
-          'opt.3.p': `输出 Token 的成本约为输入的 5–10 倍 —— 看清哪些会话过度依赖输出。`,
-          'opt.4.h': `对比模型，寻找更省的替代`,
-          'opt.4.p': `找出哪些场景换用更轻量的模型即可，以极低成本完成同样的工作。`,
+          'opt.3.h': `下钻到单个回合`,
+          'opt.3.p': `逐回合趋势、缓存读取与估算的 Agent 时长 —— 不是一团每日总量。`,
+          'opt.4.h': `多台机器并排对比`,
+          'opt.4.p': `每台 Tokdash 服务器的 Token、成本与缓存命中率，旁边就是合并列。`,
           'opt.cta': `在在线演示中体验`,
           'opt.card.drivers': `主要成本来源`,
-          'opt.card.savings.h': `每月约可节省 $31`,
-          'opt.card.savings.p': `有 3 个会话的缓存命中率低于 40% —— 复用上下文可削减重复的输入成本。Opus 以 19% 的回合占据了 58% 的花费。`,
+          'opt.card.readout.h': `缓存命中率 67.4%`,
+          'opt.card.readout.p': `三分之二的输入来自缓存，其余按全价支付。命中率是会话表里可排序的一列。`,
           'comp.eyebrow': `<span class="dot"></span> 状态栏`,
           'comp.h': `今日花费，菜单栏里一键可达`,
           'comp.sub': `Tokdash Companion 是本地 Tokdash 服务的原生菜单栏（macOS）/ 托盘（Windows）客户端。只读、隐私优先 —— 零遥测，只与你配置的地址通信。`,
@@ -1736,7 +1863,7 @@
           'comp.2.h': `配额进度条与重置倒计时`,
           'comp.2.p': `按提供商展示各订阅窗口的剩余配额与相对重置时间（如“19 分钟后重置”），并标出今日最常用的工具。`,
           'comp.3.h': `由你掌控的提醒`,
-          'comp.3.p': `可选的低配额通知与自定义阈值，支持开机自启，界面语言可选跟随系统&nbsp;/&nbsp;English&nbsp;/&nbsp;简体中文。`,
+          'comp.3.p': `可选的低配额通知与自定义阈值，支持开机自启，界面语言包括跟随系统&nbsp;/&nbsp;English&nbsp;/&nbsp;简体中文&nbsp;/&nbsp;日本語&nbsp;/&nbsp;한국어&nbsp;/&nbsp;Español&nbsp;/&nbsp;Português。`,
           'comp.4.h': `隐私优先设计`,
           'comp.4.p': `零遥测、零上传。应用只与你设置的 Tokdash 地址通信 —— 通常就是你本机的服务。`,
           'comp.store': `<a href="https://apps.microsoft.com/detail/9ppnmpdq8b52?mode=direct" target="_blank" rel="noopener" class="ms-badge" aria-label="从 Microsoft Store 获取 Tokdash Companion"><img class="ms-badge-l" src="https://get.microsoft.com/images/zh-cn%20dark.svg" alt="从 Microsoft Store 获取 Tokdash Companion" width="161" height="44" /><img class="ms-badge-d" src="https://get.microsoft.com/images/zh-cn%20light.svg" alt="从 Microsoft Store 获取 Tokdash Companion" width="161" height="44" /></a>`,
@@ -1781,9 +1908,9 @@
           'nav.demo': `デモ`,
           'hero.eyebrow': `<span class="dot"></span> オープンソース · ローカルファースト · MIT`,
           'hero.h1': `AI コーディングツール向け <span class="grad-text">ローカル トークン・コスト ダッシュボード</span>`,
-          'hero.sub': `Tokdash はあなたのマシン上の CLI ログを読み取り、Codex、Claude Code、OpenCode、Gemini CLI などのツール全体で、どれだけトークンを消費し、いくらかかったかを正確に表示します。アカウント不要、アップロードなし、テレメトリなし。`,
-          'hero.perf1': `<span class="dot"></span> v0.6.0：コールドスキャンが 30 倍高速に`,
-          'hero.perf2': `ccusage より 15 倍高速`,
+          'hero.sub': `Tokdash はあなたのマシン上のログを読み取り、24 種の AI コーディングツール全体でどれだけトークンを消費し、いくらかかったかを正確に表示します。他のマシンもサーバーとして追加すれば、ひとつの合計値として確認できます。アカウント不要、アップロードなし、テレメトリなし。`,
+          'hero.tag1': `<span class="dot"></span> 24 ツール、ひとつのダッシュボード`,
+          'hero.tag2': `WSL・macOS・Linux サーバーを合算`,
           'hero.cta_demo': `ライブデモを見る`,
           'trust.local.h': `100% ローカル`,
           'trust.local.p': `ディスク上にあるログを読み取るだけ。何もアップロードされません。`,
@@ -1798,22 +1925,36 @@
           'feat.eyebrow': `<span class="dot"></span> 機能`,
           'feat.h': `すべての支出を可視化する`,
           'feat.sub': `生のトークン数から実際の金額まで、1 セッション単位まで掘り下げて確認できます。`,
-          'feat.1.h': `正確なトークン集計`,
-          'feat.1.p': `ツール・モデル・日別で入力・出力・キャッシュ トークンを内訳 —— 推定値ではなく、ログ由来の実数です。`,
-          'feat.2.h': `実額でのコスト`,
-          'feat.2.p': `組み込みの価格データベースが、プロバイダー・モデルごとにトークンを金額へ変換。表示されるのは単なる利用量ではなく請求そのものです。`,
+          'feat.1.h': `実数のトークンを、実額で`,
+          'feat.1.p': `ツール・モデル・日別に入力・出力・キャッシュ トークンを内訳 —— 推定ではなくログ由来の実数を、組み込みの価格データベースで金額へ変換します。`,
+          'feat.2.h': `Report タブ、そのまま共有`,
+          'feat.2.p': `カレンダー基準の今週・今月・年初からのレポート —— デイマップ、ハーネス / モデル / プロジェクトの表彰台、時間帯と曜日のリズム、そして PNG 共有カードまで。`,
           'feat.3.h': `貢献ヒートマップ`,
           'feat.3.p': `GitHub 風のアクティビティカレンダー —— 3D 等角ビューと消費電力推定による kWh 単位のデイ再着色に対応。`,
           'feat.4.h': `セッション エクスプローラー`,
           'feat.4.p': `どのセッションもプロジェクトごと・ツール横断で掘り下がり、コストを押し上げた要因を特定できます。`,
           'feat.5.h': `ステータスライン統合`,
           'feat.5.p': `作業中にシェル プロンプトへトークン・コストのライブ指標を表示 —— ウィンドウの切り替えは不要です。`,
-          'feat.6.h': `10 種類テーマ、ライト & ダーク`,
+          'feat.6.h': `17 種類テーマ、ライト & ダーク`,
           'feat.6.p': `Classic、Midnight、Terminal、Arcade など —— システム設定検出、カスタム日付範囲、6 か国語の UI（English&nbsp;/&nbsp;中文&nbsp;/&nbsp;日本語&nbsp;/&nbsp;한국어&nbsp;/&nbsp;Español&nbsp;/&nbsp;Português）に対応。`,
           'feat.7.h': `管理されるバックグラウンド サービス`,
           'feat.7.p': `<code class="mono" style="color:var(--color-primary);">tokdash setup</code> が 1 ステップで可逆的・sudo 不要の systemd/launchd サービスを設定 —— <code class="mono" style="color:var(--color-primary);">doctor</code>、<code class="mono" style="color:var(--color-primary);">update</code>、<code class="mono" style="color:var(--color-primary);">uninstall</code> で健全さを保ち、完全に削除できます。`,
           'feat.8.h': `サブスクリプション割当の追跡`,
           'feat.8.p': `Codex、Claude Code、Antigravity の残り割当を監視。消費履歴の追跡、利用グラフの表示、更新間隔のカスタマイズをひとつのビューで。`,
+          'feat.9.h': `マルチサーバー表示`,
+          'feat.9.p': `設定でマシンごとに Tokdash サーバーを追加します。選んだサーバーは Overview・セッション一覧・ヒートマップとしてまとめられます。`,
+          'srv.eyebrow': `<span class="dot"></span> マルチサーバー`,
+          'srv.h': `コーディングに使うマシンすべて、ひとつの合計に`,
+          'srv.sub': `WSL マシン、Mac、予備マシンなど用に Tokdash サーバーを追加します。好きに選べば全タブが追随し、割当はマシン単位でグループ化されたままです。`,
+          'srv.1.h': `合算も単独表示も`,
+          'srv.1.p': `全サーバーでも 1 台だけでも選べます。合計・グラフ・セッション一覧が選択に追随し、次回訪問まで記憶されます。`,
+          'srv.2.h': `見る側にインストール不要`,
+          'srv.2.p': `サーバーは設定で追加する URL です。各マシンが自分のログ・自分の価格設定・自分の認証情報を保持したままです。`,
+          'srv.3.h': `割当はマシン単位`,
+          'srv.3.p': `サブスクリプションの窓は所有するサーバーの下に表示されるので、同じ Codex プランの 2 マシンが一つのバーに混ざりません。`,
+          'srv.4.h': `届かないサーバーは正直に表示`,
+          'srv.4.p': `到達できないサーバーは印が付きます。合算値は最後の正常読み取りを保持し、最新であるふりはしません。`,
+          'srv.cta': `3 サーバーのデモを開く`,
           'opt.eyebrow': `<span class="dot"></span> コスト最適化`,
           'opt.h': `使い道がすべて見える`,
           'opt.sub': `Tokdash は支出をセッション・モデル・プロジェクト単位まで分解 —— 浪費を見つけて削減し、数字の上昇を眺めるだけではありません。`,
@@ -1821,14 +1962,14 @@
           'opt.1.p': `すべてのツールで、何が請求を押し上げているかを正確にランキング表示。`,
           'opt.2.h': `キャッシュヒット率が低いセッションを発見`,
           'opt.2.p': `ヒット率が低いということは、再利用できるコンテキストにフルプライスを再支払っていることを意味します。`,
-          'opt.3.h': `出力多めのターンをフラグ`,
-          'opt.3.p': `出力トークンは入力の約 5–10 倍のコスト —— どのセッションがそれに依存しているか確認できます。`,
-          'opt.4.h': `より安い代替モデルを比較`,
-          'opt.4.p': `より軽量なモデルで同じ作業が可能な箇所を見つけ、コストを大きく下げられます。`,
+          'opt.3.h': `セッションをターン単位まで掘る`,
+          'opt.3.p': `セッションごとのターン推移・キャッシュ読み取り・推定エージェント時間。ざらついた日次合計ではありません。`,
+          'opt.4.h': `マシンを並べて比較`,
+          'opt.4.p': `Tokdash サーバーごとのトークン・コスト・キャッシュヒット率を、合算列のすぐ横に。`,
           'opt.cta': `ライブデモで体験する`,
           'opt.card.drivers': `主要コスト要因`,
-          'opt.card.savings.h': `月額約 $31 回収可能`,
-          'opt.card.savings.p': `キャッシュヒット率 40% 未満だったセッションが 3 件 —— コンテキストの再利用で重複入力コストを削減できます。Opus は 19% のターンで 58% の支出を占めました。`,
+          'opt.card.readout.h': `キャッシュヒット率 67.4%`,
+          'opt.card.readout.p': `プロンプト入力の 3 分の 2 はキャッシュ由来です。残り分はフル単価。Hit % は Sessions 表で並べ替えできます。`,
           'comp.eyebrow': `<span class="dot"></span> コンパニオン アプリ`,
           'comp.h': `今日の支出はメニューバーでワンクリック`,
           'comp.sub': `Tokdash Companion はローカル Tokdash サービス用のネイティブ メニューバー（macOS）/ トレイ（Windows）クライアントです。読み取り専用・プライバシー優先 —— テレメトリなし、設定したエンドポイントとのみ通信します。`,
@@ -1840,7 +1981,7 @@
           'comp.2.h': `割当バーとリセットまでのカウントダウン`,
           'comp.2.p': `プロバイダーごとのサブスクリプション ウィンドウで残り割当とリセットまでの相対時間（「19 分後にリセット」など）、さらに本日最もよく使ったツールも表示。`,
           'comp.3.h': `自分自身が制御するアラート`,
-          'comp.3.p': `任意設定の割当不足通知と独自しきい値、ログイン時起動、System&nbsp;/&nbsp;English&nbsp;/&nbsp;简体中文 UI をサポート。`,
+          'comp.3.p': `任意設定の割当不足通知と独自しきい値、ログイン時起動、UI は System&nbsp;/&nbsp;English&nbsp;/&nbsp;简体中文&nbsp;/&nbsp;日本語&nbsp;/&nbsp;한국어&nbsp;/&nbsp;Español&nbsp;/&nbsp;Português。`,
           'comp.4.h': `設計上プライベート`,
           'comp.4.p': `テレメトリなし、何もアップロードしません。アプリが通信するのは設定した Tokdash エンドポイントだけ —— 通常は自分自身のローカルホスト サービスです。`,
           'comp.store': `<a href="https://apps.microsoft.com/detail/9ppnmpdq8b52?mode=direct" target="_blank" rel="noopener" class="ms-badge" aria-label="Microsoft Store から Tokdash Companion を入手"><img class="ms-badge-l" src="https://get.microsoft.com/images/en-us%20dark.svg" alt="Microsoft Store から Tokdash Companion を入手" width="161" height="44" /><img class="ms-badge-d" src="https://get.microsoft.com/images/en-us%20light.svg" alt="Microsoft Store から Tokdash Companion を入手" width="161" height="44" /></a>`,
@@ -1885,9 +2026,9 @@
           'nav.demo': `데모`,
           'hero.eyebrow': `<span class="dot"></span> 오픈소스 · 로컬 우선 · MIT`,
           'hero.h1': `AI 코딩 도구를 위한 <span class="grad-text">로컬 토큰·비용 대시보드</span>`,
-          'hero.sub': `Tokdash는 자체 머신의 CLI 로그를 읽어 Codex, Claude Code, OpenCode, Gemini CLI 등 여러 도구에서 얼마나 많은 토큰을 소모했고 얼마를 지출했는지 정확히 보여줍니다. 계정 없이, 업로드 없이, 텔레메트리 없이.`,
-          'hero.perf1': `<span class="dot"></span> v0.6.0: 콜드 스캔 30배 고속화`,
-          'hero.perf2': `ccusage보다 15배 빠름`,
+          'hero.sub': `Tokdash는 자체 머신의 로그를 읽어 24개 AI 코딩 도구에서 얼마나 많은 토큰을 소모했고 얼마를 지출했는지 정확히 보여줍니다. 나머지 기계도 서버로 추가하면 하나의 합계로 볼 수 있습니다. 계정 없이, 업로드 없이, 텔레메트리 없이.`,
+          'hero.tag1': `<span class="dot"></span> 24개 도구, 하나의 대시보드`,
+          'hero.tag2': `WSL·macOS·Linux 서버 합산`,
           'hero.cta_demo': `라이브 데모 보기`,
           'trust.local.h': `100% 로컬`,
           'trust.local.p': `이미 디스크에 있는 로그를 읽어옵니다. 어떤 데이터도 업로드되지 않습니다.`,
@@ -1902,22 +2043,36 @@
           'feat.eyebrow': `<span class="dot"></span> 기능`,
           'feat.h': `모든 지출, 가시화하다`,
           'feat.sub': `원시 토큰 수에서 실제 금액까지, 단일 세션까지 파고들 수 있습니다.`,
-          'feat.1.h': `정확한 토큰 집계`,
-          'feat.1.p': `도구, 모델, 날짜별 입력/출력/캐시 토큰 내역 — 추정치가 아니라 로그의 실제 숫자입니다.`,
-          'feat.2.h': `실제 화폐 단위 비용`,
-          'feat.2.p': `내장 가격 데이터베이스가 제공자와 모델별로 토큰을 금액으로 환산해 사용량이 아니라 청구서를 보여줍니다.`,
+          'feat.1.h': `정확한 토큰, 실제 금액으로`,
+          'feat.1.p': `도구, 모델, 날짜별 입력/출력/캐시 토큰 내역 — 추정치가 아니라 로그의 실제 숫자를 내장 가격 데이터베이스가 그대로 달러로 환산합니다.`,
+          'feat.2.h': `Report 탭, 바로 공유하기`,
+          'feat.2.p': `달력 기준으로 맞춘 이번 주 / 이번 달 / 연초부터의 보고서 — 날짜 지도, 하네스·모델·프로젝트 순위, 시간·요일 리듬, 그리고 PNG 공유 카드까지.`,
           'feat.3.h': `기여 히트맵`,
           'feat.3.p': `GitHub 스타일 활동 캘린더 — 3D 등각 뷰와 소비 전력 추정(kWh) 기반의 날짜 재색상 지원.`,
           'feat.4.h': `세션 탐색기`,
           'feat.4.p': `어떤 세션이든 프로젝트별·도구 횡단으로 파고들어 비용을 올린 원인을 정확히 찾습니다.`,
           'feat.5.h': `스테이터스라인 통합`,
           'feat.5.p': `작업 중인 shell 프롬프트에 실시간 토큰·비용 지표를 표시 — 윈도우 전환 불필요.`,
-          'feat.6.h': `10개 테마, 라이트 & 다크`,
+          'feat.6.h': `17개 테마, 라이트 & 다크`,
           'feat.6.p': `Classic, Midnight, Terminal, Arcade 등 — 시스템 설정 감지, 사용자 정의 날짜 범위, 6개 언어 UI(English&nbsp;/&nbsp;中文&nbsp;/&nbsp;日本語&nbsp;/&nbsp;한국어&nbsp;/&nbsp;Español&nbsp;/&nbsp;Português) 지원.`,
           'feat.7.h': `관리되는 백그라운드 서비스`,
           'feat.7.p': `<code class="mono" style="color:var(--color-primary);">tokdash setup</code>이 한 단계로 되돌릴 수 있고 sudo가 필요 없는 systemd/launchd 서비스를 구성 — <code class="mono" style="color:var(--color-primary);">doctor</code>, <code class="mono" style="color:var(--color-primary);">update</code>, <code class="mono" style="color:var(--color-primary);">uninstall</code>로 건강 상태를 유지하고 완전히 제거할 수 있습니다.`,
           'feat.8.h': `구독 쿼터 추적`,
           'feat.8.p': `Codex, Claude Code, Antigravity의 잔여 쿼터를 모니터링합니다. 소비 기록 추적, 사용 그래프 보기, 업데이트 간격 사용자 정의를 한 화면에서.`,
+          'feat.9.h': `다중 서버 보기`,
+          'feat.9.p': `설정에서 각 기기에 Tokdash 서버를 추가합니다. 고른 서버는 개요, 세션 목록, 히트맵 하나로 합쳐집니다.`,
+          'srv.eyebrow': `<span class="dot"></span> 다중 서버`,
+          'srv.h': `코딩하는 모든 기계, 하나의 합계`,
+          'srv.sub': `WSL 기기, Mac, 여유 기기마다 Tokdash 서버를 추가하세요. 조합을 고르면 모든 탭이 따라가고, 쿼터는 기별로 묶여 남습니다.`,
+          'srv.1.h': `합치거나 따로 보거나`,
+          'srv.1.p': `모든 서버 또는 하나만 고릅니다. 합계, 차트, 세션 목록이 선택을 따라다니며 다음 방문까지 기억합니다.`,
+          'srv.2.h': `보는 쪽은 설치 불필요`,
+          'srv.2.p': `서버는 설정에 추가하는 URL입니다. 각 기기는 자기 로그, 자기 가격 설정, 자기 자격 증명을 그대로 지킵니다.`,
+          'srv.3.h': `쿼터는 기기별 유지`,
+          'srv.3.p': `구독 창은 소유한 서버 아래에 그려지므로, 같은 Codex 플랜의 두 기기가 하나의 막대로 섞이지 않습니다.`,
+          'srv.4.h': `연결 안 되는 서버는 표시`,
+          'srv.4.p': `도달할 수 없는 서버는 표시되고, 합계는 마지막 정상 값을 유지하며 최신인 척하지 않습니다.`,
+          'srv.cta': `3개 서버 데모 열기`,
           'opt.eyebrow': `<span class="dot"></span> 비용 최적화`,
           'opt.h': `모든 돈의 소지가 보이도록`,
           'opt.sub': `Tokdash는 지출을 세션, 모델, 프로젝트로 분해합니다 — 낭비를 찾아 덜지, 숫자만 올라가는 것을 바라보기만 하지 않습니다.`,
@@ -1925,14 +2080,14 @@
           'opt.1.p': `모든 도구에서 청구서를 올리는 항목을 정확히 순위대로 보여줍니다.`,
           'opt.2.h': `캐시 적중률이 낮은 세션 발견`,
           'opt.2.p': `적중률이 낮다는 것은 재사용할 수 있는 컨텍스트에 전액을 반복 지불하고 있다는 뜻입니다.`,
-          'opt.3.h': `출력 비중이 큰 턴 강조`,
-          'opt.3.p': `출력 토큰은 입력보다 약 5–10배 비쌉니다 — 어떤 세션이 출력에 의존하는지 확인하세요.`,
-          'opt.4.h': `더 저렴한 대체 모델 비교`,
-          'opt.4.p': `더 가벼운 모델로도 동일한 일을 처리할 수 있는 곳을 찾아 비용을 크게 줄이세요.`,
+          'opt.3.h': `세션을 턴까지 확장`,
+          'opt.3.p': `세션별 턴 추이, 캐시 읽기, 추정 에이전트 시간 — 뭉개진 일일 합계가 아닙니다.`,
+          'opt.4.h': `기계를 나란히 비교`,
+          'opt.4.p': `Tokdash 서버별 토큰, 비용, 캐시 적중률 — 바로 옆에 합산 열까지.`,
           'opt.cta': `라이브 데모에서 체험하기`,
           'opt.card.drivers': `주요 비용 요인`,
-          'opt.card.savings.h': `월 약 $31 절약 가능`,
-          'opt.card.savings.p': `캐시 적중률 40% 미만인 세션이 3개 — 컨텍스트 재사용으로 반복 입력 비용을 줄일 수 있습니다. Opus는 19%의 턴에서 58%의 지출을 차지했습니다.`,
+          'opt.card.readout.h': `캐시 적중률 67.4%`,
+          'opt.card.readout.p': `프롬프트 입력의 3분의 2가 캐시에서 나왔고 나머지는 제값을 냈습니다. Hit %는 Sessions 표에서 정렬됩니다.`,
           'comp.eyebrow': `<span class="dot"></span> 컴패니언 앱`,
           'comp.h': `오늘의 지출, 메뉴바에서 클릭 한 번`,
           'comp.sub': `Tokdash Companion은 로컬 Tokdash 서비스를 위한 네이티브 메뉴바(macOS)/트레이(Windows) 클라이언트입니다. 읽기 전용, 프라이버시 우선 — 텔레메트리 없이 사용자가 구성한 엔드포인트와만 통신합니다.`,
@@ -1944,7 +2099,7 @@
           'comp.2.h': `쿼터 바와 리셋 카운트다운`,
           'comp.2.p': `제공자별 구독 윈도우의 잔여 쿼터와 상대 리셋 시간(예: "19분 후 리셋")을 표시하고, 오늘 가장 많이 사용한 도구도 함께 보여줍니다.`,
           'comp.3.h': `내가 조절하는 알림`,
-          'comp.3.p': `선택 기반 저쿼터 알림과 자체 임계값, 로그인 시 시작, System&nbsp;/&nbsp;English&nbsp;/&nbsp;简体中文 UI 지원.`,
+          'comp.3.p': `선택 기반 저쿼터 알림과 자체 임계값, 로그인 시 시작, UI는 System&nbsp;/&nbsp;English&nbsp;/&nbsp;简体中文&nbsp;/&nbsp;日本語&nbsp;/&nbsp;한국어&nbsp;/&nbsp;Español&nbsp;/&nbsp;Português.`,
           'comp.4.h': `설계부터 프라이빗`,
           'comp.4.p': `텔레메트리 없이, 업로드하지 않습니다. 앱은 사용자가 설정한 Tokdash 엔드포인트와만 통신합니다 — 보통 자신의 로컬호스트 서비스입니다.`,
           'comp.store': `<a href="https://apps.microsoft.com/detail/9ppnmpdq8b52?mode=direct" target="_blank" rel="noopener" class="ms-badge" aria-label="Microsoft Store에서 Tokdash Companion 받아보기"><img class="ms-badge-l" src="https://get.microsoft.com/images/en-us%20dark.svg" alt="Microsoft Store에서 Tokdash Companion 받아보기" width="161" height="44" /><img class="ms-badge-d" src="https://get.microsoft.com/images/en-us%20light.svg" alt="Microsoft Store에서 Tokdash Companion 받아보기" width="161" height="44" /></a>`,
@@ -1989,9 +2144,9 @@
           'nav.demo': `Demo`,
           'hero.eyebrow': `<span class="dot"></span> Código abierto · Local-first · MIT`,
           'hero.h1': `Dashboard local de tokens y costos <span class="grad-text">para tus herramientas de IA</span>`,
-          'hero.sub': `Tokdash lee tus logs de CLI en tu propia máquina y muestra exactamente cuántos tokens consumes — y cuánto cuestan — en Codex, Claude Code, OpenCode, Gemini CLI y más. Sin cuenta, sin subida, sin telemetría.`,
-          'hero.perf1': `<span class="dot"></span> v0.6.0: escaneos en frío 30× más rápidos`,
-          'hero.perf2': `15× más rápido que ccusage`,
+          'hero.sub': `Tokdash lee los registros que ya están en tu máquina y muestra exactamente cuántos tokens consumes — y cuánto cuestan — en veinticuatro agentes de codificación. Añade el resto de tus máquinas como servidores y léelos como un solo total. Sin cuenta, sin subida, sin telemetría.`,
+          'hero.tag1': `<span class="dot"></span> Veinticuatro agentes, un panel`,
+          'hero.tag2': `Servidores WSL, macOS y Linux combinados`,
           'hero.cta_demo': `Ver demo en vivo`,
           'trust.local.h': `100% local`,
           'trust.local.p': `Lee los logs que ya están en tu disco. Nunca se sube nada.`,
@@ -2006,22 +2161,36 @@
           'feat.eyebrow': `<span class="dot"></span> Funciones`,
           'feat.h': `Todo lo que gastas, a la vista`,
           'feat.sub': `De los conteos de tokens en bruto al dinero real, hasta una sola sesión.`,
-          'feat.1.h': `Conteo exacto de tokens`,
-          'feat.1.p': `Tokens de entrada, salida y caché desglosados por herramienta, modelo y día — sin estimaciones, los números reales de tus logs.`,
-          'feat.2.h': `Costo en dinero real`,
-          'feat.2.p': `Una base de datos de precios integrada convierte tokens en dólares entre proveedores y modelos: ves la factura, no solo el volumen.`,
+          'feat.1.h': `Tokens exactos, en dinero real`,
+          'feat.1.p': `Tokens de entrada, salida y caché por herramienta, modelo y día — los números reales de tus logs, convertidos en dólares por una base de precios integrada.`,
+          'feat.2.h': `Pestaña Report lista para compartir`,
+          'feat.2.p': `Un informe de semana, mes o año en curso alineado al calendario — mapa de días, podios de entorno, modelo y proyecto, ritmo por hora y día, y tarjetas PNG.`,
           'feat.3.h': `Mapa de calor de contribuciones`,
           'feat.3.p': `Un calendario de actividad al estilo GitHub — con vista isométrica 3D y una estimación de energía para recolorear los días por kWh.`,
           'feat.4.h': `Explorador de sesiones`,
           'feat.4.p': `Entra en cualquier sesión, agrupada por proyecto y entre herramientas, para encontrar exactamente qué disparó el costo.`,
           'feat.5.h': `Integración con la statusline`,
           'feat.5.p': `Muestra indicadores en vivo de tokens y costos justo en el prompt de tu shell mientras trabajas — sin cambiar de ventana.`,
-          'feat.6.h': `10 temas, claro y oscuro`,
+          'feat.6.h': `17 temas, claro y oscuro`,
           'feat.6.p': `Classic, Midnight, Terminal, Arcade y más — con detección de preferencias del sistema, rangos de fecha personalizados y UI en seis idiomas (English&nbsp;/&nbsp;中文&nbsp;/&nbsp;日本語&nbsp;/&nbsp;한국어&nbsp;/&nbsp;Español&nbsp;/&nbsp;Português).`,
           'feat.7.h': `Servicio en segundo plano gestionado`,
           'feat.7.p': `<code class="mono" style="color:var(--color-primary);">tokdash setup</code> configura un servicio systemd/launchd reversible y sin sudo en un paso — <code class="mono" style="color:var(--color-primary);">doctor</code>, <code class="mono" style="color:var(--color-primary);">update</code> y <code class="mono" style="color:var(--color-primary);">uninstall</code> lo mantienen sano y completamente desinstalable.`,
           'feat.8.h': `Seguimiento de cuotas de suscripción`,
           'feat.8.p': `Supervisa las cuotas restantes de Codex, Claude Code y Antigravity. Haz seguimiento de tu historial de consumo, mira gráficas de uso y define intervalos de actualización personalizados en una sola vista.`,
+          'feat.9.h': `Vistas multi-servidor`,
+          'feat.9.p': `Añade un servidor Tokdash por máquina en Ajustes. La selección que hagas se agrega en un Overview, una lista de sesiones y un mapa de calor.`,
+          'srv.eyebrow': `<span class="dot"></span> Multi-servidor`,
+          'srv.h': `Todas tus máquinas, un solo total`,
+          'srv.sub': `Añade un servidor Tokdash para tu máquina WSL, tu Mac o un equipo sobrante. Elige cualquier combinación y todas las vistas la siguen, mientras las cuotas se mantienen agrupadas por máquina.`,
+          'srv.1.h': `Combina o aísla`,
+          'srv.1.p': `Todos los servidores o uno solo. Totales, gráficas y listas de sesiones siguen la selección, y la elección queda guardada.`,
+          'srv.2.h': `Nada que instalar para mirar`,
+          'srv.2.p': `Un servidor es una URL que añades en Ajustes. Cada máquina conserva sus registros, sus precios y sus credenciales.`,
+          'srv.3.h': `La cuota sigue por máquina`,
+          'srv.3.p': `Las ventanas de suscripción se dibujan bajo el servidor dueño, así dos máquinas con un mismo plan Codex no se funden en una sola barra.`,
+          'srv.4.h': `Un servidor caído lo dice`,
+          'srv.4.p': `Un servidor inalcanzable queda marcado, y el total combinado conserva la última lectura válida en vez de fingir ser fresca.`,
+          'srv.cta': `Abre la demo de tres servidores`,
           'opt.eyebrow': `<span class="dot"></span> Optimización de costos`,
           'opt.h': `Mira a dónde va cada dólar`,
           'opt.sub': `Tokdash descompone el gasto hasta la sesión, el modelo y el proyecto — para que encuentres el desperdicio y lo recortes, no solo mires subir el número.`,
@@ -2029,14 +2198,14 @@
           'opt.1.p': `Ordena exactamente qué está disparando la factura en cada herramienta.`,
           'opt.2.h': `Detecta sesiones con poca caché`,
           'opt.2.p': `Una tasa de acierto baja significa que vuelves a pagar el precio completo por contexto que podrías reutilizar.`,
-          'opt.3.h': `Marca turnos con mucha salida`,
-          'opt.3.p': `Los tokens de salida cuestan ~5–10× la entrada — mira en qué sesiones pesan más.`,
-          'opt.4.h': `Compara modelos para cambios más baratos`,
-          'opt.4.p': `Encuentra dónde un modelo más ligero haría el trabajo por una fracción del costo.`,
+          'opt.3.h': `Baja de la sesión al turno`,
+          'opt.3.p': `Tendencia de turnos, lecturas de caché y tiempo de agente estimado por sesión, no un borrón diario.`,
+          'opt.4.h': `Compara máquinas lado a lado`,
+          'opt.4.p': `Tokens, costo y tasa de acierto de caché por servidor Tokdash, con la columna combinada al lado.`,
           'opt.cta': `Explóralo en la demo en vivo`,
           'opt.card.drivers': `Principales causas de gasto`,
-          'opt.card.savings.h': `~$31/mes recuperables`,
-          'opt.card.savings.p': `3 sesiones quedaron por debajo del 40% de caché — reutilizar contexto reduce el costo de entrada repetido. Opus concentró el 58% del gasto en el 19% de los turnos.`,
+          'opt.card.readout.h': `Acierto de caché 67,4 %`,
+          'opt.card.readout.p': `Dos terceras partes de la entrada salieron del caché; el resto se pagó a precio completo. Hit % es una columna ordenable de Sesiones.`,
           'comp.eyebrow': `<span class="dot"></span> App Companion`,
           'comp.h': `El gasto de hoy, a un clic en tu barra de menús`,
           'comp.sub': `Tokdash Companion es un cliente nativo de barra de menús (macOS) y bandeja (Windows) para tu servicio local de Tokdash. Solo lectura, privacidad primero — sin telemetría, y solo habla con el endpoint que configures.`,
@@ -2048,7 +2217,7 @@
           'comp.2.h': `Barras de cuota con cuenta regresiva de reinicio`,
           'comp.2.p': `Las ventanas de suscripción por proveedor muestran la cuota restante y los tiempos relativos de reinicio — "se reinicia en 19 minutos" — además de tu herramienta más usada hoy.`,
           'comp.3.h': `Alertas que controlas tú`,
-          'comp.3.p': `Notificaciones opcionales de cuota baja con tus propios umbrales, inicio con el sistema y una UI de System&nbsp;/&nbsp;English&nbsp;/&nbsp;简体中文.`,
+          'comp.3.p': `Notificaciones opcionales de cuota baja con tus umbrales, inicio con el sistema y una UI en System&nbsp;/&nbsp;English&nbsp;/&nbsp;简体中文&nbsp;/&nbsp;日本語&nbsp;/&nbsp;한국어&nbsp;/&nbsp;Español&nbsp;/&nbsp;Português.`,
           'comp.4.h': `Privado por diseño`,
           'comp.4.p': `Sin telemetría, nada se sube. La app solo habla con el endpoint de Tokdash que defines — normalmente tu propio servicio local.`,
           'comp.store': `<a href="https://apps.microsoft.com/detail/9ppnmpdq8b52?mode=direct" target="_blank" rel="noopener" class="ms-badge" aria-label="Obtener Tokdash Companion desde Microsoft Store"><img class="ms-badge-l" src="https://get.microsoft.com/images/en-us%20dark.svg" alt="Obtener Tokdash Companion desde Microsoft Store" width="161" height="44" /><img class="ms-badge-d" src="https://get.microsoft.com/images/en-us%20light.svg" alt="Obtener Tokdash Companion desde Microsoft Store" width="161" height="44" /></a>`,
@@ -2093,9 +2262,9 @@
           'nav.demo': `Demo`,
           'hero.eyebrow': `<span class="dot"></span> Código aberto · Local-first · MIT`,
           'hero.h1': `Dashboard local de tokens e custos <span class="grad-text">para suas ferramentas de IA</span>`,
-          'hero.sub': `O Tokdash lê seus logs de CLI na sua própria máquina e mostra exatamente quantos tokens você queima — e quanto eles custam — no Codex, Claude Code, OpenCode, Gemini CLI e outros. Sem conta, sem upload, sem telemetria.`,
-          'hero.perf1': `<span class="dot"></span> v0.6.0: varreduras frias 30× mais rápidas`,
-          'hero.perf2': `15× mais rápido que o ccusage`,
+          'hero.sub': `O Tokdash lê os logs que já estão na sua máquina e mostra exatamente quantos tokens você queima — e quanto eles custam — em vinte e quatro agentes de codificação. Adicione as outras máquinas como servidores e veja tudo como um único total. Sem conta, sem upload, sem telemetria.`,
+          'hero.tag1': `<span class="dot"></span> Vinte e quatro agentes, um painel`,
+          'hero.tag2': `Servidores WSL, macOS e Linux combinados`,
           'hero.cta_demo': `Ver demo ao vivo`,
           'trust.local.h': `100% local`,
           'trust.local.p': `Lê logs que já estão no seu disco. Nada é enviado para fora.`,
@@ -2110,22 +2279,36 @@
           'feat.eyebrow': `<span class="dot"></span> Recursos`,
           'feat.h': `Tudo o que você gasta, visível`,
           'feat.sub': `Das contagens brutas de tokens ao dinheiro real, até uma única sessão.`,
-          'feat.1.h': `Contagem exata de tokens`,
-          'feat.1.p': `Tokens de entrada, saída e cache detalhados por ferramenta, modelo e dia — sem estimativas, os números reais dos seus logs.`,
-          'feat.2.h': `Custo em dinheiro de verdade`,
-          'feat.2.p': `Um banco de preços embutido converte tokens em dólares entre provedores e modelos — você vê a fatura, não só o volume.`,
+          'feat.1.h': `Tokens exatos, em dinheiro real`,
+          'feat.1.p': `Tokens de entrada, saída e cache por ferramenta, modelo e dia — os números reais dos seus logs, convertidos em dólares por um banco de preços embutido.`,
+          'feat.2.h': `Aba Report pronta para compartilhar`,
+          'feat.2.p': `Um relatório de semana, mês ou ano corrente alinhado ao calendário — mapa de dias, pódios de ambiente, modelo e projeto, ritmo por hora e dia, e cartões PNG.`,
           'feat.3.h': `Mapa de calor de contribuições`,
           'feat.3.p': `Um calendário de atividade estilo GitHub — com vista isométrica 3D e uma estimativa de energia para recolorir os dias por kWh.`,
           'feat.4.h': `Explorador de sessões`,
           'feat.4.p': `Abra qualquer sessão, agrupada por projeto e entre ferramentas, para encontrar exatamente o que elevou o custo.`,
           'feat.5.h': `Integração com a statusline`,
           'feat.5.p': `Mostre indicadores ao vivo de tokens e custos direto no prompt do seu shell enquanto você trabalha — sem trocar de janela.`,
-          'feat.6.h': `10 temas, claro e escuro`,
+          'feat.6.h': `17 temas, claro e escuro`,
           'feat.6.p': `Classic, Midnight, Terminal, Arcade e mais — com detecção de preferências do sistema, intervalos de data personalizados e UI em seis idiomas (English&nbsp;/&nbsp;中文&nbsp;/&nbsp;日本語&nbsp;/&nbsp;한국어&nbsp;/&nbsp;Español&nbsp;/&nbsp;Português).`,
           'feat.7.h': `Serviço em segundo plano gerenciado`,
           'feat.7.p': `<code class="mono" style="color:var(--color-primary);">tokdash setup</code> configura um serviço systemd/launchd reversível e sem sudo em um passo — <code class="mono" style="color:var(--color-primary);">doctor</code>, <code class="mono" style="color:var(--color-primary);">update</code> e <code class="mono" style="color:var(--color-primary);">uninstall</code> mantêm tudo saudável e totalmente removível.`,
           'feat.8.h': `Acompanhamento de cota de assinatura`,
           'feat.8.p': `Monitore as cotas restantes do Codex, Claude Code e Antigravity. Acompanhe seu histórico de consumo, veja gráficos de uso e defina intervalos de atualização personalizados em uma única tela.`,
+          'feat.9.h': `Visões multi-servidor`,
+          'feat.9.p': `Adicione um servidor Tokdash por máquina em Configurações. A seleção que você fizer se agrega em um Overview, uma lista de sessões e um mapa de calor.`,
+          'srv.eyebrow': `<span class="dot"></span> Multi-servidor`,
+          'srv.h': `Todas as suas máquinas, um total só`,
+          'srv.sub': `Adicione um servidor Tokdash para sua máquina WSL, seu Mac ou uma máquina reserva. Escolha qualquer combinação e todas as abas acompanham, enquanto as cotas continuam agrupadas por máquina.`,
+          'srv.1.h': `Combine ou isole`,
+          'srv.1.p': `Todos os servidores ou só um. Totais, gráficos e listas de sessões seguem a seleção, e ela continua na próxima visita.`,
+          'srv.2.h': `Nada a instalar para olhar`,
+          'srv.2.p': `Um servidor é uma URL que você adiciona em Configurações. Cada máquina mantém seus próprios logs, seus próprios preços e suas próprias credenciais.`,
+          'srv.3.h': `A cota fica por máquina`,
+          'srv.3.p': `As janelas de assinatura aparecem sob o servidor dono delas, então duas máquinas no mesmo plano Codex nunca viram uma barra só.`,
+          'srv.4.h': `Servidor fora do ar avisa`,
+          'srv.4.p': `Um servidor inalcançável é marcado, e o total combinado guarda a última leitura válida em vez de fingir ser nova.`,
+          'srv.cta': `Abra o demo com três servidores`,
           'opt.eyebrow': `<span class="dot"></span> Otimização de custos`,
           'opt.h': `Veja para onde vai cada dólar`,
           'opt.sub': `O Tokdash detalha o gasto até a sessão, o modelo e o projeto — para você encontrar desperdício e cortá-lo, não apenas ver o número subir.`,
@@ -2133,14 +2316,14 @@
           'opt.1.p': `Classifique exatamente o que está elevando a fatura em cada ferramenta.`,
           'opt.2.h': `Encontre sessões com cache baixo`,
           'opt.2.p': `Taxa de acerto baixa significa que você está pagando o preço cheio de novo por contexto que poderia reutilizar.`,
-          'opt.3.h': `Marque turnos com saída pesada`,
-          'opt.3.p': `Tokens de saída custam ~5–10× mais que os de entrada — veja em quais sessões eles pesam.`,
-          'opt.4.h': `Compare modelos para trocas mais baratas`,
-          'opt.4.p': `Encontre onde um modelo mais leve faria o trabalho por uma fração do custo.`,
+          'opt.3.h': `Desça da sessão ao turno`,
+          'opt.3.p': `Tendência de turnos, leituras de cache e tempo estimado do agente por sessão — não um total diário embaralhado.`,
+          'opt.4.h': `Compare máquinas lado a lado`,
+          'opt.4.p': `Tokens, custo e taxa de acerto de cache por servidor Tokdash, com a coluna combinada ao lado.`,
           'opt.cta': `Explore na demo ao vivo`,
           'opt.card.drivers': `Principais causas de custo`,
-          'opt.card.savings.h': `~$31/mês recuperáveis`,
-          'opt.card.savings.p': `3 sessões ficaram abaixo de 40% de acerto no cache — reutilizar contexto corta o custo de entrada repetido. O Opus representou 58% do gasto em 19% dos turnos.`,
+          'opt.card.readout.h': `Acerto de cache 67,4%`,
+          'opt.card.readout.p': `Dois terços da entrada vieram do cache; o resto foi pago a preço cheio. Hit % é uma coluna ordenável de Sessões.`,
           'comp.eyebrow': `<span class="dot"></span> App Companion`,
           'comp.h': `O gasto de hoje, a um clique na barra de menus`,
           'comp.sub': `O Tokdash Companion é um cliente nativo de barra de menus (macOS) e bandeja (Windows) para o seu serviço local do Tokdash. Somente leitura, privacidade em primeiro lugar — sem telemetria, e ele só fala com o endpoint que você configurar.`,
@@ -2152,7 +2335,7 @@
           'comp.2.h': `Barras de cota com contagem regressiva`,
           'comp.2.p': `As janelas de assinatura por provedor mostram a cota restante e os tempos relativos de reset — "reseta em 19 minutos" — além da sua ferramenta mais usada hoje.`,
           'comp.3.h': `Alertas que você controla`,
-          'comp.3.p': `Notificações opcionais de cota baixa com seus próprios limiares, inicialização no login e uma UI de System&nbsp;/&nbsp;English&nbsp;/&nbsp;简体中文.`,
+          'comp.3.p': `Notificações opcionais de cota baixa com seus próprios limiares, inicialização no login e UI em System&nbsp;/&nbsp;English&nbsp;/&nbsp;简体中文&nbsp;/&nbsp;日本語&nbsp;/&nbsp;한국어&nbsp;/&nbsp;Español&nbsp;/&nbsp;Português.`,
           'comp.4.h': `Privado por design`,
           'comp.4.p': `Sem telemetria, nada é enviado. O app só fala com o endpoint do Tokdash que você definir — normalmente o seu próprio serviço local.`,
           'comp.store': `<a href="https://apps.microsoft.com/detail/9ppnmpdq8b52?mode=direct" target="_blank" rel="noopener" class="ms-badge" aria-label="Obter o Tokdash Companion da Microsoft Store"><img class="ms-badge-l" src="https://get.microsoft.com/images/en-us%20dark.svg" alt="Obter o Tokdash Companion da Microsoft Store" width="161" height="44" /><img class="ms-badge-d" src="https://get.microsoft.com/images/en-us%20light.svg" alt="Obter o Tokdash Companion da Microsoft Store" width="161" height="44" /></a>`,
