@@ -451,7 +451,21 @@
 
   // Anchor the synthetic timeline at "today" (so the demo always shows fresh data).
   const NOW = startOfDay(new Date()).getTime() + 18 * 3600 * 1000; // ~6pm "now"
-  const HISTORY_DAYS = 120;
+  // History runs from 1 January of the previous year, because the dashboard can ask
+  // for all of it: the quick ranges include This Year (Jan 1 -> today) and Last Year
+  // (a whole calendar year), and the Stats heatmap pages between years. A fixed
+  // 120-day lookback left every one of those views staring at an empty year.
+  const TODAY_MS = startOfDay(NOW).getTime();
+  const HISTORY_START = startOfDay(new Date(new Date(NOW).getFullYear() - 1, 0, 1)).getTime();
+  const HISTORY_DAYS = Math.round((TODAY_MS - HISTORY_START) / MS_DAY) + 1;
+  // Full heavy-user volume covers only the recent window. Earlier days carry less
+  // volume and shorter sessions on purpose: the demo builds its dataset in the
+  // browser on every page load, and ~two years of full-detail turns costs the
+  // visitor several hundred MB to draw months nobody inspects closely. The ramp
+  // below meets the recent envelope exactly at the seam, so there is no visible step.
+  const RECENT_DAYS = 120;
+  const PRIOR_VOLUME_FLOOR = 0.1; // oldest day, as a fraction of the seam's volume
+  const PRIOR_TURN_MEAN = 55;     // recent window runs 170 turns per session
 
   // ---------- Synthetic dataset ----------
   // One pass: build per-tool sessions, each with a list of timestamped turns.
@@ -462,14 +476,16 @@
   // the request was addressed to one of the demo's remote fleet URLs.
   let sessions = allSessions;
 
-  function makeSession(toolSpec, dayMs) {
+  function makeSession(toolSpec, dayMs, turnMean) {
     const startMs = dayMs + randInt(8, 22) * 3600 * 1000 + randInt(0, 59) * 60 * 1000;
     // Turns == messages == token_events. The demo targets a heavy power-user profile
     // (~100x the original volume), so the scale-up lives here in the turn count (each
     // turn keeps a realistic, noisy per-message token size) rather than in the per-turn
     // token amounts — that keeps total tokens AND total messages both ~100x with a
     // sane tokens-per-message ratio. Session count is also raised (see buildHistory).
-    const turnCount = Math.max(1, Math.round(gauss(170, 105)));
+    // Omitting turnMean keeps the original 170/105 distribution untouched.
+    const mean = turnMean || 170;
+    const turnCount = Math.max(1, Math.round(gauss(mean, mean * 0.6176)));
     const session_id = randomIdPart(16);
     const project = pick(PROJECTS);
     const task = `${pick(SESSION_ACTIONS)} ${pick(SESSION_AREAS)}`;
@@ -515,7 +531,15 @@
       // Activity envelope: weekday > weekend, recent days a touch heavier.
       const dow = new Date(dayMs).getDay();
       const weekend = dow === 0 || dow === 6 ? 0.55 : 1.0;
-      const recency = 0.7 + 0.6 * (1 - d / HISTORY_DAYS);
+      const recent = d < RECENT_DAYS;
+      // The recent window keeps the original envelope untouched, so the figures the
+      // smoke tests pin do not move. Before it, volume ramps down to
+      // PRIOR_VOLUME_FLOOR at the oldest day, reaching 0.7 exactly at the seam where
+      // the recent formula already sits.
+      const over = Math.min(1, (d - RECENT_DAYS) / Math.max(1, HISTORY_DAYS - 1 - RECENT_DAYS));
+      const recency = recent
+        ? 0.7 + 0.6 * (1 - d / RECENT_DAYS)
+        : 0.7 - (0.7 - PRIOR_VOLUME_FLOOR) * over;
       // Skip ~12% of days entirely (vacation / quiet days) — but never skip
       // "today" so the default Today view always shows every agent.
       if (d > 0 && rand() < 0.12 * (dow === 0 ? 1.6 : 1)) continue;
@@ -523,9 +547,14 @@
         const expected = tool.weight * 54.0 * weekend * recency; // sessions per tool per day (heavy-user demo profile)
         // Floor at 1 so every agent renders on every active day — the demo's
         // purpose is to showcase all supported tools, not to vary which ones
-        // are visible from day to day.
-        const count = Math.max(1, Math.round(gauss(expected, expected * 0.6)));
-        for (let i = 0; i < count; i++) allSessions.push(makeSession(tool, dayMs));
+        // are visible from day to day. That floor is a recent-window rule: applied
+        // across two years it would mint thousands of sessions for days whose only
+        // job is to fill one heatmap cell.
+        const rolled = Math.round(gauss(expected, expected * 0.6));
+        const count = recent ? Math.max(1, rolled) : Math.max(0, rolled);
+        for (let i = 0; i < count; i++) {
+          allSessions.push(makeSession(tool, dayMs, recent ? undefined : PRIOR_TURN_MEAN));
+        }
       }
     }
   })();
@@ -567,39 +596,88 @@
   }
 
   // ---------- Query helpers ----------
-  function periodToRange(period, dateFrom, dateTo) {
+  // Period semantics mirror compute.py: NAMED_PERIODS, the <int><unit> shorthand
+  // ("7d", "2w"), and an all-time fallback for a token the backend does not
+  // recognise. `month` is a calendar month rather than a fixed 30, exactly as
+  // upstream. defaultPeriod is the FastAPI default of the route asking -- "today" for
+  // /api/usage and friends, "year" for /api/insights -- so a request that omits the
+  // parameter resolves the way that route would.
+  //
+  // This block used to know five tokens and default everything else to one day, so
+  // period=year asked for a year and quietly got today.
+  const ALL_TIME_DAYS = 36500;
+  const NAMED_PERIOD_DAYS = {
+    today: 1, "3days": 3, week: 7, "14days": 14, month: 30, year: 365, all: ALL_TIME_DAYS,
+  };
+  const PERIOD_UNIT_DAYS = { d: 1, w: 7, m: 30, y: 365 };
+
+  function periodToken(period) {
+    return String(period === null || period === undefined ? "" : period).trim().toLowerCase();
+  }
+  function aliasPeriodDays(token) {
+    if (token.length < 2) return null;
+    const unit = PERIOD_UNIT_DAYS[token.slice(-1)];
+    const count = token.slice(0, -1);
+    if (!unit || !/^\d+$/.test(count)) return null;
+    return Math.max(1, parseInt(count, 10) * unit);
+  }
+  function periodToDays(period) {
+    const token = periodToken(period);
+    if (/^\d+$/.test(token)) return Math.max(1, parseInt(token, 10));
+    if (token in NAMED_PERIOD_DAYS) return NAMED_PERIOD_DAYS[token];
+    const alias = aliasPeriodDays(token);
+    return alias === null ? ALL_TIME_DAYS : alias;
+  }
+  function periodIsRecognized(period) {
+    const token = periodToken(period);
+    if (/^\d+$/.test(token)) return true;
+    return token in NAMED_PERIOD_DAYS || aliasPeriodDays(token) !== null;
+  }
+  // The value a caller could have sent to get the same window: "7d" collapses onto
+  // "week". "month" never absorbs a day count, because a calendar month is not 30.
+  function canonicalPeriod(period) {
+    const token = periodToken(period);
+    if (token in NAMED_PERIOD_DAYS) return token;
+    const days = periodToDays(period);
+    for (const [name, named] of Object.entries(NAMED_PERIOD_DAYS)) {
+      if (named === days && name !== "month") return name;
+    }
+    return String(days);
+  }
+
+  function periodToRange(period, dateFrom, dateTo, defaultPeriod) {
     if (dateFrom && dateTo) {
       const since = new Date(dateFrom + "T00:00:00").getTime();
       const until = new Date(dateTo + "T00:00:00").getTime() + MS_DAY;
       return { since, until };
     }
     const todayStart = startOfDay(NOW).getTime();
-    if (period === "month") {
+    const token = period === null || period === undefined
+      ? String(defaultPeriod) : periodToken(period);
+    if (token === "month") {
       const d = new Date(NOW);
       const since = new Date(d.getFullYear(), d.getMonth(), 1).getTime();
       return { since, until: todayStart + MS_DAY };
     }
-    let days = 1;
-    const map = { today: 1, "3days": 3, week: 7, "14days": 14, month: 30 };
-    if (period in map) days = map[period];
-    else if (!isNaN(parseInt(period, 10))) days = Math.max(1, parseInt(period, 10));
-    const since = todayStart - (days - 1) * MS_DAY;
+    const days = periodToDays(token);
+    const since = days === 1 ? todayStart : todayStart - (days - 1) * MS_DAY;
     return { since, until: todayStart + MS_DAY };
   }
 
   // Every period-taking response names the window it actually read, so a caller can tell
   // a widened window from the token it asked for. `recognized` is false for a period this
   // shim does not know, which is the whole point of the block.
+  // A period this shim was never given reports null and stays recognised; anything
+  // else resolves through the same helpers that picked the window, so the echo cannot
+  // claim a year while carrying a day.
   function rangeBlock(period, range) {
     const days = Math.max(1, Math.round((range.until - range.since) / MS_DAY));
-    const known = { today: 1, "3days": 3, week: 7, "14days": 14, month: 30, year: 365 };
-    const recognized = period === null || period === "" || period in known
-      || (!isNaN(parseInt(period, 10)) && parseInt(period, 10) > 0);
+    const given = period !== null && period !== undefined && period !== "";
     return {
-      period_requested: period || null,
-      period_resolved: period || null,
+      period_requested: given ? period : null,
+      period_resolved: given ? canonicalPeriod(period) : null,
       days,
-      recognized,
+      recognized: given ? periodIsRecognized(period) : true,
       from: ymd(range.since),
       to: ymd(range.until - MS_DAY),
     };
@@ -644,7 +722,7 @@
 
   // ---------- /api/usage ----------
   function buildUsage(period, dateFrom, dateTo) {
-    const range = periodToRange(period, dateFrom, dateTo);
+    const range = periodToRange(period, dateFrom, dateTo, "today");
 
     const range_block = rangeBlock(period, range);
     const byApp = {};         // tool key -> aggregate (incl. models map)
@@ -905,7 +983,7 @@
     const internalSource = SESSION_TOOL_KEYS[key];
     if (!internalSource) return { __error: 400, message: `Unsupported session tool: ${tool}` };
 
-    const range = periodToRange(period, dateFrom, dateTo);
+    const range = periodToRange(period, dateFrom, dateTo, "today");
     // Codex review/auto-permission sessions are hidden unless explicitly requested,
     // matching the real backend's TOKDASH_INCLUDE_CODEX_GUARDIAN default-off behavior.
     const includeReview = key === "codex" && includeReviewSessions === "true";
@@ -1019,7 +1097,7 @@
   }
 
   function buildActiveTime(period, dateFrom, dateTo, includeReviewSessions) {
-    const range = periodToRange(period, dateFrom, dateTo);
+    const range = periodToRange(period, dateFrom, dateTo, "today");
     const includeReview = includeReviewSessions === "true";
     const cur = activeTimeWindow(range, includeReview);
     const prev = activeTimeWindow(previousRange(range), includeReview);
@@ -1192,7 +1270,7 @@
     const parsed = parseInsightsFacets(facetsRaw);
     if (parsed.error) return { __error: 400, message: parsed.error };
     const facets = parsed.facets;
-    const range = periodToRange(period, dateFrom, dateTo);
+    const range = periodToRange(period, dateFrom, dateTo, "year");
 
     const zero = () => ({ tokens: 0, cost: 0, messages: 0, entries: 0 });
     const add = (row, turn) => {
@@ -1699,6 +1777,10 @@
   window.__TOKDASH_DEMO__ = {
     sessionsCount: allSessions.length,
     historyDays: HISTORY_DAYS,
+    // The two window constants, so a test can assert coverage of the whole span
+    // without re-deriving "January of last year" and getting it wrong on its own.
+    historyStartDate: ymd(HISTORY_START),
+    recentDays: RECENT_DAYS,
     seed: 0x70B05A1,
     // The lists below are what check_demo_sync.py and the smoke tests read, so they
     // compare the demo against the upstream UI instead of a hardcoded copy.

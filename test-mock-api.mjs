@@ -179,4 +179,81 @@ assert(go && go.plan === "Go" && go.buckets.length === 3
   && go.buckets.map((b) => b.bucket).join(",") === "rolling,weekly,monthly",
   "OpenCode Go reports its three windows on the Go plan");
 
+
+// Period semantics. The shim must hand back the window compute.py would for every
+// token the dashboard or an API consumer can send. "year" used to fall through to a
+// single day, so a year query quietly returned today and said nothing.
+const PERIOD_DAYS = {
+  today: 1, "3days": 3, week: 7, "14days": 14, year: 365,
+  "7d": 7, "2w": 14, "3m": 90, "1y": 365, "60": 60, "3650": 3650,
+};
+for (const [token, days] of Object.entries(PERIOD_DAYS)) {
+  const r = (await (await fetchMock(`/api/usage?period=${encodeURIComponent(token)}`)).json()).range;
+  assert(r && r.days === days && r.recognized === true,
+    `period=${token} is ${days} recognized days (got days=${r && r.days}, recognized=${r && r.recognized})`);
+}
+// "month" is a calendar month, not a fixed 30, so it starts on the 1st.
+const monthRange = (await (await fetchMock("/api/usage?period=month")).json()).range;
+assert(monthRange.days >= 1 && monthRange.days <= 31 && monthRange.from.endsWith("-01"),
+  `period=month is a calendar month (${monthRange.from} -> ${monthRange.to}, ${monthRange.days} days)`);
+// An unknown token is all time and says it is not recognised, rather than silently
+// meaning today. This is the fallback compute.py chose; the shim cannot pick its own.
+const bogus = (await (await fetchMock("/api/usage?period=bogus")).json()).range;
+assert(bogus.recognized === false && bogus.days > 30000,
+  `an unknown period widens to all time and admits it (days=${bogus.days}, recognized=${bogus.recognized})`);
+// Aliases collapse onto the named period they equal, so a consumer can echo the
+// resolution straight back.
+for (const [token, resolved] of [["7d", "week"], ["2w", "14days"], ["1y", "year"]]) {
+  const r = (await (await fetchMock(`/api/usage?period=${token}`)).json()).range;
+  assert(r.period_resolved === resolved,
+    `period=${token} resolves to ${resolved} (got ${r.period_resolved})`);
+}
+// Each route answers a missing period with its own FastAPI default.
+const usageDefault = (await (await fetchMock("/api/usage")).json()).range;
+const insightsDefault = (await (await fetchMock("/api/insights?facets=tools")).json()).range;
+assert(usageDefault.days === 1, `/api/usage defaults to today (got ${usageDefault.days} days)`);
+assert(insightsDefault.days === 365, `/api/insights defaults to a year (got ${insightsDefault.days} days)`);
+
+// Date coverage. The dashboard can ask for any month of two calendar years: This Year
+// and Last Year are quick ranges, and the Stats heatmap pages between years. A month
+// the generator never filled renders as an empty chart, which is what January to June
+// were under the old 120-day window.
+const historyStart = new Date(`${demo.historyStartDate}T00:00:00`);
+const today = new Date();
+const activeDaysByMonth = {};
+for (const year of new Set([historyStart.getFullYear(), today.getFullYear()])) {
+  const stats = await (await fetchMock(`/api/stats?year=${year}`)).json();
+  for (const day of stats.contributions || []) {
+    if (((day.totals || {}).tokens || 0) > 0) {
+      const key = String(day.date).slice(0, 7);
+      activeDaysByMonth[key] = (activeDaysByMonth[key] || 0) + 1;
+    }
+  }
+}
+const dryMonths = [];
+for (let y = historyStart.getFullYear(), m = historyStart.getMonth(), guard = 0;
+  guard < 40; guard += 1) {
+  const key = `${y}-${String(m + 1).padStart(2, "0")}`;
+  if (!activeDaysByMonth[key]) dryMonths.push(key);
+  if (y === today.getFullYear() && m === today.getMonth()) break;
+  m += 1;
+  if (m === 12) { m = 0; y += 1; }
+}
+assert(!dryMonths.length, `months with no demo data: ${dryMonths.join(", ") || "none"}`);
+
+// The two year quick ranges a visitor actually clicks, ranked by every client.
+function isoDay(d) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+for (const [label, from, to] of [
+  ["This Year", `${today.getFullYear()}-01-01`, isoDay(today)],
+  ["Last Year", `${today.getFullYear() - 1}-01-01`, `${today.getFullYear() - 1}-12-31`],
+  ["first half of this year", `${today.getFullYear()}-01-01`, `${today.getFullYear()}-06-30`],
+]) {
+  const usage = await (await fetchMock(`/api/usage?date_from=${from}&date_to=${to}`)).json();
+  const ranked = Object.keys(usage.by_tool || {}).length;
+  assert(usage.total_tokens > 0 && ranked === demo.toolKeys.length,
+    `${label} (${from} -> ${to}) ranked ${ranked} of ${demo.toolKeys.length} clients, ${(usage.total_tokens / 1e6).toFixed(0)}M tokens`);
+}
+
 console.log("\nDone.", process.exitCode ? "FAILURES ABOVE" : "All checks passed.");

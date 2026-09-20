@@ -2,6 +2,7 @@
 console errors or a missing agent-time figure, and save screenshots."""
 import http.server
 import json
+from datetime import datetime
 import socketserver
 import threading
 from pathlib import Path
@@ -262,6 +263,66 @@ with sync_playwright() as p:
     print("quota cards:", ", ".join(
         page.evaluate("(provider) => quotaProviderLabel(provider)", p) for p in providers["local"]))
     page.screenshot(path="verify-quota.png", full_page=True)
+
+    # Stats tab: the year heatmap and its Monthly Totals table. This is where a gap in
+    # the demo dataset becomes something a visitor sees, because the table prints every
+    # month of the year on display. January to June used to be rows of nothing. The tab
+    # opens on the month view, so the year view has to be asked for.
+    page.locator('button[data-tab="stats"]').click()
+    page.wait_for_timeout(1500)
+    page.locator("#viewYear").click()
+    page.wait_for_timeout(1500)
+
+    def monthly_rows():
+        return page.eval_on_selector_all(
+            "#yearMonthlyTotalsTable tr[title]",
+            """rows => rows.map((r) => ({
+              month: r.getAttribute('title'),
+              tokens: (r.children[1] || {}).textContent || '',
+              cost: (r.children[2] || {}).textContent || '',
+            }))""",
+        )
+
+    page.wait_for_function(
+        "() => document.querySelectorAll('#yearMonthlyTotalsTable tr[title]').length >= 6",
+        timeout=30_000,
+    )
+    EMPTY = ("0", "0.0", "0 B", "0 tokens", "-", "\u2014", "")
+
+    def check_year(label):
+        rows = monthly_rows()
+        now = datetime.now()
+        shown = page.inner_text("#yearTitle").strip()
+        year = int("".join(ch for ch in shown if ch.isdigit()) or now.year)
+        expected = (now.month if year == now.year else 12)
+        months = [r["month"] for r in rows]
+        assert len(rows) == expected, f"{label} {year}: {len(rows)} monthly rows, expected {expected}"
+        assert months[0].startswith("Jan"), f"{label} {year}: monthly table does not start in January: {months[:2]}"
+        dry = [r["month"] for r in rows if r["tokens"].strip() in EMPTY or r["cost"].strip() in EMPTY]
+        assert not dry, f"{label} {year} has months with no tokens or cost: {dry}"
+        cells = page.locator("#yearGrid .heatmap-year-cell").count()
+        assert cells >= 300, f"{label} {year}: the heatmap painted {cells} cells"
+        print(f"stats {label} {shown}: {len(rows)} monthly rows, Jan-{months[-1][:3]}, {cells} heatmap cells")
+        return year
+
+    stats_year = check_year("year")
+    page.screenshot(path="verify-stats.png", full_page=True)
+
+    # The year pager is the control that takes a visitor to last year, and the quick
+    # ranges do the same in one click. Both used to land on an empty page.
+    page.locator("#prevYear").click()
+    page.wait_for_function(
+        f"""() => {{
+          const t = (document.getElementById('yearTitle') || {{}}).textContent || '';
+          return t.includes('{stats_year - 1}');
+        }}""",
+        timeout=30_000,
+    )
+    page.wait_for_timeout(1200)
+    check_year("previous year")
+    page.screenshot(path="verify-stats-prev-year.png", full_page=True)
+    page.locator("#nextYear").click()
+    page.wait_for_timeout(1000)
 
     # Report tab: one facet feed paints the hero, the day map, the podium, the hour
     # and weekday rhythm, the agent table and both share cards. A facet or endpoint

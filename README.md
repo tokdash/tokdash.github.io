@@ -11,7 +11,11 @@ Codex, Claude Code, OpenCode, Gemini CLI, Kimi CLI, ZCode, and
 > **The data on the demo page is fully synthetic.** A small in-browser shim
 > (`static/mock-api.js`) intercepts every `/api/*` request and returns deterministic
 > sample data, so the unmodified Tokdash frontend can run as a static site. Nothing is
-> uploaded; nothing is read from your machine.
+> uploaded; nothing is read from your machine. History runs from 1 January of the previous
+> year, so the **This Year** and **Last Year** quick ranges and the Stats year pager all land
+> on data. The last 120 days carry the heavy power-user volume; earlier months ramp down from
+> it, because the browser builds the whole dataset on every page load and two full years of
+> turn detail is not worth a visitor's memory.
 
 ## What you can try
 
@@ -100,6 +104,14 @@ needs its line in `static/mock-api.js` as well, or the demo shows an empty panel
 shows data. `check_demo_sync.py` compares the mock's own lists (`window.__TOKDASH_DEMO__`)
 against the panels and the Show menu in the current UI, so it names what to add; the client
 list compares against upstream's parsers, minus anything left out of `NO_DEMO_DATA`.
+
+Periods and dates are the other quiet axis. `static/mock-api.js` resolves a `period` token with
+the same table `compute.py` uses (`NAMED_PERIODS`, the `7d` / `2w` shorthand, all-time for a token
+it does not recognise), and each route answers a missing period with its own FastAPI default --
+`today` for `/api/usage`, `year` for `/api/insights`. `test-mock-api.mjs` pins both, along with
+one assertion that every month from `__TOKDASH_DEMO__.historyStartDate` to the current one has
+rows: a window that stops short reads as an empty chart rather than an error, which is how
+January to June went unnoticed.
 
 ### Rebuilding the landing CSS
 
