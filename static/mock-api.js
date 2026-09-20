@@ -7,14 +7,18 @@
  *
  * Routes mocked (must match src/tokdash/api.py):
  *   GET  /api/usage     ?period=… | ?date_from=…&date_to=…
- *   GET  /api/sessions  ?tool=codex|claude|opencode|pi_agent|mimo|kimi|dsh|reasonix|zcode (&period=… | &date_from/to)
+ *   GET  /api/sessions  ?tool=<every session tool the Sessions tab has a panel for>
+ *                       (&period=… | &date_from/to)
  *                       (&include_review_sessions=true|false — codex only)
  *   GET  /api/session   ?tool=…&session_id=…
  *   GET  /api/active-time  ?period=… | ?date_from=…&date_to=… (Overview agent-time KPI)
  *   GET  /api/activity-insights  (Profile Activity codex insights)
- *   GET  /api/stats     [?year=…]
- *   GET  /api/pricing-db
- *   PUT  /api/pricing-db          (no-op — demo cannot persist)
+ *   GET  /api/insights  ?period=…&facets=… (Report tab)
+ *   GET  /api/quota     (Quota tab, one payload per fleet machine)
+ *   GET  /api/openclaw  ?period=… (OpenClaw panel on Overview)
+ *   GET  /api/tools     (installed-client probe; the demo reports none)
+ *   GET  /api/version   (runtime_version "demo": this build runs no update check)
+ *   GET  /api/csrf-token, PUT /api/pricing-db (no-op — the demo cannot persist)
  *   GET  /health                  (fleet fingerprint: service=tokdash)
  *
  * Multi-server: the demo ships a three-machine fleet (see SERVER_FLEET below).
@@ -24,7 +28,9 @@
  * Supported sources: codex, claude_code, opencode, gemini, grok, antigravity_cli,
  *                    kimi, openclaw, pi_agent, copilot_cli, hermes, mimo, dsh,
  *                    reasonix, zcode, workbuddy, qoder, qoder_cli, omp, kilocode,
- *                    cline, zed, qwen_code, crush
+ *                    cline, zed, qwen_code, crush, muse
+ * Kept off the demo on purpose: amp (a real parser, not a client the landing page
+ * advertises) and cursor (a frontend brand entry with no parser behind it).
  */
 (function () {
   "use strict";
@@ -98,6 +104,17 @@
         { bucket: "7d", label: "Weekly", used: 61.0, resetSeconds: 124 * 3600, drift: 1.05 },
       ],
     },
+    // Mirrors src/tokdash/sources/quota/opencode_go.py: one account, three
+    // windows, plan "Go", account label "default".
+    opencode_go: {
+      source: "opencode_go_api",
+      plan: "Go",
+      buckets: [
+        { bucket: "rolling", label: "Rolling (5h)", used: 26.5, resetSeconds: 4.5 * 3600, drift: 1.15 },
+        { bucket: "weekly", label: "Weekly", used: 44.0, resetSeconds: 96 * 3600, drift: 1.0 },
+        { bucket: "monthly", label: "Monthly", used: 19.5, resetSeconds: 500 * 3600, drift: 0.5 },
+      ],
+    },
   };
 
   let quotaTrackingEnabled = true;
@@ -108,7 +125,8 @@
     minimax_api: true,
     kimi_api: true,
     grok_api: true,
-    zai_api: true
+    zai_api: true,
+    opencode_go_api: true
   };
   let quotaPollIntervalMinutes = 15;
   // Each machine polls on its own cadence, which is what the per-server
@@ -282,6 +300,7 @@
     { source: "zed",             label: "Zed",            weight: 0.02 },
     { source: "qwen_code",       label: "Qwen Code",      weight: 0.02 },
     { source: "crush",           label: "Crush",          weight: 0.02 },
+    { source: "muse",            label: "Muse Code",      weight: 0.02 },
   ];
   // OpenClaw is a separate app (its own panel in the UI).
   const OPENCLAW = { source: "openclaw", label: "OpenClaw", weight: 0.05 };
@@ -305,6 +324,8 @@
     { name: "deepseek/deepseek-r1",       provider: "deepseek",   in: 0.70, out: 2.50,  cr: 0.028, cw: 0.28, tools: { dsh: 0.15 } },
     { name: "xai/grok-4",                 provider: "xai",        in: 3.00, out: 15.00, cr: 0.75, cw: 3.00, tools: { grok: 0.90 } },
     { name: "qwen/qwen3-coder",           provider: "qwen",       in: 0.30, out: 1.20,  cr: 0.06, cw: 0.30, tools: { qwen_code: 0.90 } },
+    { name: "meta/muse-spark-1.3",        provider: "meta",       in: 1.25, out: 4.25,  cr: 0.15, cw: 1.25, tools: { muse: 0.75 } },
+    { name: "meta/muse-glimmer-30b",      provider: "meta",       in: 0.35, out: 1.50,  cr: 0.04, cw: 0.35, tools: { muse: 0.25 } },
   ];
 
   function pickModelFor(toolSource) {
@@ -361,7 +382,7 @@
       projects: null,
       stalenessSeconds: 0,               // its last refresh is "now"
       quotaLastRunMinutesAgo: 8,
-      quota: { codex: {}, claude: {}, antigravity: {}, minimax: {}, kimi: {}, grok: {}, zai: {} },
+      quota: { codex: {}, claude: {}, antigravity: {}, minimax: {}, kimi: {}, grok: {}, zai: {}, opencode_go: {} },
     },
     {
       id: "wsl",
@@ -378,6 +399,7 @@
         codex: { used: { "5h": 71.5, "7d": 88.2, spark_5h: 60.0, spark_7d: 74.5 } },
         kimi: { plan: "Moderato", used: { coding: 12.5 } },
         minimax: { used: { standard: 63.0 } },
+        opencode_go: { used: { rolling: 82.5, weekly: 91.0, monthly: 57.5 } },
       },
     },
     {
@@ -684,7 +706,14 @@
 
     const by_tool = {};
     for (const [src, v] of Object.entries(apps)) {
-      by_tool[src] = { tokens: v.tokens, cost: v.cost, cache_hit_rate: v.cache_hit_rate };
+      // Mirrors get_usage_data() in src/tokdash/compute.py: every row carries the
+      // input/cache split, OpenClaw's too; the output column lives only on the
+      // per-app rows, which is why the Report tab prints an em dash for OpenClaw.
+      by_tool[src] = {
+        tokens: v.tokens, cost: v.cost,
+        tokens_in: v.tokens_in, tokens_cache: v.tokens_cache,
+        cache_hit_rate: v.cache_hit_rate,
+      };
     }
 
     const combined = Object.values(combinedModels)
@@ -727,9 +756,9 @@
   }
 
   // ---------- /api/sessions and /api/session ----------
-  // Mirrors the backend's SESSION_TOOLS (src/tokdash/sessions.py): codex, claude,
-  // opencode, pi_agent, omp, mimo, kimi, dsh, reasonix, zcode, kilocode, grok,
-  // hermes, antigravity_cli, cline, workbuddy, qoder.
+  // Mirrors the backend's SESSION_TOOLS (src/tokdash/sessions.py). Clients with a
+  // parser but no session harness (crush, zed, muse, amp) stay out of this map and
+  // out of /api/active-time's by_tool, exactly as the real server leaves them.
   const SESSION_TOOL_KEYS = {
     codex: "codex",
     claude: "claude_code",
@@ -748,6 +777,9 @@
     cline: "cline",
     workbuddy: "workbuddy",
     qoder: "qoder",
+    qwen_code: "qwen_code",
+    openclaw: "openclaw",
+    qoder_cli: "qoder_cli",
   };
   const TOOL_LABELS = {
     codex: "Codex",
@@ -767,6 +799,9 @@
     cline: "Cline",
     workbuddy: "WorkBuddy",
     qoder: "Qoder IDE",
+    qwen_code: "Qwen Code",
+    openclaw: "OpenClaw",
+    qoder_cli: "Qoder CLI",
   };
 
   // ---------- Active-time model (v1.7.0) ----------
@@ -1665,6 +1700,21 @@
     sessionsCount: allSessions.length,
     historyDays: HISTORY_DAYS,
     seed: 0x70B05A1,
+    // The lists below are what check_demo_sync.py and the smoke tests read, so they
+    // compare the demo against the upstream UI instead of a hardcoded copy.
+    sessionTools: Object.keys(SESSION_TOOL_KEYS),
+    toolLabels: { ...TOOL_LABELS },
+    quotaProviders: Object.keys(QUOTA_CATALOG),
+    sources: [...CODING_TOOLS.map((t) => t.source), OPENCLAW.source],
+    // The tool-key space the API answers with, so a caller can name a client the
+    // way the dashboard does.
+    toolKeys: [...CODING_TOOLS.map((t) => t.source), OPENCLAW.source].map(toolKey),
+    // Clients with usage but no session harness: they carry tokens everywhere and
+    // print an em dash in the Report tab's sessions/runtime columns, upstream too.
+    toolsWithoutSessions: () =>
+      [...CODING_TOOLS.map((t) => t.source), OPENCLAW.source]
+        .filter((src) => !Object.values(SESSION_TOOL_KEYS).includes(src))
+        .map(toolKey),
     servers: SERVER_FLEET.map((s) => ({
       id: s.id,
       label: s.label,

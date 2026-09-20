@@ -131,19 +131,62 @@ with sync_playwright() as p:
     assert fit["withoutFix"] > fit["innerW"], "overflow probe is vacuous (the long name fits unwrapped)"
     assert fit["withFix"] <= fit["innerW"] + 1, "Top Model KPI overflows its card with break-all"
 
-    # Every recently added source must show up in the Overview tools table.
-    overview_body = page.inner_text("body")
-    for label in ["WorkBuddy", "Qoder IDE", "Qoder CLI", "omp", "Kilo Code", "Cline"]:
-        assert label in overview_body, f"{label} missing from Overview tools table"
+    # Two things to prove about the Overview tools table, and both read the client
+    # list from the demo itself rather than a list frozen in this file: the page
+    # renders a labelled row for every client in the window it is showing (the
+    # labels come from the dashboard's own formatter), and across the whole fleet
+    # the demo generates traffic for every client the app can parse. A low-volume
+    # client can legitimately miss one machine's day, so coverage is a fleet claim
+    # and row rendering is a per-window claim.
+    table = page.evaluate(
+        """async () => {
+          const fleet = ['', ...JSON.parse(localStorage.getItem('tokdash-servers') || '[]')
+            .map((s) => s.baseUrl)];
+          const seen = {};
+          for (const base of fleet) {
+            const usage = await (await fetch(`${base}/api/usage?period=today`)).json();
+            for (const [tool, row] of Object.entries(usage.by_tool)) {
+              if (Number(row.tokens || 0) > 0) seen[tool] = (seen[tool] || 0) | (base ? 2 : 1);
+            }
+          }
+          return { local: Object.keys(seen).filter((t) => seen[t] & 1).map((t) => formatToolName(t)),
+                   all: Object.keys(seen).map((t) => formatToolName(t)) };
+        }"""
+    )
+    body_labels = page.inner_text("body")
+    missing_rows = [label for label in table["local"] if label not in body_labels]
+    assert not missing_rows, f"missing from Overview tools table: {missing_rows}"
+    assert len(table["local"]) >= 12, f"the Overview table only rendered {len(table['local'])} clients"
+    expected_clients = {
+        page.evaluate("(tool) => formatToolName(tool)", tool)
+        for tool in page.evaluate("() => window.__TOKDASH_DEMO__.toolKeys")
+    }
+    unshown = sorted(expected_clients - set(table["all"]))
+    assert not unshown, f"no machine reported traffic for: {unshown}"
+    print(f"overview table: {len(table['local'])} clients on local, "
+          f"{len(table['all'])} across the fleet (e.g. {', '.join(sorted(table['all'])[-4:])})")
 
     page.screenshot(path="verify-overview.png")
 
-    # Sessions tab: every recently added session source must be present.
+    # Sessions tab: every session tool the mock answers for must own a panel, and
+    # that panel must carry loaded rows -- not a spinner, a "no data" row or an
+    # error row. /api/sessions refuses a tool the mock does not know, so a session
+    # harness added upstream and never mirrored here shows up as a dead panel.
+    session_tools = page.evaluate("() => window.__TOKDASH_DEMO__.sessionTools")
+    assert len(session_tools) >= 20, f"the demo only serves {len(session_tools)} session tools"
     page.locator("button, a").filter(has_text="Sessions").first.click()
-    page.wait_for_timeout(1500)
-    body = page.inner_text("body")
-    for label in ["DeepSeek Harness", "Kimi", "Mimo", "Reasonix", "ZCode"]:
-        assert label in body, f"{label} missing from Sessions tab"
+    unloaded = session_tools
+    for _ in range(20):
+        unloaded = [tool for tool in session_tools if not page.evaluate(
+            """(tool) => {
+              const chip = document.getElementById(`${tool}PanelCount`);
+              return !!chip && /^[1-9]/.test(chip.textContent.trim());
+            }""", tool)]
+        if not unloaded:
+            break
+        page.wait_for_timeout(1000)
+    assert not unloaded, f"session panels without loaded rows: {unloaded}"
+    print("session panels:", len(session_tools), "tools, all with rows")
     page.screenshot(path="verify-sessions.png")
 
     # The mock fleet: three machines, every generated session owned by exactly one.
@@ -203,6 +246,21 @@ with sync_playwright() as p:
     print("quota providers per server:", providers)
     assert providers["local"] and providers["wsl"] and providers["studio"], "a server reports no quota providers"
     assert providers["wsl"] != providers["studio"] != providers["local"], "servers report the same quota set"
+    # Every provider the demo reports must exist in the mock's catalog and reach the
+    # screen under the name the dashboard gives it. A provider added upstream and
+    # never mirrored here would leave the demo silently without it.
+    catalog = page.evaluate("() => window.__TOKDASH_DEMO__.quotaProviders")
+    extra = sorted(set(providers["local"]) - set(catalog))
+    assert not extra, f"reported but not in the mock catalog: {extra}"
+    quota_text = page.locator("#quotaServerBlocks").inner_text()
+    unrendered = [
+        page.evaluate("(provider) => quotaProviderLabel(provider)", provider)
+        for provider in providers["local"]
+        if page.evaluate("(provider) => quotaProviderLabel(provider)", provider) not in quota_text
+    ]
+    assert not unrendered, f"quota cards missing for: {unrendered}"
+    print("quota cards:", ", ".join(
+        page.evaluate("(provider) => quotaProviderLabel(provider)", p) for p in providers["local"]))
     page.screenshot(path="verify-quota.png", full_page=True)
 
     # Report tab: one facet feed paints the hero, the day map, the podium, the hour
@@ -251,12 +309,34 @@ with sync_playwright() as p:
     assert rows.count() >= 5, f"report agent table rendered {rows.count()} rows"
     # Sessions and runtime per row come from /api/active-time, keyed the same way as
     # the insights tool facet and the usage rows. A key mismatch prints an em dash.
-    dashes = page.eval_on_selector_all(
-        "#usageReportAgentsBody td",
-        "els => els.filter(e => ['-', '\\u2014'].includes(e.textContent.trim())).length",
+    # The column rules mirror the UI's own row builder: sessions and runtime come from
+    # /api/active-time, which answers only for tools with a session harness, and the
+    # output column comes from /api/usage's per-app rows, which OpenClaw is not in.
+    # An em dash anywhere else means the tool keys used by /api/usage, /api/insights
+    # and /api/active-time no longer agree.
+    allowance = page.evaluate(
+        """async () => {
+          const usage = await (await fetch('/api/usage?period=60')).json();
+          const harness = new Set(window.__TOKDASH_DEMO__.sessionTools);
+          const out = {};
+          for (const tool of Object.keys(usage.by_tool)) {
+            const app = (usage.apps || {})[tool];
+            out[formatToolName(tool)] = (harness.has(tool) ? 0 : 2)
+              + (app && app.tokens_out !== undefined ? 0 : 1);
+          }
+          return out;
+        }"""
     )
-    print("report agent cells that are em dashes:", dashes)
-    assert dashes == 0, f"{dashes} agent cells fell back to an em dash (tool keys disagree?)"
+    dashed = page.evaluate(
+        """() => Object.fromEntries([...document.querySelectorAll('#usageReportAgentsBody tr')]
+             .map((tr) => [tr.querySelector('.tool-identity')?.getAttribute('aria-label') || '?',
+               [...tr.querySelectorAll('td')].filter(
+                 (td) => ['-', '\\u2014'].includes(td.textContent.trim())).length])
+             .filter(([, cells]) => cells > 0))"""
+    )
+    print("report agent rows with an em dash:", dashed)
+    over = {label: cells for label, cells in dashed.items() if cells > allowance.get(label, 0)}
+    assert not over, f"report agent cells fell back to an em dash: {over}"
 
     # The report reads one server at a time, and the demo fleet has three.
     options = page.eval_on_selector_all("#usageReportServer option", "els => els.length")
@@ -268,6 +348,16 @@ with sync_playwright() as p:
     assert page.locator("#usageReportAmberCards canvas").count() == 2, "amber share cards incomplete"
     audit = page.evaluate("() => document.getElementById('usageReportStack')?.dataset?.cardAudit || ''")
     assert "OVERFLOW" not in audit, f"a share card overflows its canvas: {audit}"
+    # The share-card code itself is pinned by check_demo_sync.py, which byte-compares
+    # this page against the released UI, so what is left to prove here is that the
+    # ranking prints rows at all. Only the amber card ranks projects, and it
+    # surrenders rows just when the canvas cannot hold them: an amber card with none
+    # means the ranking or the fit ladder broke, not that the dataset is thin.
+    amber = [part for part in audit.split(" | ") if part.startswith("amber/")]
+    assert amber, f"the audit names no amber card: {audit}"
+    thin = [part for part in amber if " 0 project rows" in part]
+    assert not thin, f"the amber share card printed no project rows: {thin}"
+    print("share card fit:", " | ".join(part.split(",")[-3].strip() for part in amber))
     print("card fit:", audit[:150])
     page.screenshot(path="verify-report.png", full_page=True)
 

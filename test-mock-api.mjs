@@ -40,21 +40,31 @@ function assert(cond, msg) {
 // /api/usage
 const usage = await get("/api/usage?period=week");
 assert(usage.total_tokens > 0, "usage has tokens");
-assert(usage.by_tool.dsh && usage.by_tool.mimo && usage.by_tool.zcode && usage.by_tool.workbuddy && usage.by_tool.qoder && usage.by_tool.qoder_cli && usage.by_tool.omp && usage.by_tool.kilocode && usage.by_tool.cline, "usage includes dsh, mimo, zcode, workbuddy, qoder, qoder_cli, omp, kilocode, and cline tools");
+// Every client the generator knows must reach /api/usage: a source that never
+// lands in by_tool means the demo silently omits a client the app supports.
+const demo = window.__TOKDASH_DEMO__;
+const absent = demo.toolKeys.filter((tool) => !(usage.by_tool[tool] && usage.by_tool[tool].tokens > 0));
+assert(absent.length === 0, `usage.by_tool serves every demo client (missing: ${absent.join(",")})`);
 assert(usage.comparison && usage.comparison.tokens_pct !== undefined, "usage comparison present");
 
 // /api/active-time (v1.7.0)
 const active = await get("/api/active-time?period=week");
 assert(active.active_ms > 0 && active.active_ms_sum >= active.active_ms, "active-time figures");
-assert(active.by_tool.codex && active.by_tool.dsh && active.by_tool.zcode, "active-time by_tool has codex, dsh, and zcode");
+// by_tool carries exactly the tools with a session harness: the server builds it
+// from SESSION_TOOLS, and the Report tab reads sessions/runtime out of it.
+const activeTools = Object.keys(active.by_tool).sort().join(",");
+assert(activeTools === [...demo.sessionTools].sort().join(","),
+  `active-time by_tool matches the session tools (${activeTools})`);
 assert(active.by_tool.codex.tool_label === "Codex", "active-time by_tool label");
 assert(typeof active.comparison.active_ms_sum_pct === "number" || active.comparison.active_ms_sum_pct === null, "active-time comparison pct");
 assert(active.active_gap_cap_ms === 300000, "active-time gap cap 300s");
 const activeToday = await get("/api/active-time?period=today");
 assert(activeToday.active_ms_sum > 0, "active-time today has agent time");
 
-// /api/sessions for every session tool.
-for (const tool of ["codex", "claude", "opencode", "pi_agent", "mimo", "kimi", "dsh", "reasonix", "zcode"]) {
+// /api/sessions for every session tool. The list comes from the mock itself, so a
+// harness added upstream has to be mirrored in mock-api.js before this file can
+// pass -- which is the whole point of the demo: it answers what the UI asks.
+for (const tool of window.__TOKDASH_DEMO__.sessionTools) {
   const s = await get(`/api/sessions?tool=${tool}&period=week`);
   assert(s.summary.session_count > 0, `sessions:${tool} has rows`);
   assert(s.summary.active_ms > 0 && s.summary.active_ms_sum > 0, `sessions:${tool} active time summary`);
@@ -140,5 +150,33 @@ const res400 = await fetchMock("/api/insights?facets=bogus");
 const body400 = await res400.json();
 assert(res400.status === 400 && /unknown facet/.test(body400.detail),
   "an unknown facet is refused with 400 rather than dropped");
+
+
+// /api/quota (Quota tab): each fleet machine answers with its own provider set,
+// every provider in a payload exists in the mock's catalog, and each bucket carries
+// the fields the cards and charts read.
+const QUOTA_BUCKET_FIELDS = ["account", "bucket", "bucket_label", "used_percent",
+  "remaining_percent", "resets_at", "captured_at", "source", "status"];
+const quotaByServer = {};
+for (const server of demo.servers) {
+  const quota = await (await fetchMock(`${server.baseUrl}/api/quota`)).json();
+  quotaByServer[server.id] = Object.keys(quota.providers || {}).sort();
+  assert(quotaByServer[server.id].length > 0, `quota:${server.id} reports at least one provider`);
+  assert(quotaByServer[server.id].every((key) => demo.quotaProviders.includes(key)),
+    `quota:${server.id} only reports catalogued providers`);
+  for (const [key, provider] of Object.entries(quota.providers || {})) {
+    assert(Array.isArray(provider.buckets) && provider.buckets.length > 0, `quota:${server.id}/${key} has buckets`);
+    assert(QUOTA_BUCKET_FIELDS.every((field) => field in (provider.buckets[0] || {})),
+      `quota:${server.id}/${key} bucket carries the fields the cards read`);
+  }
+}
+assert(new Set(Object.values(quotaByServer).map((keys) => keys.join(","))).size === demo.servers.length,
+  `each machine reports its own provider set (${JSON.stringify(quotaByServer)})`);
+assert(quotaByServer.local.length === demo.quotaProviders.length,
+  `the local machine reports every catalogued provider (${quotaByServer.local.length}/${demo.quotaProviders.length})`);
+const go = (await (await fetchMock("/api/quota")).json()).providers.opencode_go;
+assert(go && go.plan === "Go" && go.buckets.length === 3
+  && go.buckets.map((b) => b.bucket).join(",") === "rolling,weekly,monthly",
+  "OpenCode Go reports its three windows on the Go plan");
 
 console.log("\nDone.", process.exitCode ? "FAILURES ABOVE" : "All checks passed.");

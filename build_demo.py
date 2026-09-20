@@ -57,18 +57,17 @@ def once(source: str, anchor: str) -> int:
     return source.index(anchor)
 
 
-def main() -> None:
-    ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    ap.add_argument("--upstream", default=str(DEFAULT_UPSTREAM),
-                    help="path to a Tokdash checkout's src/tokdash/static/index.html")
-    ap.add_argument("--out", default=str(DEFAULT_OUT), help="demo page to write")
-    args = ap.parse_args()
+def render(upstream_html: str) -> str:
+    """The three demo-only injections, applied to an upstream dashboard shell.
 
-    upstream, out = Path(args.upstream).resolve(), Path(args.out).resolve()
-    html = upstream.read_text(encoding="utf-8")
+    Shared with check_demo_sync.py, which compares this output against the demo page
+    on disk to tell whether the public demo still is the current UI.
+    """
+    html = upstream_html
 
     # 1. GA tag, between the theme-color meta and the title.
-    i = once(html, '<meta name="theme-color" content="#1E40AF" />\n') + len('<meta name="theme-color" content="#1E40AF" />\n')
+    anchor = '<meta name="theme-color" content="#1E40AF" />\n'
+    i = once(html, anchor) + len(anchor)
     html = html[:i] + GA_BLOCK + html[i:]
 
     # 2. Mock API loader, right before the font tags.
@@ -79,6 +78,19 @@ def main() -> None:
     anchor = '  <div class="max-w-[1200px] mx-auto">\n'
     i = once(html, anchor) + len(anchor)
     html = html[:i] + DEMO_BANNER + html[i:]
+
+    return html
+
+
+def main() -> None:
+    ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    ap.add_argument("--upstream", default=str(DEFAULT_UPSTREAM),
+                    help="path to a Tokdash checkout's src/tokdash/static/index.html")
+    ap.add_argument("--out", default=str(DEFAULT_OUT), help="demo page to write")
+    args = ap.parse_args()
+
+    upstream, out = Path(args.upstream).resolve(), Path(args.out).resolve()
+    html = render(upstream.read_text(encoding="utf-8"))
 
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(html, encoding="utf-8")

@@ -64,6 +64,7 @@ python3 -m http.server 8000
 |  `sw.js`                    | Service worker (PWA install + offline app shell), served at `/sw.js`.   |
 |  `pricing_db.json`          | Sanitized pricing snapshot for the read-only Pricing tab.              |
 |  `build_demo.py`            | Rebuilds `demo/index.html` from an upstream checkout.                  |
+|  `check_demo_sync.py`       | Fails when the demo has fallen behind the upstream UI.                 |
 |  `verify_demo.py`           | Headless-Chromium check of `/demo/` (fleet split, Servers tab, quota).  |
 |  `verify_landing.py`        | Headless-Chromium check of `/` (render, copy, six-language parity, mobile). |
 
@@ -76,7 +77,9 @@ the script rather than editing by hand:
 ```bash
 git -C ../tokdash fetch origin main
 git -C ../tokdash worktree add /tmp/tokdash-demo-build origin/main --detach
+python3 check_demo_sync.py --upstream /tmp/tokdash-demo-build   # what has fallen behind
 python3 build_demo.py --upstream /tmp/tokdash-demo-build/src/tokdash/static/index.html
+python3 check_demo_sync.py --upstream /tmp/tokdash-demo-build   # DEMO-IN-SYNC
 ```
 
 Build from a released tree. Without `--upstream` the script reads `../tokdash`, which is
@@ -91,6 +94,12 @@ advertise unreleased or placeholder model ids. When upstream adds API routes or 
 folds its nine facets from the same synthetic turns that feed `/api/usage`, so the Report tab's
 totals agree with Overview's, and one tool-key space serves `/api/usage`, `/api/insights`, and
 `/api/active-time` alike because the Report tab joins them on it.
+
+Lists drift the same way fields do. A new client, session harness or quota provider upstream
+needs its line in `static/mock-api.js` as well, or the demo shows an empty panel where the app
+shows data. `check_demo_sync.py` compares the mock's own lists (`window.__TOKDASH_DEMO__`)
+against the panels and the Show menu in the current UI, so it names what to add; the client
+list compares against upstream's parsers, minus anything left out of `NO_DEMO_DATA`.
 
 ### Rebuilding the landing CSS
 
@@ -110,14 +119,18 @@ No Node tooling is committed — this is a one-off build step that only touches 
 ## Checking the site
 
 ```bash
+python3 check_demo_sync.py # demo vs. the upstream UI: page, notes, pricing, mock tool lists
 node test-mock-api.mjs     # mock API routes, no browser
 python3 verify_landing.py  # landing page: renders offline, all six languages, 390px mobile
-python3 verify_demo.py     # demo: server fleet, Servers tab, per-machine quota, console errors
+python3 verify_demo.py     # demo: every client, every session panel, per-machine quota, cards
 ```
 
 Both `verify_*.py` scripts need Playwright and Chromium, serve the repo over 127.0.0.1, and
 print `LANDING-CHECK-OK` / `BROWSER-CHECK-OK` on success. They write `verify-*.png` previews
-to the repo root; those are gitignored. The landing page's copy lives in a six-language
+to the repo root; those are gitignored. `check_demo_sync.py` needs an upstream checkout at `../tokdash` (or `--upstream`) and node
+only to ask the mock which tools it serves.
+
+The landing page's copy lives in a six-language
 dictionary inside `index.html`, and every `data-i18n` key must have an entry in all six —
 `verify_landing.py` fails on drift in either direction.
 
