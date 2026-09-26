@@ -2556,18 +2556,6 @@
         });
       });
     })();
-
-    // Clean up any stale service workers on root landing page
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.getRegistrations().then(function (registrations) {
-        for (var i = 0; i < registrations.length; i++) {
-          var reg = registrations[i];
-          if (reg.scope.endsWith(':8000/') || reg.scope.endsWith('.github.io/')) {
-            reg.unregister();
-          }
-        }
-      });
-    }
   </script>
 
   <!-- Ambient Moving Lines and Dots Particle Canvas -->

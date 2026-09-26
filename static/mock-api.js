@@ -649,7 +649,9 @@
     if (dateFrom && dateTo) {
       const since = new Date(dateFrom + "T00:00:00").getTime();
       const until = new Date(dateTo + "T00:00:00").getTime() + MS_DAY;
-      return { since, until };
+      if (Number.isFinite(since) && Number.isFinite(until) && since <= until) {
+        return { since, until };
+      }
     }
     const todayStart = startOfDay(NOW).getTime();
     const token = period === null || period === undefined
