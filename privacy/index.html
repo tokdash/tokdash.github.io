@@ -46,7 +46,7 @@
     :root {
       --color-primary: #1E40AF;
       --color-secondary: #3B82F6;
-      --color-cta: #B45309;
+      --color-cta: #F59E0B;
       --color-bg: #F8FAFC;
       --color-text: #0F172A;
       --color-muted: #475569;
@@ -61,6 +61,7 @@
 
     /* ---- Lenis smooth scroll ---- */
     html.lenis, html.lenis body { height: auto; }
+    html.lenis { scroll-behavior: auto !important; }
     .lenis.lenis-smooth { scroll-behavior: auto !important; }
     .lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
     .lenis.lenis-stopped { overflow: clip; }
@@ -373,8 +374,9 @@
       if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
       if (typeof Lenis === 'undefined') return;
       var lenis = new Lenis({
-        duration: 1.1,
-        easing: function (t) { return Math.min(1, 1.001 - Math.pow(2, -10 * t)); },
+        lerp: 0.08,
+        wheelMultiplier: 1.0,
+        touchMultiplier: 1.5,
         smoothWheel: true,
       });
       function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
