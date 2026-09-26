@@ -19,6 +19,9 @@ const CORE_ASSETS = [
   appPath("/"),
   appPath("/demo/"),
   BASE_PATH ? `${appPath("/manifest.webmanifest")}?base=${encodeURIComponent(BASE_PATH)}` : appPath("/manifest.webmanifest"),
+  appPath("/static/landing.css"),
+  appPath("/static/lenis.min.js"),
+  appPath("/static/lenis.css"),
   appPath("/static/icons/icon-192.png"),
   appPath("/static/icons/icon-512.png"),
 ];
@@ -57,7 +60,17 @@ self.addEventListener("fetch", (event) => {
 
   // Navigation: network-first, fall back to cached app shell.
   if (event.request.mode === "navigate") {
-    event.respondWith(fetch(event.request).catch(() => caches.match(appPath("/"))));
+    event.respondWith(
+      fetch(event.request).catch(async () => {
+        const cached = await caches.match(event.request);
+        if (cached) return cached;
+        if (path.startsWith("/demo")) {
+          const demoCached = await caches.match(appPath("/demo/"));
+          if (demoCached) return demoCached;
+        }
+        return caches.match(appPath("/"));
+      })
+    );
     return;
   }
 

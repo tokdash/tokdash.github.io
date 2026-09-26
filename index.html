@@ -14,19 +14,37 @@
     gtag('config', 'G-SMJYP7ZVL7');
   </script>
 
-  <title>Tokdash — Local token &amp; cost dashboard for AI coding tools</title>
-  <meta name="description" content="Tokdash is an open-source, local-first dashboard that shows exactly how many tokens you burn — and what they cost — across Codex, Claude Code, OpenCode, Gemini CLI and more. Runs on your machine. Nothing is uploaded." />
+  <title>Tokdash: Local token &amp; cost dashboard for AI coding tools</title>
+  <meta name="description" content="Tokdash is an open-source, local-first dashboard that shows exactly how many tokens you burn, and what they cost, across Codex, Claude Code, OpenCode, Gemini CLI and more. Runs on your machine. Nothing is uploaded." />
 
   <link rel="icon" href="/static/icons/icon-192.png" sizes="192x192" />
+  <link rel="apple-touch-icon" href="/static/icons/icon-192.png" />
+  <link rel="manifest" href="/manifest.webmanifest" />
   <link rel="canonical" href="https://tokdash.github.io/" />
 
-  <!-- Open Graph -->
+  <!-- Open Graph & Social Cards -->
   <meta property="og:type" content="website" />
-  <meta property="og:title" content="Tokdash — Local token &amp; cost dashboard for AI coding tools" />
+  <meta property="og:title" content="Tokdash: Local token &amp; cost dashboard for AI coding tools" />
   <meta property="og:description" content="See every token and dollar your AI coding agents spend. 100% local, open source, MIT." />
   <meta property="og:url" content="https://tokdash.github.io/" />
   <meta property="og:image" content="https://tokdash.github.io/static/icons/icon-512.png" />
   <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Tokdash: Local token &amp; cost dashboard for AI coding tools" />
+  <meta name="twitter:description" content="See every token and dollar your AI coding agents spend. 100% local, open source, MIT." />
+  <meta name="twitter:image" content="https://tokdash.github.io/static/icons/icon-512.png" />
+
+  <!-- Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Tokdash",
+    "applicationCategory": "DeveloperApplication",
+    "operatingSystem": "Linux, macOS, Windows",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "description": "Local token and cost intelligence dashboard for AI coding tools."
+  }
+  </script>
 
   <!-- Fonts (Design System: Fira Code / Fira Sans) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -34,8 +52,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Fira+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 
   <!-- Tailwind: prebuilt static CSS so layout works with JS disabled/blocked.
-       Regenerate after class changes — see README ("Rebuilding the landing CSS"). -->
+       Regenerate after class changes: see README ("Rebuilding the landing CSS"). -->
   <link rel="stylesheet" href="/static/landing.css" />
+  <link rel="stylesheet" href="/static/lenis.css" />
 
   <!-- Avoid theme flash: set the class before paint -->
   <script>
@@ -88,6 +107,20 @@
       --shadow-lg: 0 16px 44px rgba(0,0,0,0.5);
     }
 
+    /* ---- Lenis smooth scroll ---- */
+    html.lenis, html.lenis body { height: auto; }
+    html, html.lenis { scroll-behavior: auto !important; overscroll-behavior-y: none; }
+    .lenis.lenis-smooth { scroll-behavior: auto !important; }
+    .lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+    .lenis.lenis-stopped { overflow: clip; }
+    .lenis.lenis-smooth iframe { pointer-events: none; }
+
+    /* GPU layer promotion to prevent paint bottleneck during high-framerate scrolling */
+    header, .card, .setup-box {
+      transform: translateZ(0);
+      -webkit-transform: translateZ(0);
+    }
+
     /* min-height (not height:100%): a fixed-height body bounds position:sticky to
        one viewport, so the nav would stop sticking after the first screen. min-height
        lets the page grow with content and keeps the nav pinned across the full scroll.
@@ -96,7 +129,10 @@
       min-height: 100%;
       overflow-x: clip;
     }
-    html { scroll-behavior: smooth; scroll-padding-top: 88px; }
+    html {
+      scroll-behavior: auto !important;
+      scroll-padding-top: 88px;
+    }
 
     body {
       font-family: "Fira Sans", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans";
@@ -136,7 +172,7 @@
     html.dark .surface:hover {
       box-shadow: 0 20px 25px -5px rgba(0,0,0,0.4), 0 10px 10px -5px rgba(0,0,0,0.3);
     }
-    /* Static surface — no lift on hover (used for the hero preview & terminal) */
+    /* Static surface, no lift on hover (used for the hero preview & terminal) */
     .surface-static:hover { transform: none; }
 
     /* ---- Buttons ---- */
@@ -144,17 +180,44 @@
       display: inline-flex; align-items: center; justify-content: center; gap: 10px;
       border-radius: 10px; padding: 12px 18px; min-height: 48px;
       font-weight: 600; cursor: pointer; user-select: none; white-space: nowrap;
-      transition: transform var(--t-fast) ease, box-shadow var(--t-fast) ease, background var(--t-fast) ease, border-color var(--t-fast) ease;
+      transition: transform var(--t-fast) ease, box-shadow var(--t-fast) ease, background var(--t-fast) ease, border-color var(--t-fast) ease, color var(--t-fast) ease;
     }
-    .btn:focus-visible { outline: none; box-shadow: 0 0 0 4px rgba(30,64,175,0.16); }
+    .btn:focus-visible { outline: none; box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.28); }
     .btn-primary {
-      background: linear-gradient(135deg, var(--color-primary) 0%, #2563EB 100%);
-      color: #fff; border: none;
-      box-shadow: 0 10px 24px rgba(30,64,175,0.25), 0 4px 8px rgba(30,64,175,0.15);
+      background: rgba(37, 99, 235, 0.07);
+      color: #1D4ED8;
+      border: 1px solid rgba(59, 130, 246, 0.45);
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.08);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
     }
-    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 14px 28px rgba(30,64,175,0.30), 0 6px 12px rgba(30,64,175,0.20); }
-    .btn-primary:active { transform: translateY(0); }
-    html.dark .btn-primary { background: linear-gradient(135deg, #2563EB 0%, #3B82F6 100%); box-shadow: 0 10px 24px rgba(37,99,235,0.35), 0 4px 8px rgba(37,99,235,0.2); }
+    .btn-primary svg path {
+      stroke: currentColor;
+      transition: stroke var(--t-fast) ease;
+    }
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #2563EB 0%, #3B82F6 100%);
+      color: #ffffff;
+      border-color: rgba(59, 130, 246, 0.85);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 22px rgba(37, 99, 235, 0.28), 0 3px 6px rgba(37, 99, 235, 0.16);
+    }
+    .btn-primary:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 6px rgba(37, 99, 235, 0.2);
+    }
+    html.dark .btn-primary {
+      background: rgba(59, 130, 246, 0.12);
+      color: #93C5FD;
+      border: 1px solid rgba(147, 197, 253, 0.35);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+    }
+    html.dark .btn-primary:hover {
+      background: linear-gradient(135deg, #1D4ED8 0%, #2563EB 100%);
+      color: #ffffff;
+      border-color: rgba(96, 165, 250, 0.75);
+      box-shadow: 0 8px 22px rgba(37, 99, 235, 0.38), 0 3px 6px rgba(37, 99, 235, 0.2);
+    }
 
     .btn-ghost {
       background: rgba(15, 23, 42, 0.04); color: var(--color-text);
@@ -248,7 +311,7 @@
     }
     html.dark .tool-pill { background: rgba(30,41,59,0.55); }
     .tool-pill:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--color-primary) 45%, var(--color-border)); box-shadow: var(--shadow-md); }
-    /* White logo chip — keeps every mark (incl. dark monochrome glyphs) legible in light & dark. */
+    /* White logo chip, keeping every mark (incl. dark monochrome glyphs) legible in light & dark. */
     .tool-logo { width: 30px; height: 30px; flex: none; object-fit: contain; border-radius: 7px; background: #fff; padding: 4px; box-shadow: inset 0 0 0 1px rgba(15,23,42,0.06); }
     /* Same chip for marks that are wordmarks: they carry the name, so the pill prints no label. */
     .tool-logo.is-wordmark { width: auto; height: 26px; max-width: 100%; padding: 4px 8px; }
@@ -742,7 +805,7 @@
     .comp-mock .win-foot .grow { flex: 1; min-width: 4px; }
     /* ===== Claude Code statusline mock (third companion figure) =====
        Reuses the page's .terminal pattern; only scoped tweaks live here.
-       (.comp-wide spans the section's sm:grid-cols-2 grid — landing.css is
+       (.comp-wide spans the section's sm:grid-cols-2 grid, because landing.css is
        purged and has no col-span utility, so the span lives here.) */
     @media (min-width: 640px) {
       .comp-wide { grid-column: 1 / -1; }
@@ -761,14 +824,64 @@
     .comp-mock .sl-red { color: #E06C75; }
     .comp-mock .sl-claude { color: #FF8700; }
     .comp-mock .sl-codex { color: #00AF87; }
-    @container (max-width: 800px) {
-      .comp-mock .terminal-body { font-size: 11.5px; }
+    /* ---- Liquid Glass Cursor Follower on Setup section ---- */
+    .liquid-glass-follower {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 78px;
+      height: 78px;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 60;
+      opacity: 0;
+      transform: translate3d(-100px, -100px, 0);
+      will-change: transform, opacity;
+      transition: opacity 280ms cubic-bezier(0.16, 1, 0.3, 1);
+      backdrop-filter: blur(10px) saturate(190%) brightness(1.1) contrast(1.12);
+      -webkit-backdrop-filter: blur(10px) saturate(190%) brightness(1.1) contrast(1.12);
+      background: radial-gradient(circle at 34% 30%, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.15) 35%, rgba(255, 255, 255, 0.03) 65%, rgba(255, 255, 255, 0) 100%);
+      box-shadow:
+        inset 0 1.5px 2px rgba(255, 255, 255, 0.85),
+        inset 0 -1.5px 2px rgba(0, 0, 0, 0.08),
+        inset 0 0 12px rgba(255, 255, 255, 0.35),
+        inset 2px 2px 5px rgba(59, 130, 246, 0.35),
+        inset -2px -2px 5px rgba(245, 158, 11, 0.3),
+        0 8px 30px rgba(15, 23, 42, 0.22),
+        0 0 0 1px rgba(255, 255, 255, 0.3);
+    }
+    .liquid-glass-follower::after {
+      content: '';
+      position: absolute;
+      top: 13px;
+      left: 17px;
+      width: 14px;
+      height: 9px;
+      border-radius: 50%;
+      transform: rotate(-35deg);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.2));
+      filter: blur(0.5px);
+    }
+    html.dark .liquid-glass-follower {
+      backdrop-filter: blur(12px) saturate(210%) brightness(1.2) contrast(1.15);
+      -webkit-backdrop-filter: blur(12px) saturate(210%) brightness(1.2) contrast(1.15);
+      background: radial-gradient(circle at 34% 30%, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0.1) 35%, rgba(255, 255, 255, 0.02) 65%, rgba(255, 255, 255, 0) 100%);
+      box-shadow:
+        inset 0 1.5px 2px rgba(255, 255, 255, 0.7),
+        inset 0 0 14px rgba(255, 255, 255, 0.25),
+        inset 2.5px 2.5px 6px rgba(96, 165, 250, 0.45),
+        inset -2.5px -2.5px 6px rgba(251, 191, 36, 0.35),
+        0 12px 36px rgba(0, 0, 0, 0.45),
+        0 0 0 1px rgba(255, 255, 255, 0.25);
     }
     /* ---- end companion mock ---- */
   </style>
 </head>
 
 <body>
+  <!-- Ambient moving lines and dots background canvas -->
+  <canvas id="ambientNetworkCanvas" style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:-1;" aria-hidden="true"></canvas>
+
   <!-- ============ NAV ============ -->
   <header class="site-nav">
     <div class="max-w-[1180px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
@@ -800,7 +913,7 @@
           <svg id="iconMoon" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
           <svg id="iconSun" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true" style="display:none;"><circle cx="12" cy="12" r="5" stroke="currentColor" stroke-width="2"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
         </button>
-        <a id="ghStar" href="https://github.com/JingbiaoMei/Tokdash" target="_blank" rel="noopener" class="btn btn-ghost gh-star" style="min-height:40px;padding:8px 14px;font-size:14px;" aria-label="Star Tokdash on GitHub">
+        <a id="ghStar" href="https://github.com/JingbiaoMei/Tokdash" target="_blank" rel="noopener noreferrer" class="btn btn-ghost gh-star" style="min-height:40px;padding:8px 14px;font-size:14px;" aria-label="Star Tokdash on GitHub">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.54-3.88-1.54-.53-1.34-1.3-1.7-1.3-1.7-1.06-.72.08-.71.08-.71 1.17.08 1.79 1.2 1.79 1.2 1.04 1.79 2.73 1.27 3.4.97.1-.75.41-1.27.74-1.56-2.56-.29-5.26-1.28-5.26-5.71 0-1.26.45-2.3 1.19-3.11-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.19a11 11 0 0 1 5.79 0c2.2-1.5 3.17-1.19 3.17-1.19.63 1.59.23 2.76.11 3.05.74.81 1.19 1.85 1.19 3.11 0 4.44-2.7 5.42-5.27 5.7.42.37.8 1.1.8 2.22v3.29c0 .31.21.67.8.56A11.5 11.5 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5z"/></svg>
           <svg class="gh-starglyph" width="16" height="16" viewBox="0 0 24 24" fill="var(--color-cta)" aria-hidden="true"><path d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
           <span class="hidden sm:inline">Star</span>
@@ -823,8 +936,8 @@
           </h1>
 
           <p class="reveal text-base sm:text-lg text-muted mt-5 max-w-xl" data-i18n="hero.sub">
-            Tokdash reads the logs already on your machine and shows exactly how many tokens you burn — and what they
-            cost — across twenty-four coding agents. Add the rest of your machines as servers and read them as one
+            Tokdash reads the logs already on your machine and shows exactly how many tokens you burn, and what they
+            cost, across twenty-four coding agents. Add the rest of your machines as servers and read them as one
             total. No account, no upload, no telemetry.
           </p>
 
@@ -842,7 +955,7 @@
             </button>
             <a href="/demo/" class="btn btn-primary">
               <span data-i18n="hero.cta_demo">View live demo</span>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </a>
           </div>
 
@@ -930,7 +1043,7 @@
     <section id="tools" class="max-w-[1180px] mx-auto px-4 sm:px-6 py-14 lg:py-20">
       <div class="text-center max-w-2xl mx-auto reveal">
         <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight" data-i18n="tools.h">One dashboard for every agent</h2>
-        <p class="text-muted mt-3" data-i18n="tools.sub">Tokdash unifies usage across twenty-four AI coding tools — switch agents without losing the bill.</p>
+        <p class="text-muted mt-3" data-i18n="tools.sub">Tokdash unifies usage across twenty-four AI coding tools, letting you switch agents without losing the bill.</p>
       </div>
 
       <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 mt-10 max-w-3xl mx-auto reveal">
@@ -977,19 +1090,19 @@
         <div class="surface p-6 reveal">
           <div class="feature-icon mb-4"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M4 19V5M4 19h16M8 16V9M12 16V6M16 16v-4M20 16v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
           <h3 class="text-lg font-bold" data-i18n="feat.1.h">Exact tokens, billed in real money</h3>
-          <p class="text-sm text-muted mt-2" data-i18n="feat.1.p">Input, output, and cache tokens per tool, model, and day — the real counts from your logs, turned into dollars by a built-in pricing database.</p>
+          <p class="text-sm text-muted mt-2" data-i18n="feat.1.p">Input, output, and cache tokens per tool, model, and day, providing the real counts from your logs, turned into dollars by a built-in pricing database.</p>
         </div>
         <!-- 2 -->
         <div class="surface p-6 reveal">
           <div class="feature-icon mb-4"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8l-5-5Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M14 3v5h5" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 17v-3M12 17v-5M15 17v-2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
           <h3 class="text-lg font-bold" data-i18n="feat.2.h">Report tab, ready to share</h3>
-          <p class="text-sm text-muted mt-2" data-i18n="feat.2.p">A week, month, or year-to-date report on a calendar-aligned window — day map, podiums for harness, model and project, hour and weekday rhythm, and PNG share cards.</p>
+          <p class="text-sm text-muted mt-2" data-i18n="feat.2.p">A week, month, or year-to-date report on a calendar-aligned window, with a day map, podiums for harness, model and project, hour and weekday rhythm, and PNG share cards.</p>
         </div>
         <!-- 3 -->
         <div class="surface p-6 reveal">
           <div class="feature-icon mb-4"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="16" rx="2" stroke="currentColor" stroke-width="2"/><path d="M7 9h2v2H7zM11 9h2v2h-2zM15 9h2v2h-2zM7 13h2v2H7zM11 13h2v2h-2z" fill="currentColor"/></svg></div>
           <h3 class="text-lg font-bold" data-i18n="feat.3.h">Contribution heatmap</h3>
-          <p class="text-sm text-muted mt-2" data-i18n="feat.3.p">A GitHub-style calendar of your activity — with a 3D isometric view and an energy estimate to recolor days by kWh.</p>
+          <p class="text-sm text-muted mt-2" data-i18n="feat.3.p">A GitHub-style calendar of your activity, featuring a 3D isometric view and an energy estimate to recolor days by kWh.</p>
         </div>
         <!-- 4 -->
         <div class="surface p-6 reveal">
@@ -1001,19 +1114,19 @@
         <div class="surface p-6 reveal">
           <div class="feature-icon mb-4"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="2" y="4" width="20" height="16" rx="2" stroke="currentColor" stroke-width="2"/><path d="m6 9 3 3-3 3M12 15h5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
           <h3 class="text-lg font-bold" data-i18n="feat.5.h">Statusline integration</h3>
-          <p class="text-sm text-muted mt-2" data-i18n="feat.5.p">Surface live token and cost indicators right in your shell prompt while you work — no need to switch windows.</p>
+          <p class="text-sm text-muted mt-2" data-i18n="feat.5.p">Surface live token and cost indicators right in your shell prompt while you work, with no need to switch windows.</p>
         </div>
         <!-- 6 -->
         <div class="surface p-6 reveal">
           <div class="feature-icon mb-4"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
           <h3 class="text-lg font-bold" data-i18n="feat.6.h">17 themes, light &amp; dark</h3>
-          <p class="text-sm text-muted mt-2" data-i18n="feat.6.p">Classic, Midnight, Terminal, Arcade and more — with system-preference detection, custom date ranges, and UI in six languages (English&nbsp;/&nbsp;中文&nbsp;/&nbsp;日本語&nbsp;/&nbsp;한국어&nbsp;/&nbsp;Español&nbsp;/&nbsp;Português).</p>
+          <p class="text-sm text-muted mt-2" data-i18n="feat.6.p">Classic, Midnight, Terminal, Arcade and more, with system-preference detection, custom date ranges, and UI in six languages (English&nbsp;/&nbsp;中文&nbsp;/&nbsp;日本語&nbsp;/&nbsp;한국어&nbsp;/&nbsp;Español&nbsp;/&nbsp;Português).</p>
         </div>
         <!-- 7 -->
         <div class="surface p-6 reveal">
           <div class="feature-icon mb-4"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 12a9 9 0 0 1 15-6.7M21 12a9 9 0 0 1-15 6.7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M18 3v4h-4M6 21v-4h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
           <h3 class="text-lg font-bold" data-i18n="feat.7.h">Managed background service</h3>
-          <p class="text-sm text-muted mt-2" data-i18n="feat.7.p"><code class="mono" style="color:var(--color-primary);">tokdash setup</code> configures a reversible, no-sudo systemd/launchd service in one step — <code class="mono" style="color:var(--color-primary);">doctor</code>, <code class="mono" style="color:var(--color-primary);">update</code>, and <code class="mono" style="color:var(--color-primary);">uninstall</code> keep it healthy and fully removable.</p>
+          <p class="text-sm text-muted mt-2" data-i18n="feat.7.p"><code class="mono" style="color:var(--color-primary);">tokdash setup</code> configures a reversible, no-sudo systemd/launchd service in one step, while <code class="mono" style="color:var(--color-primary);">doctor</code>, <code class="mono" style="color:var(--color-primary);">update</code>, and <code class="mono" style="color:var(--color-primary);">uninstall</code> keep it healthy and fully removable.</p>
         </div>
         <!-- 8 -->
         <div class="surface p-6 reveal">
@@ -1062,7 +1175,7 @@
 
           <a href="/demo/" class="btn btn-primary mt-8">
             <span data-i18n="srv.cta">Open the three-server demo</span>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </a>
         </div>
 
@@ -1114,7 +1227,7 @@
         <div class="reveal">
           <span class="chip" data-i18n="opt.eyebrow"><span class="dot"></span> Cost optimization</span>
           <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight mt-5" data-i18n="opt.h">See where every dollar goes</h2>
-          <p class="text-muted mt-3 max-w-md" data-i18n="opt.sub">Tokdash breaks spend down to the session, model, and project — so you can find waste and cut it, not just watch the number climb.</p>
+          <p class="text-muted mt-3 max-w-md" data-i18n="opt.sub">Tokdash breaks spend down to the session, model, and project, so you can find waste and cut it, not just watch the number climb.</p>
 
           <ul class="mt-7 space-y-4">
             <li class="opt-li">
@@ -1127,7 +1240,7 @@
             </li>
             <li class="opt-li">
               <span class="opt-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 12h10M4 18h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="19" cy="15" r="3" stroke="currentColor" stroke-width="2"/><path d="m21.4 17.4 1.6 1.6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>
-              <div><h3 class="font-bold text-[15px]" data-i18n="opt.3.h">Follow a session down to the turn</h3><p class="text-sm text-muted" data-i18n="opt.3.p">Turn trends, cache reads and estimated agent time per session — not one blurred daily total.</p></div>
+              <div><h3 class="font-bold text-[15px]" data-i18n="opt.3.h">Follow a session down to the turn</h3><p class="text-sm text-muted" data-i18n="opt.3.p">Turn trends, cache reads, and estimated agent time per session, rather than one blurred daily total.</p></div>
             </li>
             <li class="opt-li">
               <span class="opt-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M16 3h5v5M21 3l-7 7M8 21H3v-5M3 21l7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
@@ -1137,7 +1250,7 @@
 
           <a href="/demo/" class="btn btn-primary mt-8">
             <span data-i18n="opt.cta">Explore it in the live demo</span>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </a>
         </div>
 
@@ -1192,7 +1305,7 @@
       <div class="text-center reveal">
         <span class="chip" data-i18n="comp.eyebrow"><span class="dot"></span> Companion app</span>
         <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight mt-5" data-i18n="comp.h">Today's spend, one click away in your menu bar</h2>
-        <p class="text-muted mt-3 max-w-2xl mx-auto" data-i18n="comp.sub">Tokdash Companion is a native menu-bar (macOS) and tray (Windows) client for your local Tokdash service. Read-only, privacy-first — no telemetry, and it talks only to the endpoint you configure.</p>
+        <p class="text-muted mt-3 max-w-2xl mx-auto" data-i18n="comp.sub">Tokdash Companion is a native menu-bar (macOS) and tray (Windows) client for your local Tokdash service. Read-only and privacy-first, with no telemetry, and it talks only to the endpoint you configure.</p>
       </div>
 
       <!-- HTML/CSS mockups (ported from UI_CONCEPT.html; replaces the old screenshots) -->
@@ -1208,7 +1321,7 @@
                 <span class="mb-right">
                   <svg width="15" height="11" viewBox="0 0 20 14" fill="currentColor" aria-hidden="true"><path d="M10 12.5a1.7 1.7 0 1 0 0 .01M10 9c-1.9 0-3.6.7-4.9 1.9l1.4 1.4A4.9 4.9 0 0 1 10 11c1.3 0 2.6.5 3.5 1.3l1.4-1.4A6.9 6.9 0 0 0 10 9zm0-4C7 5 4.2 6.1 2 8.3l1.4 1.4A9.3 9.3 0 0 1 10 7c2.5 0 4.8 1 6.6 2.7L18 8.3A11.3 11.3 0 0 0 10 5zm0-4C6.1 1 2.5 2.6-.6 5.6L.8 7A14.6 14.6 0 0 1 10 3c3.6 0 6.9 1.4 9.2 4l1.4-1.4A16.6 16.6 0 0 0 10 1z"/></svg>
                   <svg width="22" height="11" viewBox="0 0 25 12" fill="none" stroke="currentColor" aria-hidden="true"><rect x="0.5" y="0.5" width="21" height="11" rx="3"/><rect x="2" y="2" width="14" height="8" rx="1.5" fill="currentColor" stroke="none"/><path d="M23.5 4v4a2.2 2.2 0 0 0 0-4z" fill="currentColor" stroke="none"/></svg>
-                  <button type="button" class="mac-extra active" tabindex="-1" title="Tokdash — Today $3.42 · 18.7M tokens">
+                  <button type="button" class="mac-extra active" tabindex="-1" title="Tokdash: Today $3.42 · 18.7M tokens">
                     <!-- Monochrome template variant of the Tokdash logo -->
                     <svg width="16" height="17" viewBox="0 0 371 394" fill="currentColor" aria-hidden="true">
                       <rect x="24" y="24" width="323" height="296" rx="56" fill="none" stroke="currentColor" stroke-width="26"/>
@@ -1219,7 +1332,7 @@
                       <path d="M98 240 L160 158 L216 184 L294 84" fill="none" stroke="currentColor" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
                       <circle cx="98" cy="240" r="20"/><circle cx="160" cy="158" r="20"/><circle cx="216" cy="184" r="20"/><circle cx="294" cy="84" r="20"/>
                     </svg>
-                    <span class="mac-tip" role="tooltip">Tokdash — Today $3.42 · 18.7M tokens</span>
+                    <span class="mac-tip" role="tooltip">Tokdash: Today $3.42 · 18.7M tokens</span>
                   </button>
                   <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><circle cx="7" cy="7" r="5.2"/><path d="m11 11 3.4 3.4" stroke-linecap="round"/></svg>
                   <svg width="15" height="11" viewBox="0 0 16 12" fill="currentColor" aria-hidden="true"><rect x="0" y="0" width="16" height="3.4" rx="1.7"/><rect x="0" y="4.3" width="16" height="3.4" rx="1.7"/><rect x="0" y="8.6" width="16" height="3.4" rx="1.7"/></svg>
@@ -1306,7 +1419,7 @@
                   <button type="button" class="win-tray-icon" tabindex="-1" aria-label="Show hidden icons">
                     <svg width="11" height="11" viewBox="0 0 10 10" fill="none" stroke="#4A4A4A" stroke-width="1.5" aria-hidden="true"><path d="M2.2 3.8 5 6.6l2.8-2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
                   </button>
-                  <button type="button" class="win-tray-icon active" tabindex="-1" title="Tokdash — Today $3.42 · 18.7M tokens" aria-label="Tokdash, notification area icon">
+                  <button type="button" class="win-tray-icon active" tabindex="-1" title="Tokdash: Today $3.42 · 18.7M tokens" aria-label="Tokdash, notification area icon">
                     <!-- Color Tokdash logo, white interior for taskbar contrast -->
                     <svg width="17" height="18" viewBox="0 0 371 394" aria-hidden="true">
                       <rect x="24" y="24" width="323" height="296" rx="56" fill="#fff" stroke="#08253F" stroke-width="26"/>
@@ -1317,7 +1430,7 @@
                       <path d="M98 240 L160 158 L216 184 L294 84" fill="none" stroke="#B9967D" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
                       <circle cx="98" cy="240" r="20" fill="#B9967D"/><circle cx="160" cy="158" r="20" fill="#B9967D"/><circle cx="216" cy="184" r="20" fill="#B9967D"/><circle cx="294" cy="84" r="20" fill="#B9967D"/>
                     </svg>
-                    <span class="win-tip" role="tooltip">Tokdash — Today $3.42 · 18.7M tokens</span>
+                    <span class="win-tip" role="tooltip">Tokdash: Today $3.42 · 18.7M tokens</span>
                   </button>
                   <button type="button" class="win-tray-icon" tabindex="-1" aria-label="Network, volume, battery">
                     <svg width="30" height="14" viewBox="0 0 34 14" fill="none" aria-hidden="true">
@@ -1394,7 +1507,7 @@
                 <span class="dot-r" style="background:#F87171;"></span>
                 <span class="dot-r" style="background:#FBBF24;"></span>
                 <span class="dot-r" style="background:#34D399;"></span>
-                <span class="mono text-xs ml-2" style="color:#94A3B8;">claude — myproject</span>
+                <span class="mono text-xs ml-2" style="color:#94A3B8;">claude: myproject</span>
               </div>
               <div class="terminal-body">
                 <div class="o">❯ tighten the cache-hit rate on long sessions</div>
@@ -1422,7 +1535,7 @@
         <div class="surface p-6 reveal">
           <div class="feature-icon mb-4"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="13" r="8" stroke="currentColor" stroke-width="2"/><path d="M12 9v4l2.5 2.5M9 2h6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
           <h3 class="text-lg font-bold" data-i18n="comp.2.h">Quota bars with reset countdowns</h3>
-          <p class="text-sm text-muted mt-2" data-i18n="comp.2.p">Per-provider subscription windows show remaining quota and relative reset times — "resets in 19 minutes" — plus your most-used tool today.</p>
+          <p class="text-sm text-muted mt-2" data-i18n="comp.2.p">Per-provider subscription windows show remaining quota and relative reset times, such as "resets in 19 minutes", plus your most-used tool today.</p>
         </div>
         <div class="surface p-6 reveal">
           <div class="feature-icon mb-4"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M10.3 21a2 2 0 0 0 3.4 0" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
@@ -1432,7 +1545,7 @@
         <div class="surface p-6 reveal">
           <div class="feature-icon mb-4"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 2 4 6v6c0 5 3.4 8.4 8 10 4.6-1.6 8-5 8-10V6l-8-4z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="m9 12 2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
           <h3 class="text-lg font-bold" data-i18n="comp.4.h">Private by design</h3>
-          <p class="text-sm text-muted mt-2" data-i18n="comp.4.p">No telemetry, nothing uploaded. The app only talks to the Tokdash endpoint you set — usually your own localhost service.</p>
+          <p class="text-sm text-muted mt-2" data-i18n="comp.4.p">No telemetry, nothing uploaded. The app only talks to the Tokdash endpoint you set, which is usually your own localhost service.</p>
         </div>
       </div>
 
@@ -1447,8 +1560,9 @@
       <p class="text-xs text-muted text-center mt-4 max-w-xl mx-auto" data-i18n="comp.caveat">On Windows, the Microsoft Store build is signed by Microsoft and updates itself. The macOS universal dmg and the Windows portable zip on GitHub Releases are unsigned, so Gatekeeper / SmartScreen will warn on first launch. Look for tags <code class="mono">companion-v*</code>.</p>
     </section>
 
-    <!-- ============ GET STARTED ============ -->
-    <section id="install" class="max-w-[1180px] mx-auto px-4 sm:px-6 py-14 lg:py-20">
+    <!-- ============ GET STARTED / SETUP ============ -->
+    <span id="start" style="position:relative;top:-88px;display:block;" aria-hidden="true"></span>
+    <section id="install" data-section="setup" class="max-w-[1180px] mx-auto px-4 sm:px-6 py-14 lg:py-20">
       <div class="grid lg:grid-cols-2 gap-10 lg:gap-14 items-center">
         <div class="reveal">
           <span class="chip" data-i18n="start.eyebrow"><span class="dot"></span> Get started</span>
@@ -1474,15 +1588,15 @@
               <span class="step-num">3</span>
               <div>
                 <h3 class="font-bold" data-i18n="start.3.h">Done</h3>
-                <p class="text-sm text-muted mt-0.5" data-i18n="start.3.p">The wizard prints your dashboard URL — default <code class="mono" style="color:var(--color-primary);">http://127.0.0.1:55423</code>.</p>
+                <p class="text-sm text-muted mt-0.5" data-i18n="start.3.p">The wizard prints your dashboard URL, defaulting to <code class="mono" style="color:var(--color-primary);">http://127.0.0.1:55423</code>.</p>
               </div>
             </li>
           </ol>
 
           <div class="flex flex-wrap gap-3 mt-8">
             <a href="/demo/" class="btn btn-primary">
-              <span data-i18n="start.cta_try">Try it now — no install</span>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span data-i18n="start.cta_try">Try it now with no install</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </a>
             <a href="https://github.com/JingbiaoMei/Tokdash" target="_blank" rel="noopener" class="btn btn-ghost" data-i18n="start.cta_docs">Read the docs</a>
           </div>
@@ -1496,7 +1610,7 @@
             <span class="dot-r" style="background:#F87171;"></span>
             <span class="dot-r" style="background:#FBBF24;"></span>
             <span class="dot-r" style="background:#34D399;"></span>
-            <span class="mono text-xs ml-2" style="color:#94A3B8;">zsh — tokdash</span>
+            <span class="mono text-xs ml-2" style="color:#94A3B8;">zsh: tokdash</span>
           </div>
           <div class="terminal-body">
             <div><span class="p">$</span> <span class="c">pipx install tokdash</span></div>
@@ -1516,11 +1630,11 @@
       <div class="surface surface-static reveal overflow-hidden text-center px-6 py-12 sm:py-16"
            style="background: linear-gradient(135deg, color-mix(in srgb, var(--color-primary) 16%, var(--color-bg)), color-mix(in srgb, var(--color-cta) 12%, var(--color-bg)));">
         <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight" data-i18n="cta.h">See it before you install</h2>
-        <p class="text-muted mt-3 max-w-xl mx-auto" data-i18n="cta.sub">The live demo runs the real dashboard on synthetic data — explore every tab, theme, and chart right in your browser.</p>
+        <p class="text-muted mt-3 max-w-xl mx-auto" data-i18n="cta.sub">The live demo runs the real dashboard on synthetic data, letting you explore every tab, theme, and chart right in your browser.</p>
         <div class="flex flex-wrap justify-center gap-3 mt-8">
           <a href="/demo/" class="btn btn-primary">
             <span data-i18n="cta.open">Open the live demo</span>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </a>
           <button class="cmd" data-cmd="pipx install tokdash" aria-label="Copy: pipx install tokdash" onclick="window.__copyCmd(this)">
             <span><span class="prompt">$</span>&nbsp;pipx install tokdash</span>
@@ -1536,11 +1650,11 @@
       <div class="surface p-8 sm:p-10 text-center max-w-3xl mx-auto reveal">
         <span class="chip" data-i18n="related.eyebrow"><span class="dot"></span> Related project</span>
         <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight mt-4" data-i18n="related.h">Synchronize and control your agents</h2>
-        <p class="text-muted mt-3 max-w-2xl mx-auto" data-i18n="related.sub">From CLI to GUI, from desktop to phone. Pick up right where you left off, anywhere. Cosyncing keeps your coding agents in sync across your own network — a sister project from the same author.</p>
+        <p class="text-muted mt-3 max-w-2xl mx-auto" data-i18n="related.sub">From CLI to GUI, from desktop to phone. Pick up right where you left off, anywhere. Cosyncing keeps your coding agents in sync across your own network, as a sister project from the same author.</p>
         <div class="flex flex-wrap justify-center gap-3 mt-7">
           <a href="https://github.com/cosyncing/cosyncing" target="_blank" rel="noopener" class="btn btn-primary">
             <span data-i18n="related.cta">View on GitHub</span>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </a>
           <a href="https://cosyncing.com" target="_blank" rel="noopener" class="btn btn-ghost" data-i18n="related.site">cosyncing.com</a>
         </div>
@@ -1594,19 +1708,43 @@
 
     // ---- Copy-to-clipboard for command pills ----
     window.__copyCmd = function (el) {
+      if (!el || el.dataset.copying === 'true') return;
+      el.dataset.copying = 'true';
       var cmd = el.getAttribute('data-cmd') || '';
-      var done = function () {
+      var glyph = el.querySelector('.copy-ic');
+      if (glyph && !glyph.dataset.origHtml) {
+        glyph.dataset.origHtml = glyph.innerHTML;
+      }
+      var reset = function () {
+        el.classList.remove('copied');
+        if (glyph && glyph.dataset.origHtml) glyph.innerHTML = glyph.dataset.origHtml;
+        delete el.dataset.copying;
+      };
+      var success = function () {
         el.classList.add('copied');
-        var glyph = el.querySelector('.copy-ic');
-        var prev = glyph.innerHTML;
-        glyph.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-        setTimeout(function () { el.classList.remove('copied'); glyph.innerHTML = prev; }, 1600);
+        if (glyph) {
+          glyph.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+        }
+        clearTimeout(el._copyTimer);
+        el._copyTimer = setTimeout(reset, 1600);
+      };
+      var failure = function () {
+        reset();
       };
       if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(cmd).then(done).catch(done);
+        navigator.clipboard.writeText(cmd).then(success).catch(function () {
+          try {
+            var t = document.createElement('textarea'); t.value = cmd; document.body.appendChild(t);
+            t.select(); var ok = document.execCommand('copy'); document.body.removeChild(t);
+            if (ok) success(); else failure();
+          } catch (e) { failure(); }
+        });
       } else {
-        var t = document.createElement('textarea'); t.value = cmd; document.body.appendChild(t);
-        t.select(); try { document.execCommand('copy'); } catch (e) {} document.body.removeChild(t); done();
+        try {
+          var t = document.createElement('textarea'); t.value = cmd; document.body.appendChild(t);
+          t.select(); var ok = document.execCommand('copy'); document.body.removeChild(t);
+          if (ok) success(); else failure();
+        } catch (e) { failure(); }
       }
     };
     var heroCopy = document.getElementById('copyCmd');
@@ -1673,7 +1811,7 @@
           'nav.demo': `Demo`,
           'hero.eyebrow': `<span class="dot"></span> Open source · Local-first · MIT`,
           'hero.h1': `Local token & cost dashboard <span class="grad-text">for your AI coding tools</span>`,
-          'hero.sub': `Tokdash reads the logs already on your machine and shows exactly how many tokens you burn — and what they cost — across twenty-four coding agents. Add the rest of your machines as servers and read them as one total. No account, no upload, no telemetry.`,
+          'hero.sub': `Tokdash reads the logs already on your machine and shows exactly how many tokens you burn, and what they cost, across twenty-four coding agents. Add the rest of your machines as servers and read them as one total. No account, no upload, no telemetry.`,
           'hero.tag1': `<span class="dot"></span> Twenty-four agents, one dashboard`,
           'hero.tag2': `WSL, macOS and Linux servers, combined`,
           'hero.cta_demo': `View live demo`,
@@ -1686,24 +1824,24 @@
           'trust.pwa.h': `Dashboard installs as a PWA`,
           'trust.pwa.p': `Pin the dashboard like a native app, light or dark, in 6 languages.`,
           'tools.h': `One dashboard for every agent`,
-          'tools.sub': `Tokdash unifies usage across twenty-four AI coding tools — switch agents without losing the bill.`,
+          'tools.sub': `Tokdash unifies usage across twenty-four AI coding tools, letting you switch agents without losing the bill.`,
           'feat.eyebrow': `<span class="dot"></span> Features`,
           'feat.h': `Everything you spend, made visible`,
           'feat.sub': `From raw token counts to real dollars, drilled down to a single session.`,
           'feat.1.h': `Exact tokens, billed in real money`,
-          'feat.1.p': `Input, output, and cache tokens per tool, model, and day — the real counts from your logs, turned into dollars by a built-in pricing database.`,
+          'feat.1.p': `Input, output, and cache tokens per tool, model, and day, providing the real counts from your logs, turned into dollars by a built-in pricing database.`,
           'feat.2.h': `Report tab, ready to share`,
-          'feat.2.p': `A week, month, or year-to-date report on a calendar-aligned window — day map, podiums for harness, model and project, hour and weekday rhythm, and PNG share cards.`,
+          'feat.2.p': `A week, month, or year-to-date report on a calendar-aligned window, with a day map, podiums for harness, model and project, hour and weekday rhythm, and PNG share cards.`,
           'feat.3.h': `Contribution heatmap`,
-          'feat.3.p': `A GitHub-style calendar of your activity — with a 3D isometric view and an energy estimate to recolor days by kWh.`,
+          'feat.3.p': `A GitHub-style calendar of your activity, featuring a 3D isometric view and an energy estimate to recolor days by kWh.`,
           'feat.4.h': `Session explorer`,
           'feat.4.p': `Drill into any session, grouped by project and across tools, to find exactly what ran up the cost.`,
           'feat.5.h': `Statusline integration`,
-          'feat.5.p': `Surface live token and cost indicators right in your shell prompt while you work — no need to switch windows.`,
+          'feat.5.p': `Surface live token and cost indicators right in your shell prompt while you work, with no need to switch windows.`,
           'feat.6.h': `17 themes, light & dark`,
-          'feat.6.p': `Classic, Midnight, Terminal, Arcade and more — with system-preference detection, custom date ranges, and UI in six languages (English&nbsp;/&nbsp;中文&nbsp;/&nbsp;日本語&nbsp;/&nbsp;한국어&nbsp;/&nbsp;Español&nbsp;/&nbsp;Português).`,
+          'feat.6.p': `Classic, Midnight, Terminal, Arcade and more, with system-preference detection, custom date ranges, and UI in six languages (English&nbsp;/&nbsp;中文&nbsp;/&nbsp;日本語&nbsp;/&nbsp;한국어&nbsp;/&nbsp;Español&nbsp;/&nbsp;Português).`,
           'feat.7.h': `Managed background service`,
-          'feat.7.p': `<code class="mono" style="color:var(--color-primary);">tokdash setup</code> configures a reversible, no-sudo systemd/launchd service in one step — <code class="mono" style="color:var(--color-primary);">doctor</code>, <code class="mono" style="color:var(--color-primary);">update</code>, and <code class="mono" style="color:var(--color-primary);">uninstall</code> keep it healthy and fully removable.`,
+          'feat.7.p': `<code class="mono" style="color:var(--color-primary);">tokdash setup</code> configures a reversible, no-sudo systemd/launchd service in one step, while <code class="mono" style="color:var(--color-primary);">doctor</code>, <code class="mono" style="color:var(--color-primary);">update</code>, and <code class="mono" style="color:var(--color-primary);">uninstall</code> keep it healthy and fully removable.`,
           'feat.8.h': `Subscription quota tracking`,
           'feat.8.p': `Monitor remaining Codex, Claude Code, and Antigravity quotas. Track your consumption history, view usage graphs, and set custom update intervals in a single view.`,
           'feat.9.h': `Multi-server views`,
@@ -1722,13 +1860,13 @@
           'srv.cta': `Open the three-server demo`,
           'opt.eyebrow': `<span class="dot"></span> Cost optimization`,
           'opt.h': `See where every dollar goes`,
-          'opt.sub': `Tokdash breaks spend down to the session, model, and project — so you can find waste and cut it, not just watch the number climb.`,
+          'opt.sub': `Tokdash breaks spend down to the session, model, and project, so you can find waste and cut it, not just watch the number climb.`,
           'opt.1.h': `Cost by model, agent & project`,
           'opt.1.p': `Rank exactly what's running up the bill across every tool.`,
           'opt.2.h': `Spot low cache-hit sessions`,
           'opt.2.p': `A low hit rate means you're re-paying full price for context you could reuse.`,
           'opt.3.h': `Follow a session down to the turn`,
-          'opt.3.p': `Turn trends, cache reads and estimated agent time per session — not one blurred daily total.`,
+          'opt.3.p': `Turn trends, cache reads, and estimated agent time per session, rather than one blurred daily total.`,
           'opt.4.h': `Compare machines side by side`,
           'opt.4.p': `Tokens, cost and cache-hit rate per Tokdash server, with the combined column beside them.`,
           'opt.cta': `Explore it in the live demo`,
@@ -1737,23 +1875,23 @@
           'opt.card.readout.p': `Two thirds of prompt input came from cache; the rest was paid at full price. Hit % is a sortable Sessions column.`,
           'comp.eyebrow': `<span class="dot"></span> Companion app`,
           'comp.h': `Today's spend, one click away in your menu bar`,
-          'comp.sub': `Tokdash Companion is a native menu-bar (macOS) and tray (Windows) client for your local Tokdash service. Read-only, privacy-first — no telemetry, and it talks only to the endpoint you configure.`,
+          'comp.sub': `Tokdash Companion is a native menu-bar (macOS) and tray (Windows) client for your local Tokdash service. Read-only and privacy-first, with no telemetry, and it talks only to the endpoint you configure.`,
           'comp.shot.mac': `macOS menu-bar popover`,
           'comp.shot.win': `Windows tray flyout`,
           'comp.shot.statusline': `Claude Code statusline integration`,
           'comp.1.h': `Today's spend at a glance`,
           'comp.1.p': `Cost, tokens, and messages for today, the % change vs yesterday, and a month-to-date line for context.`,
           'comp.2.h': `Quota bars with reset countdowns`,
-          'comp.2.p': `Per-provider subscription windows show remaining quota and relative reset times — "resets in 19 minutes" — plus your most-used tool today.`,
+          'comp.2.p': `Per-provider subscription windows show remaining quota and relative reset times, such as "resets in 19 minutes", plus your most-used tool today.`,
           'comp.3.h': `Alerts you control`,
           'comp.3.p': `Opt-in low-quota notifications with your own thresholds, launch at login, and a UI in System&nbsp;/&nbsp;English&nbsp;/&nbsp;简体中文&nbsp;/&nbsp;日本語&nbsp;/&nbsp;한국어&nbsp;/&nbsp;Español&nbsp;/&nbsp;Português.`,
           'comp.4.h': `Private by design`,
-          'comp.4.p': `No telemetry, nothing uploaded. The app only talks to the Tokdash endpoint you set — usually your own localhost service.`,
+          'comp.4.p': `No telemetry, nothing uploaded. The app only talks to the Tokdash endpoint you set, which is usually your own localhost service.`,
           'comp.store': `<a href="https://apps.microsoft.com/detail/9ppnmpdq8b52?mode=direct" target="_blank" rel="noopener" class="ms-badge" aria-label="Get Tokdash Companion from the Microsoft Store"><img class="ms-badge-l" src="https://get.microsoft.com/images/en-us%20dark.svg" alt="Get Tokdash Companion from the Microsoft Store" width="161" height="44" /><img class="ms-badge-d" src="https://get.microsoft.com/images/en-us%20light.svg" alt="Get Tokdash Companion from the Microsoft Store" width="161" height="44" /></a>`,
           'comp.cta': `Download from GitHub Releases`,
           'related.eyebrow': `<span class="dot"></span> Related project`,
           'related.h': `Synchronize and control your agents`,
-          'related.sub': `From CLI to GUI, from desktop to phone. Pick up right where you left off, anywhere. Cosyncing keeps your coding agents in sync across your own network — a sister project from the same author.`,
+          'related.sub': `From CLI to GUI, from desktop to phone. Pick up right where you left off, anywhere. Cosyncing keeps your coding agents in sync across your own network, as a sister project from the same author.`,
           'related.cta': `View on GitHub`,
           'related.site': `cosyncing.com`,
           'comp.caveat': `On Windows, the Microsoft Store build is signed by Microsoft and updates itself. The macOS universal dmg and the Windows portable zip on GitHub Releases are unsigned, so Gatekeeper / SmartScreen will warn on first launch. Look for tags <code class="mono">companion-v*</code>.`,
@@ -1765,12 +1903,12 @@
           'start.2.h': `Setup`,
           'start.2.p': `Run <code class="mono" style="color:var(--color-primary);">tokdash setup</code>. It configures a reversible, no-sudo background service and finds your CLI logs automatically.`,
           'start.3.h': `Done`,
-          'start.3.p': `The wizard prints your dashboard URL — default <code class="mono" style="color:var(--color-primary);">http://127.0.0.1:55423</code>.`,
-          'start.cta_try': `Try it now — no install`,
+          'start.3.p': `The wizard prints your dashboard URL, defaulting to <code class="mono" style="color:var(--color-primary);">http://127.0.0.1:55423</code>.`,
+          'start.cta_try': `Try it now with no install`,
           'start.cta_docs': `Read the docs`,
           'start.upgrade': `Already set up? Upgrade any time with <code class="mono" style="color:var(--color-primary);">tokdash update</code>.`,
           'cta.h': `See it before you install`,
-          'cta.sub': `The live demo runs the real dashboard on synthetic data — explore every tab, theme, and chart right in your browser.`,
+          'cta.sub': `The live demo runs the real dashboard on synthetic data, letting you explore every tab, theme, and chart right in your browser.`,
           'cta.open': `Open the live demo`,
           'footer.tagline': `Local token & cost dashboard · MIT`,
           'footer.demo': `Live demo`,
@@ -1779,7 +1917,7 @@
           'footer.license': `License`,
           'footer.privacy': `Privacy`,
           'footer.credit': `Demo data is fully synthetic. Built by <a href="https://github.com/JingbiaoMei" target="_blank" rel="noopener" style="color:var(--color-primary);font-weight:600;">Jingbiao Mei</a>.`,
-          'meta.title': `Tokdash — Local token & cost dashboard for AI coding tools`
+          'meta.title': `Tokdash: Local token & cost dashboard for AI coding tools`
         },
         zh: {
           'langSystem': `跟随系统`,
@@ -1791,7 +1929,7 @@
           'nav.demo': `演示`,
           'hero.eyebrow': `<span class="dot"></span> 开源 · 本地优先 · MIT`,
           'hero.h1': `本地 Token 与成本仪表盘，<span class="grad-text">为你的 AI 编码工具而生</span>`,
-          'hero.sub': `Tokdash 在你自己的机器上读取日志，精确显示你消耗了多少 Token、花费多少成本 —— 覆盖二十四款 AI 编码工具。把其他机器也添加为服务器，就能合并成一个总量。无需账号，不上传，零遥测。`,
+          'hero.sub': `Tokdash 在你自己的机器上读取日志，精确显示你消耗了多少 Token、花费多少成本，覆盖二十四款 AI 编码工具。把其他机器也添加为服务器，就能合并成一个总量。无需账号，不上传，零遥测。`,
           'hero.tag1': `<span class="dot"></span> 二十四款工具，一个仪表盘`,
           'hero.tag2': `WSL、macOS、Linux 服务器合并统计`,
           'hero.cta_demo': `查看在线演示`,
@@ -1804,24 +1942,24 @@
           'trust.pwa.h': `仪表盘可安装为 PWA`,
           'trust.pwa.p': `像原生应用一样固定仪表盘，支持明暗主题与 6 种界面语言。`,
           'tools.h': `一个仪表盘，统管所有智能体`,
-          'tools.sub': `Tokdash 统一汇总二十四款 AI 编码工具的用量 —— 随意切换工具，账单始终一目了然。`,
+          'tools.sub': `Tokdash 统一汇总二十四款 AI 编码工具的用量，让你随意切换工具，账单始终一目了然。`,
           'feat.eyebrow': `<span class="dot"></span> 功能`,
           'feat.h': `让每一笔花费都看得见`,
           'feat.sub': `从原始 Token 数量到真实金额，细化到每一次会话。`,
           'feat.1.h': `精确 Token，换算成真实金额`,
-          'feat.1.p': `按工具、模型和日期拆分输入、输出与缓存 Token —— 全部来自日志的真实数字，再由内置价格数据库直接换算成金额。`,
+          'feat.1.p': `按工具、模型和日期拆分输入、输出与缓存 Token，全部来自日志的真实数字，再由内置价格数据库直接换算成金额。`,
           'feat.2.h': `报告标签页，直接可分享`,
-          'feat.2.p': `按日历对齐的本周 / 本月 / 年初至今报告 —— 每日地图、harness、模型与项目三组榜首、时段与星期节律，还能导出 PNG 分享卡片。`,
+          'feat.2.p': `按日历对齐的本周 / 本月 / 年初至今报告，包含每日地图、harness、模型与项目三组榜首、时段与星期节律，还能导出 PNG 分享卡片。`,
           'feat.3.h': `贡献热力图`,
-          'feat.3.p': `类似 GitHub 的活动日历 —— 提供 3D 等距视图，并可按估算能耗（kWh）为每天重新着色。`,
+          'feat.3.p': `类似 GitHub 的活动日历，提供 3D 等距视图，并可按估算能耗（kWh）为每天重新着色。`,
           'feat.4.h': `会话浏览器`,
           'feat.4.p': `深入任意会话，按项目与工具分组，精准定位是什么推高了成本。`,
           'feat.5.h': `状态栏集成`,
           'feat.5.p': `在 shell 提示符中实时显示 Token 与成本指标，工作时无需切换窗口。`,
           'feat.6.h': `17 种主题，明暗随心`,
-          'feat.6.p': `Classic、Midnight、Terminal、Arcade 等多种主题 —— 支持跟随系统、自定义日期范围，以及六种界面语言（English&nbsp;/&nbsp;中文&nbsp;/&nbsp;日本語&nbsp;/&nbsp;한국어&nbsp;/&nbsp;Español&nbsp;/&nbsp;Português）。`,
+          'feat.6.p': `Classic、Midnight、Terminal、Arcade 等多种主题，支持跟随系统、自定义日期范围，以及六种界面语言（English&nbsp;/&nbsp;中文&nbsp;/&nbsp;日本語&nbsp;/&nbsp;한국어&nbsp;/&nbsp;Español&nbsp;/&nbsp;Português）。`,
           'feat.7.h': `托管后台服务`,
-          'feat.7.p': `<code class="mono" style="color:var(--color-primary);">tokdash setup</code> 一步配置可逆、无需 sudo 的 systemd/launchd 服务 —— <code class="mono" style="color:var(--color-primary);">doctor</code>、<code class="mono" style="color:var(--color-primary);">update</code>、<code class="mono" style="color:var(--color-primary);">uninstall</code> 让它始终健康且可完全卸载。`,
+          'feat.7.p': `<code class="mono" style="color:var(--color-primary);">tokdash setup</code> 一步配置可逆、无需 sudo 的 systemd/launchd 服务，而 <code class="mono" style="color:var(--color-primary);">doctor</code>、<code class="mono" style="color:var(--color-primary);">update</code>、<code class="mono" style="color:var(--color-primary);">uninstall</code> 让它始终健康且可完全卸载。`,
           'feat.8.h': `订阅配额追踪`,
           'feat.8.p': `监控 Codex、Claude Code 和 Antigravity 的剩余配额。在统一视图中追踪您的额度消耗历史、查看使用趋势图，并自定义更新轮询间隔。`,
           'feat.9.h': `多服务器视图`,
@@ -1840,13 +1978,13 @@
           'srv.cta': `打开三服务器演示`,
           'opt.eyebrow': `<span class="dot"></span> 成本优化`,
           'opt.h': `看清每一分钱的去向`,
-          'opt.sub': `Tokdash 将花费细分到会话、模型和项目 —— 让你发现并削减浪费，而不只是眼看着数字上涨。`,
+          'opt.sub': `Tokdash 将花费细分到会话、模型和项目，让你发现并削减浪费，而不只是眼看着数字上涨。`,
           'opt.1.h': `按模型、工具与项目统计成本`,
           'opt.1.p': `精确排出每款工具中究竟是什么在推高账单。`,
           'opt.2.h': `发现缓存命中率低的会话`,
           'opt.2.p': `命中率低，意味着你在为本可复用的上下文重复支付全价。`,
           'opt.3.h': `下钻到单个回合`,
-          'opt.3.p': `逐回合趋势、缓存读取与估算的 Agent 时长 —— 不是一团每日总量。`,
+          'opt.3.p': `逐回合趋势、缓存读取与估算的 Agent 时长，而不是一团每日总量。`,
           'opt.4.h': `多台机器并排对比`,
           'opt.4.p': `每台 Tokdash 服务器的 Token、成本与缓存命中率，旁边就是合并列。`,
           'opt.cta': `在在线演示中体验`,
@@ -1855,7 +1993,7 @@
           'opt.card.readout.p': `三分之二的输入来自缓存，其余按全价支付。命中率是会话表里可排序的一列。`,
           'comp.eyebrow': `<span class="dot"></span> 状态栏`,
           'comp.h': `今日花费，菜单栏里一键可达`,
-          'comp.sub': `Tokdash Companion 是本地 Tokdash 服务的原生菜单栏（macOS）/ 托盘（Windows）客户端。只读、隐私优先 —— 零遥测，只与你配置的地址通信。`,
+          'comp.sub': `Tokdash Companion 是本地 Tokdash 服务的原生菜单栏（macOS）/ 托盘（Windows）客户端。只读、隐私优先，零遥测，只与你配置的地址通信。`,
           'comp.shot.mac': `macOS 菜单栏弹窗`,
           'comp.shot.win': `Windows 托盘浮窗`,
           'comp.shot.statusline': `Claude Code 状态栏集成`,
@@ -1866,12 +2004,12 @@
           'comp.3.h': `由你掌控的提醒`,
           'comp.3.p': `可选的低配额通知与自定义阈值，支持开机自启，界面语言包括跟随系统&nbsp;/&nbsp;English&nbsp;/&nbsp;简体中文&nbsp;/&nbsp;日本語&nbsp;/&nbsp;한국어&nbsp;/&nbsp;Español&nbsp;/&nbsp;Português。`,
           'comp.4.h': `隐私优先设计`,
-          'comp.4.p': `零遥测、零上传。应用只与你设置的 Tokdash 地址通信 —— 通常就是你本机的服务。`,
+          'comp.4.p': `零遥测、零上传。应用只与你设置的 Tokdash 地址通信，通常就是你本机的服务。`,
           'comp.store': `<a href="https://apps.microsoft.com/detail/9ppnmpdq8b52?mode=direct" target="_blank" rel="noopener" class="ms-badge" aria-label="从 Microsoft Store 获取 Tokdash Companion"><img class="ms-badge-l" src="https://get.microsoft.com/images/zh-cn%20dark.svg" alt="从 Microsoft Store 获取 Tokdash Companion" width="161" height="44" /><img class="ms-badge-d" src="https://get.microsoft.com/images/zh-cn%20light.svg" alt="从 Microsoft Store 获取 Tokdash Companion" width="161" height="44" /></a>`,
           'comp.cta': `从 GitHub Releases 下载`,
           'related.eyebrow': `<span class="dot"></span> 相关项目`,
           'related.h': `同步并操控你的 agent`,
-          'related.sub': `从 CLI 到 GUI，从桌面到手机。随时随地，从上次中断的地方接着继续。Cosyncing 让你的编码 agent 在你自己的网络中保持同步 —— 同一作者的姊妹项目。`,
+          'related.sub': `从 CLI 到 GUI，从桌面到手机。随时随地，从上次中断的地方接着继续。Cosyncing 让你的编码 agent 在你自己的网络中保持同步，属于同一作者的姊妹项目。`,
           'related.cta': `在 GitHub 上查看`,
           'related.site': `cosyncing.com`,
           'comp.caveat': `Windows 版可从 Microsoft Store 安装，由 Microsoft 签名并自动更新。GitHub Releases 上的 macOS（通用 dmg）与 Windows（便携 zip）安装包未签名，Gatekeeper / SmartScreen 首次启动会给出警告。请认准 <code class="mono">companion-v*</code> 标签。`,
@@ -1883,12 +2021,12 @@
           'start.2.h': `配置`,
           'start.2.p': `运行 <code class="mono" style="color:var(--color-primary);">tokdash setup</code>，它会配置一个可逆、无需 sudo 的后台服务，并自动发现你的 CLI 日志。`,
           'start.3.h': `完成`,
-          'start.3.p': `向导会打印仪表盘地址 —— 默认是 <code class="mono" style="color:var(--color-primary);">http://127.0.0.1:55423</code>。`,
-          'start.cta_try': `立即试用 —— 无需安装`,
+          'start.3.p': `向导会打印仪表盘地址，默认是 <code class="mono" style="color:var(--color-primary);">http://127.0.0.1:55423</code>。`,
+          'start.cta_try': `立即试用，无需安装`,
           'start.cta_docs': `查看文档`,
           'start.upgrade': `已经配置好了？随时用 <code class="mono" style="color:var(--color-primary);">tokdash update</code> 升级。`,
           'cta.h': `安装前先一睹为快`,
-          'cta.sub': `在线演示以合成数据运行真实的仪表盘 —— 直接在浏览器里体验每个标签页、主题和图表。`,
+          'cta.sub': `在线演示以合成数据运行真实的仪表盘，让你直接在浏览器里体验每个标签页、主题和图表。`,
           'cta.open': `打开在线演示`,
           'footer.tagline': `本地 Token 与成本仪表盘 · MIT`,
           'footer.demo': `在线演示`,
@@ -1897,7 +2035,7 @@
           'footer.license': `许可证`,
           'footer.privacy': `隐私政策`,
           'footer.credit': `演示数据完全为合成数据。由 <a href="https://github.com/JingbiaoMei" target="_blank" rel="noopener" style="color:var(--color-primary);font-weight:600;">Jingbiao Mei</a> 构建。`,
-          'meta.title': `Tokdash — 面向 AI 编码工具的本地 Token 与成本仪表盘`
+          'meta.title': `Tokdash: 面向 AI 编码工具的本地 Token 与成本仪表盘`
         },
         ja: {
           'langSystem': `システム`,
@@ -1922,24 +2060,24 @@
           'trust.pwa.h': `ダッシュボードを PWA としてインストール`,
           'trust.pwa.p': `ネイティブアプリのようにダッシュボードをピン留め。ライト/ダークモード、6 か国語の UI に対応。`,
           'tools.h': `すべてのエージェントをひとつのダッシュボードで`,
-          'tools.sub': `Tokdash は 24 種の AI コーディングツールの利用量を統合 —— エージェントを切り替えても請求は逃しません。`,
+          'tools.sub': `Tokdash は 24 種の AI コーディングツールの利用量を統合、エージェントを切り替えても請求は逃しません。`,
           'feat.eyebrow': `<span class="dot"></span> 機能`,
           'feat.h': `すべての支出を可視化する`,
           'feat.sub': `生のトークン数から実際の金額まで、1 セッション単位まで掘り下げて確認できます。`,
           'feat.1.h': `実数のトークンを、実額で`,
-          'feat.1.p': `ツール・モデル・日別に入力・出力・キャッシュ トークンを内訳 —— 推定ではなくログ由来の実数を、組み込みの価格データベースで金額へ変換します。`,
+          'feat.1.p': `ツール・モデル・日別に入力・出力・キャッシュ トークンを内訳、推定ではなくログ由来の実数を、組み込みの価格データベースで金額へ変換します。`,
           'feat.2.h': `Report タブ、そのまま共有`,
-          'feat.2.p': `カレンダー基準の今週・今月・年初からのレポート —— デイマップ、ハーネス / モデル / プロジェクトの表彰台、時間帯と曜日のリズム、そして PNG 共有カードまで。`,
+          'feat.2.p': `カレンダー基準の今週・今月・年初からのレポート、デイマップ、ハーネス / モデル / プロジェクトの表彰台、時間帯と曜日のリズム、そして PNG 共有カードまで。`,
           'feat.3.h': `貢献ヒートマップ`,
-          'feat.3.p': `GitHub 風のアクティビティカレンダー —— 3D 等角ビューと消費電力推定による kWh 単位のデイ再着色に対応。`,
+          'feat.3.p': `GitHub 風のアクティビティカレンダー、3D 等角ビューと消費電力推定による kWh 単位のデイ再着色に対応。`,
           'feat.4.h': `セッション エクスプローラー`,
           'feat.4.p': `どのセッションもプロジェクトごと・ツール横断で掘り下がり、コストを押し上げた要因を特定できます。`,
           'feat.5.h': `ステータスライン統合`,
-          'feat.5.p': `作業中にシェル プロンプトへトークン・コストのライブ指標を表示 —— ウィンドウの切り替えは不要です。`,
+          'feat.5.p': `作業中にシェル プロンプトへトークン・コストのライブ指標を表示、ウィンドウの切り替えは不要です。`,
           'feat.6.h': `17 種類テーマ、ライト & ダーク`,
-          'feat.6.p': `Classic、Midnight、Terminal、Arcade など —— システム設定検出、カスタム日付範囲、6 か国語の UI（English&nbsp;/&nbsp;中文&nbsp;/&nbsp;日本語&nbsp;/&nbsp;한국어&nbsp;/&nbsp;Español&nbsp;/&nbsp;Português）に対応。`,
+          'feat.6.p': `Classic、Midnight、Terminal、Arcade など、システム設定検出、カスタム日付範囲、6 か国語の UI（English&nbsp;/&nbsp;中文&nbsp;/&nbsp;日本語&nbsp;/&nbsp;한국어&nbsp;/&nbsp;Español&nbsp;/&nbsp;Português）に対応。`,
           'feat.7.h': `管理されるバックグラウンド サービス`,
-          'feat.7.p': `<code class="mono" style="color:var(--color-primary);">tokdash setup</code> が 1 ステップで可逆的・sudo 不要の systemd/launchd サービスを設定 —— <code class="mono" style="color:var(--color-primary);">doctor</code>、<code class="mono" style="color:var(--color-primary);">update</code>、<code class="mono" style="color:var(--color-primary);">uninstall</code> で健全さを保ち、完全に削除できます。`,
+          'feat.7.p': `<code class="mono" style="color:var(--color-primary);">tokdash setup</code> が 1 ステップで可逆的・sudo 不要の systemd/launchd サービスを設定、<code class="mono" style="color:var(--color-primary);">doctor</code>、<code class="mono" style="color:var(--color-primary);">update</code>、<code class="mono" style="color:var(--color-primary);">uninstall</code> で健全さを保ち、完全に削除できます。`,
           'feat.8.h': `サブスクリプション割当の追跡`,
           'feat.8.p': `Codex、Claude Code、Antigravity の残り割当を監視。消費履歴の追跡、利用グラフの表示、更新間隔のカスタマイズをひとつのビューで。`,
           'feat.9.h': `マルチサーバー表示`,
@@ -1958,7 +2096,7 @@
           'srv.cta': `3 サーバーのデモを開く`,
           'opt.eyebrow': `<span class="dot"></span> コスト最適化`,
           'opt.h': `使い道がすべて見える`,
-          'opt.sub': `Tokdash は支出をセッション・モデル・プロジェクト単位まで分解 —— 浪費を見つけて削減し、数字の上昇を眺めるだけではありません。`,
+          'opt.sub': `Tokdash は支出をセッション・モデル・プロジェクト単位まで分解、浪費を見つけて削減し、数字の上昇を眺めるだけではありません。`,
           'opt.1.h': `モデル・エージェント・プロジェクト別コスト`,
           'opt.1.p': `すべてのツールで、何が請求を押し上げているかを正確にランキング表示。`,
           'opt.2.h': `キャッシュヒット率が低いセッションを発見`,
@@ -1973,7 +2111,7 @@
           'opt.card.readout.p': `プロンプト入力の 3 分の 2 はキャッシュ由来です。残り分はフル単価。Hit % は Sessions 表で並べ替えできます。`,
           'comp.eyebrow': `<span class="dot"></span> コンパニオン アプリ`,
           'comp.h': `今日の支出はメニューバーでワンクリック`,
-          'comp.sub': `Tokdash Companion はローカル Tokdash サービス用のネイティブ メニューバー（macOS）/ トレイ（Windows）クライアントです。読み取り専用・プライバシー優先 —— テレメトリなし、設定したエンドポイントとのみ通信します。`,
+          'comp.sub': `Tokdash Companion はローカル Tokdash サービス用のネイティブ メニューバー（macOS）/ トレイ（Windows）クライアントです。読み取り専用・プライバシー優先、テレメトリなし、設定したエンドポイントとのみ通信します。`,
           'comp.shot.mac': `macOS メニューバー ポップオーバー`,
           'comp.shot.win': `Windows トレイ フライアウト`,
           'comp.shot.statusline': `Claude Code ステータスライン統合`,
@@ -1984,12 +2122,12 @@
           'comp.3.h': `自分自身が制御するアラート`,
           'comp.3.p': `任意設定の割当不足通知と独自しきい値、ログイン時起動、UI は System&nbsp;/&nbsp;English&nbsp;/&nbsp;简体中文&nbsp;/&nbsp;日本語&nbsp;/&nbsp;한국어&nbsp;/&nbsp;Español&nbsp;/&nbsp;Português。`,
           'comp.4.h': `設計上プライベート`,
-          'comp.4.p': `テレメトリなし、何もアップロードしません。アプリが通信するのは設定した Tokdash エンドポイントだけ —— 通常は自分自身のローカルホスト サービスです。`,
+          'comp.4.p': `テレメトリなし、何もアップロードしません。アプリが通信するのは設定した Tokdash エンドポイントだけ、通常は自分自身のローカルホスト サービスです。`,
           'comp.store': `<a href="https://apps.microsoft.com/detail/9ppnmpdq8b52?mode=direct" target="_blank" rel="noopener" class="ms-badge" aria-label="Microsoft Store から Tokdash Companion を入手"><img class="ms-badge-l" src="https://get.microsoft.com/images/en-us%20dark.svg" alt="Microsoft Store から Tokdash Companion を入手" width="161" height="44" /><img class="ms-badge-d" src="https://get.microsoft.com/images/en-us%20light.svg" alt="Microsoft Store から Tokdash Companion を入手" width="161" height="44" /></a>`,
           'comp.cta': `GitHub Releases からダウンロード`,
           'related.eyebrow': `<span class="dot"></span> 関連プロジェクト`,
           'related.h': `エージェントの同期と制御`,
-          'related.sub': `CLI から GUI へ、デスクトップからスマホへ。どこでも、中断したところから再開できます。Cosyncing はあなたのネットワーク内でコーディングエージェントを同期保ちます —— 同一作者のシスター プロジェクトです。`,
+          'related.sub': `CLI から GUI へ、デスクトップからスマホへ。どこでも、中断したところから再開できます。Cosyncing はあなたのネットワーク内でコーディングエージェントを同期保ちます。同一作者のシスター プロジェクトです。`,
           'related.cta': `GitHub で見る`,
           'related.site': `cosyncing.com`,
           'comp.caveat': `Windows では Microsoft Store ビルドが Microsoft により署名され、自動更新されます。GitHub Releases の macOS ユニバーサル dmg と Windows ポータブル zip は無署名のため、初回起動時に Gatekeeper / SmartScreen による警告が表示されます。<code class="mono">companion-v*</code> タグを確認してください。`,
@@ -2001,12 +2139,12 @@
           'start.2.h': `セットアップ`,
           'start.2.p': `<code class="mono" style="color:var(--color-primary);">tokdash setup</code> を実行。可逆的・sudo 不要のバックグラウンド サービスを設定し、CLI ログを自動的に検出します。`,
           'start.3.h': `完了`,
-          'start.3.p': `ウィザードがダッシュボードの URL を表示します —— デフォルトは <code class="mono" style="color:var(--color-primary);">http://127.0.0.1:55423</code>。`,
-          'start.cta_try': `今すぐ試す —— インストール不要`,
+          'start.3.p': `ウィザードがダッシュボードの URL を表示します。デフォルトは <code class="mono" style="color:var(--color-primary);">http://127.0.0.1:55423</code>。`,
+          'start.cta_try': `今すぐ試す（インストール不要）`,
           'start.cta_docs': `ドキュメントを読む`,
           'start.upgrade': `すでにセットアップ済みですか？ <code class="mono" style="color:var(--color-primary);">tokdash update</code> でいつでもアップグレードできます。`,
           'cta.h': `インストール前に一目で`,
-          'cta.sub': `ライブデモは合成データで実際のダッシュボードを動作 —— すべてのタブ、テーマ、チャートをブラウザ内で体験できます。`,
+          'cta.sub': `ライブデモは合成データで実際のダッシュボードを動作し、すべてのタブ、テーマ、チャートをブラウザ内で体験できます。`,
           'cta.open': `ライブデモを開く`,
           'footer.tagline': `ローカル トークン・コスト ダッシュボード · MIT`,
           'footer.demo': `ライブデモ`,
@@ -2015,7 +2153,7 @@
           'footer.license': `ライセンス`,
           'footer.privacy': `プライバシー`,
           'footer.credit': `デモデータは完全に合成データです。<a href="https://github.com/JingbiaoMei" target="_blank" rel="noopener" style="color:var(--color-primary);font-weight:600;">Jingbiao Mei</a> 氏による制作。`,
-          'meta.title': `Tokdash — AI コーディングツール向けローカル トークン・コスト ダッシュボード`
+          'meta.title': `Tokdash: AI コーディングツール向けローカル トークン・コスト ダッシュボード`
         },
         ko: {
           'langSystem': `시스템`,
@@ -2038,26 +2176,26 @@
           'trust.oss.h': `오픈소스`,
           'trust.oss.p': `MIT 라이선스로 감사 가능합니다. pipx 명령 한 줄로 설치.`,
           'trust.pwa.h': `대시보드를 PWA로 설치`,
-          'trust.pwa.p': `네이티브 앱처럼 대시보드를 고정 — 라이트/다크 모드, 6개 언어 UI 지원.`,
+          'trust.pwa.p': `네이티브 앱처럼 대시보드를 고정할 수 있으며, 라이트/다크 모드, 6개 언어 UI를 지원합니다.`,
           'tools.h': `모든 에이전트를 위한 한 대시보드`,
-          'tools.sub': `Tokdash는 24개 AI 코딩 도구의 사용량을 통합합니다 — 에이전트를 바꿔도 청구서만은 놓치지 마세요.`,
+          'tools.sub': `Tokdash는 24개 AI 코딩 도구의 사용량을 통합하여, 에이전트를 바꿔도 청구서만은 놓치지 않습니다.`,
           'feat.eyebrow': `<span class="dot"></span> 기능`,
           'feat.h': `모든 지출, 가시화하다`,
           'feat.sub': `원시 토큰 수에서 실제 금액까지, 단일 세션까지 파고들 수 있습니다.`,
           'feat.1.h': `정확한 토큰, 실제 금액으로`,
-          'feat.1.p': `도구, 모델, 날짜별 입력/출력/캐시 토큰 내역 — 추정치가 아니라 로그의 실제 숫자를 내장 가격 데이터베이스가 그대로 달러로 환산합니다.`,
+          'feat.1.p': `도구, 모델, 날짜별 입력/출력/캐시 토큰 내역을 제공하며, 추정치가 아니라 로그의 실제 숫자를 내장 가격 데이터베이스가 그대로 달러로 환산합니다.`,
           'feat.2.h': `Report 탭, 바로 공유하기`,
-          'feat.2.p': `달력 기준으로 맞춘 이번 주 / 이번 달 / 연초부터의 보고서 — 날짜 지도, 하네스·모델·프로젝트 순위, 시간·요일 리듬, 그리고 PNG 공유 카드까지.`,
+          'feat.2.p': `달력 기준으로 맞춘 이번 주 / 이번 달 / 연초부터의 보고서로, 날짜 지도, 하네스·모델·프로젝트 순위, 시간·요일 리듬, 그리고 PNG 공유 카드까지 포함합니다.`,
           'feat.3.h': `기여 히트맵`,
-          'feat.3.p': `GitHub 스타일 활동 캘린더 — 3D 등각 뷰와 소비 전력 추정(kWh) 기반의 날짜 재색상 지원.`,
+          'feat.3.p': `GitHub 스타일 활동 캘린더, 3D 등각 뷰와 소비 전력 추정(kWh) 기반의 날짜 재색상 지원.`,
           'feat.4.h': `세션 탐색기`,
           'feat.4.p': `어떤 세션이든 프로젝트별·도구 횡단으로 파고들어 비용을 올린 원인을 정확히 찾습니다.`,
           'feat.5.h': `스테이터스라인 통합`,
-          'feat.5.p': `작업 중인 shell 프롬프트에 실시간 토큰·비용 지표를 표시 — 윈도우 전환 불필요.`,
+          'feat.5.p': `작업 중인 shell 프롬프트에 실시간 토큰·비용 지표를 표시하여, 윈도우 전환이 불필요합니다.`,
           'feat.6.h': `17개 테마, 라이트 & 다크`,
-          'feat.6.p': `Classic, Midnight, Terminal, Arcade 등 — 시스템 설정 감지, 사용자 정의 날짜 범위, 6개 언어 UI(English&nbsp;/&nbsp;中文&nbsp;/&nbsp;日本語&nbsp;/&nbsp;한국어&nbsp;/&nbsp;Español&nbsp;/&nbsp;Português) 지원.`,
+          'feat.6.p': `Classic, Midnight, Terminal, Arcade 등 다양한 테마와 함께 시스템 설정 감지, 사용자 정의 날짜 범위, 6개 언어 UI(English&nbsp;/&nbsp;中文&nbsp;/&nbsp;日本語&nbsp;/&nbsp;한국어&nbsp;/&nbsp;Español&nbsp;/&nbsp;Português)를 지원합니다.`,
           'feat.7.h': `관리되는 백그라운드 서비스`,
-          'feat.7.p': `<code class="mono" style="color:var(--color-primary);">tokdash setup</code>이 한 단계로 되돌릴 수 있고 sudo가 필요 없는 systemd/launchd 서비스를 구성 — <code class="mono" style="color:var(--color-primary);">doctor</code>, <code class="mono" style="color:var(--color-primary);">update</code>, <code class="mono" style="color:var(--color-primary);">uninstall</code>로 건강 상태를 유지하고 완전히 제거할 수 있습니다.`,
+          'feat.7.p': `<code class="mono" style="color:var(--color-primary);">tokdash setup</code>이 한 단계로 되돌릴 수 있고 sudo가 필요 없는 systemd/launchd 서비스를 구성하며, <code class="mono" style="color:var(--color-primary);">doctor</code>, <code class="mono" style="color:var(--color-primary);">update</code>, <code class="mono" style="color:var(--color-primary);">uninstall</code>로 건강 상태를 유지하고 완전히 제거할 수 있습니다.`,
           'feat.8.h': `구독 쿼터 추적`,
           'feat.8.p': `Codex, Claude Code, Antigravity의 잔여 쿼터를 모니터링합니다. 소비 기록 추적, 사용 그래프 보기, 업데이트 간격 사용자 정의를 한 화면에서.`,
           'feat.9.h': `다중 서버 보기`,
@@ -2076,22 +2214,22 @@
           'srv.cta': `3개 서버 데모 열기`,
           'opt.eyebrow': `<span class="dot"></span> 비용 최적화`,
           'opt.h': `모든 돈의 소지가 보이도록`,
-          'opt.sub': `Tokdash는 지출을 세션, 모델, 프로젝트로 분해합니다 — 낭비를 찾아 덜지, 숫자만 올라가는 것을 바라보기만 하지 않습니다.`,
+          'opt.sub': `Tokdash는 지출을 세션, 모델, 프로젝트로 분해하여, 낭비를 찾아 덜어내며 숫자만 올라가는 것을 바라보기만 하지 않습니다.`,
           'opt.1.h': `모델, 에이전트, 프로젝트별 비용`,
           'opt.1.p': `모든 도구에서 청구서를 올리는 항목을 정확히 순위대로 보여줍니다.`,
           'opt.2.h': `캐시 적중률이 낮은 세션 발견`,
           'opt.2.p': `적중률이 낮다는 것은 재사용할 수 있는 컨텍스트에 전액을 반복 지불하고 있다는 뜻입니다.`,
           'opt.3.h': `세션을 턴까지 확장`,
-          'opt.3.p': `세션별 턴 추이, 캐시 읽기, 추정 에이전트 시간 — 뭉개진 일일 합계가 아닙니다.`,
+          'opt.3.p': `세션별 턴 추이, 캐시 읽기, 추정 에이전트 시간을 제공하며, 뭉개진 일일 합계가 아닙니다.`,
           'opt.4.h': `기계를 나란히 비교`,
-          'opt.4.p': `Tokdash 서버별 토큰, 비용, 캐시 적중률 — 바로 옆에 합산 열까지.`,
+          'opt.4.p': `Tokdash 서버별 토큰, 비용, 캐시 적중률과 함께 바로 옆에 합산 열까지.`,
           'opt.cta': `라이브 데모에서 체험하기`,
           'opt.card.drivers': `주요 비용 요인`,
           'opt.card.readout.h': `캐시 적중률 67.4%`,
           'opt.card.readout.p': `프롬프트 입력의 3분의 2가 캐시에서 나왔고 나머지는 제값을 냈습니다. Hit %는 Sessions 표에서 정렬됩니다.`,
           'comp.eyebrow': `<span class="dot"></span> 컴패니언 앱`,
           'comp.h': `오늘의 지출, 메뉴바에서 클릭 한 번`,
-          'comp.sub': `Tokdash Companion은 로컬 Tokdash 서비스를 위한 네이티브 메뉴바(macOS)/트레이(Windows) 클라이언트입니다. 읽기 전용, 프라이버시 우선 — 텔레메트리 없이 사용자가 구성한 엔드포인트와만 통신합니다.`,
+          'comp.sub': `Tokdash Companion은 로컬 Tokdash 서비스를 위한 네이티브 메뉴바(macOS)/트레이(Windows) 클라이언트입니다. 읽기 전용, 프라이버시 우선, 텔레메트리 없이 사용자가 구성한 엔드포인트와만 통신합니다.`,
           'comp.shot.mac': `macOS 메뉴바 팝오버`,
           'comp.shot.win': `Windows 트레이 플라이아웃`,
           'comp.shot.statusline': `Claude Code 스테이터스라인 통합`,
@@ -2102,12 +2240,12 @@
           'comp.3.h': `내가 조절하는 알림`,
           'comp.3.p': `선택 기반 저쿼터 알림과 자체 임계값, 로그인 시 시작, UI는 System&nbsp;/&nbsp;English&nbsp;/&nbsp;简体中文&nbsp;/&nbsp;日本語&nbsp;/&nbsp;한국어&nbsp;/&nbsp;Español&nbsp;/&nbsp;Português.`,
           'comp.4.h': `설계부터 프라이빗`,
-          'comp.4.p': `텔레메트리 없이, 업로드하지 않습니다. 앱은 사용자가 설정한 Tokdash 엔드포인트와만 통신합니다 — 보통 자신의 로컬호스트 서비스입니다.`,
+          'comp.4.p': `텔레메트리 없이, 업로드하지 않습니다. 앱은 사용자가 설정한 Tokdash 엔드포인트와만 통신합니다. 보통 자신의 로컬호스트 서비스입니다.`,
           'comp.store': `<a href="https://apps.microsoft.com/detail/9ppnmpdq8b52?mode=direct" target="_blank" rel="noopener" class="ms-badge" aria-label="Microsoft Store에서 Tokdash Companion 받아보기"><img class="ms-badge-l" src="https://get.microsoft.com/images/en-us%20dark.svg" alt="Microsoft Store에서 Tokdash Companion 받아보기" width="161" height="44" /><img class="ms-badge-d" src="https://get.microsoft.com/images/en-us%20light.svg" alt="Microsoft Store에서 Tokdash Companion 받아보기" width="161" height="44" /></a>`,
           'comp.cta': `GitHub Releases에서 다운로드`,
           'related.eyebrow': `<span class="dot"></span> 관련 프로젝트`,
           'related.h': `에이전트를 동기화하고 제어하세요`,
-          'related.sub': `CLI에서 GUI로, 데스크톱에서 휴대폰으로. 어디서든 중단한 바로 그 자리에서 이어서 진행하세요. Cosyncing은 코딩 에이전트를 자체 네트워크에서 동기 상태로 유지합니다 — 같은 저자의 자매 프로젝트입니다.`,
+          'related.sub': `CLI에서 GUI로, 데스크톱에서 휴대폰으로. 어디서든 중단한 바로 그 자리에서 이어서 진행하세요. Cosyncing은 코딩 에이전트를 자체 네트워크에서 동기 상태로 유지합니다. 같은 저자의 자매 프로젝트입니다.`,
           'related.cta': `GitHub에서 보기`,
           'related.site': `cosyncing.com`,
           'comp.caveat': `Windows의 경우 Microsoft Store 빌드는 Microsoft가 서명하고 자체 업데이트합니다. GitHub Releases의 macOS 유니버설 dmg와 Windows 포터블 zip은 서명이 없어 첫 실행 시 Gatekeeper / SmartScreen이 경고를 표시합니다. <code class="mono">companion-v*</code> 태그를 확인하세요.`,
@@ -2119,12 +2257,12 @@
           'start.2.h': `구성`,
           'start.2.p': `<code class="mono" style="color:var(--color-primary);">tokdash setup</code> 실행. 되돌릴 수 있고 sudo가 필요 없는 백그라운드 서비스를 구성하고 CLI 로그를 자동으로 찾습니다.`,
           'start.3.h': `완료`,
-          'start.3.p': `마법사가 대시보드 URL을 표시합니다 — 기본값은 <code class="mono" style="color:var(--color-primary);">http://127.0.0.1:55423</code>.`,
-          'start.cta_try': `지금 시도 — 설치 없이`,
+          'start.3.p': `마법사가 대시보드 URL을 표시합니다. 기본값은 <code class="mono" style="color:var(--color-primary);">http://127.0.0.1:55423</code>.`,
+          'start.cta_try': `지금 시도 (설치 없이)`,
           'start.cta_docs': `문서 읽기`,
           'start.upgrade': `이미 설정하셨나요? <code class="mono" style="color:var(--color-primary);">tokdash update</code>로 언제든 업그레이드하세요.`,
           'cta.h': `설치 전에 먼저 확인`,
-          'cta.sub': `라이브 데모는 합성 데이터로 실제 대시보드를 구동합니다 — 모든 탭, 테마, 차트를 브라우저에서 바로 체험하세요.`,
+          'cta.sub': `라이브 데모는 합성 데이터로 실제 대시보드를 구동합니다. 모든 탭, 테마, 차트를 브라우저에서 바로 체험하세요.`,
           'cta.open': `라이브 데모 열기`,
           'footer.tagline': `로컬 토큰·비용 대시보드 · MIT`,
           'footer.demo': `라이브 데모`,
@@ -2133,7 +2271,7 @@
           'footer.license': `라이선스`,
           'footer.privacy': `프라이버시`,
           'footer.credit': `데모 데이터는 완전히 합성 데이터입니다. <a href="https://github.com/JingbiaoMei" target="_blank" rel="noopener" style="color:var(--color-primary);font-weight:600;">Jingbiao Mei</a> 제작.`,
-          'meta.title': `Tokdash — AI 코딩 도구를 위한 로컬 토큰·비용 대시보드`
+          'meta.title': `Tokdash: AI 코딩 도구를 위한 로컬 토큰·비용 대시보드`
         },
         es: {
           'langSystem': `Sistema`,
@@ -2145,7 +2283,7 @@
           'nav.demo': `Demo`,
           'hero.eyebrow': `<span class="dot"></span> Código abierto · Local-first · MIT`,
           'hero.h1': `Dashboard local de tokens y costos <span class="grad-text">para tus herramientas de IA</span>`,
-          'hero.sub': `Tokdash lee los registros que ya están en tu máquina y muestra exactamente cuántos tokens consumes — y cuánto cuestan — en veinticuatro agentes de codificación. Añade el resto de tus máquinas como servidores y léelos como un solo total. Sin cuenta, sin subida, sin telemetría.`,
+          'hero.sub': `Tokdash lee los registros que ya están en tu máquina y muestra exactamente cuántos tokens consumes, y cuánto cuestan, en veinticuatro agentes de codificación. Añade el resto de tus máquinas como servidores y léelos como un solo total. Sin cuenta, sin subida, sin telemetría.`,
           'hero.tag1': `<span class="dot"></span> Veinticuatro agentes, un panel`,
           'hero.tag2': `Servidores WSL, macOS y Linux combinados`,
           'hero.cta_demo': `Ver demo en vivo`,
@@ -2158,24 +2296,24 @@
           'trust.pwa.h': `El dashboard se instala como PWA`,
           'trust.pwa.p': `Fija el dashboard como una app nativa, claro u oscuro, con interfaz en 6 idiomas.`,
           'tools.h': `Un dashboard para cada agente`,
-          'tools.sub': `Tokdash unifica el uso de veinticuatro herramientas de IA — cambia de agente sin perder la factura.`,
+          'tools.sub': `Tokdash unifica el uso de veinticuatro herramientas de IA, permitiendo cambiar de agente sin perder la factura.`,
           'feat.eyebrow': `<span class="dot"></span> Funciones`,
           'feat.h': `Todo lo que gastas, a la vista`,
           'feat.sub': `De los conteos de tokens en bruto al dinero real, hasta una sola sesión.`,
           'feat.1.h': `Tokens exactos, en dinero real`,
-          'feat.1.p': `Tokens de entrada, salida y caché por herramienta, modelo y día — los números reales de tus logs, convertidos en dólares por una base de precios integrada.`,
+          'feat.1.p': `Tokens de entrada, salida y caché por herramienta, modelo y día, con los números reales de tus logs, convertidos en dólares por una base de precios integrada.`,
           'feat.2.h': `Pestaña Report lista para compartir`,
-          'feat.2.p': `Un informe de semana, mes o año en curso alineado al calendario — mapa de días, podios de entorno, modelo y proyecto, ritmo por hora y día, y tarjetas PNG.`,
+          'feat.2.p': `Un informe de semana, mes o año en curso alineado al calendario, con mapa de días, podios de entorno, modelo y proyecto, ritmo por hora y día, y tarjetas PNG.`,
           'feat.3.h': `Mapa de calor de contribuciones`,
-          'feat.3.p': `Un calendario de actividad al estilo GitHub — con vista isométrica 3D y una estimación de energía para recolorear los días por kWh.`,
+          'feat.3.p': `Un calendario de actividad al estilo GitHub, con vista isométrica 3D y una estimación de energía para recolorear los días por kWh.`,
           'feat.4.h': `Explorador de sesiones`,
           'feat.4.p': `Entra en cualquier sesión, agrupada por proyecto y entre herramientas, para encontrar exactamente qué disparó el costo.`,
           'feat.5.h': `Integración con la statusline`,
-          'feat.5.p': `Muestra indicadores en vivo de tokens y costos justo en el prompt de tu shell mientras trabajas — sin cambiar de ventana.`,
+          'feat.5.p': `Muestra indicadores en vivo de tokens y costos justo en el prompt de tu shell mientras trabajas, sin cambiar de ventana.`,
           'feat.6.h': `17 temas, claro y oscuro`,
-          'feat.6.p': `Classic, Midnight, Terminal, Arcade y más — con detección de preferencias del sistema, rangos de fecha personalizados y UI en seis idiomas (English&nbsp;/&nbsp;中文&nbsp;/&nbsp;日本語&nbsp;/&nbsp;한국어&nbsp;/&nbsp;Español&nbsp;/&nbsp;Português).`,
+          'feat.6.p': `Classic, Midnight, Terminal, Arcade y más, con detección de preferencias del sistema, rangos de fecha personalizados y UI en seis idiomas (English&nbsp;/&nbsp;中文&nbsp;/&nbsp;日本語&nbsp;/&nbsp;한국어&nbsp;/&nbsp;Español&nbsp;/&nbsp;Português).`,
           'feat.7.h': `Servicio en segundo plano gestionado`,
-          'feat.7.p': `<code class="mono" style="color:var(--color-primary);">tokdash setup</code> configura un servicio systemd/launchd reversible y sin sudo en un paso — <code class="mono" style="color:var(--color-primary);">doctor</code>, <code class="mono" style="color:var(--color-primary);">update</code> y <code class="mono" style="color:var(--color-primary);">uninstall</code> lo mantienen sano y completamente desinstalable.`,
+          'feat.7.p': `<code class="mono" style="color:var(--color-primary);">tokdash setup</code> configura un servicio systemd/launchd reversible y sin sudo en un paso, mientras que <code class="mono" style="color:var(--color-primary);">doctor</code>, <code class="mono" style="color:var(--color-primary);">update</code> y <code class="mono" style="color:var(--color-primary);">uninstall</code> lo mantienen sano y completamente desinstalable.`,
           'feat.8.h': `Seguimiento de cuotas de suscripción`,
           'feat.8.p': `Supervisa las cuotas restantes de Codex, Claude Code y Antigravity. Haz seguimiento de tu historial de consumo, mira gráficas de uso y define intervalos de actualización personalizados en una sola vista.`,
           'feat.9.h': `Vistas multi-servidor`,
@@ -2194,7 +2332,7 @@
           'srv.cta': `Abre la demo de tres servidores`,
           'opt.eyebrow': `<span class="dot"></span> Optimización de costos`,
           'opt.h': `Mira a dónde va cada dólar`,
-          'opt.sub': `Tokdash descompone el gasto hasta la sesión, el modelo y el proyecto — para que encuentres el desperdicio y lo recortes, no solo mires subir el número.`,
+          'opt.sub': `Tokdash descompone el gasto hasta la sesión, el modelo y el proyecto, para que encuentres el desperdicio y lo recortes, no solo mires subir el número.`,
           'opt.1.h': `Costo por modelo, agente y proyecto`,
           'opt.1.p': `Ordena exactamente qué está disparando la factura en cada herramienta.`,
           'opt.2.h': `Detecta sesiones con poca caché`,
@@ -2209,23 +2347,23 @@
           'opt.card.readout.p': `Dos terceras partes de la entrada salieron del caché; el resto se pagó a precio completo. Hit % es una columna ordenable de Sesiones.`,
           'comp.eyebrow': `<span class="dot"></span> App Companion`,
           'comp.h': `El gasto de hoy, a un clic en tu barra de menús`,
-          'comp.sub': `Tokdash Companion es un cliente nativo de barra de menús (macOS) y bandeja (Windows) para tu servicio local de Tokdash. Solo lectura, privacidad primero — sin telemetría, y solo habla con el endpoint que configures.`,
+          'comp.sub': `Tokdash Companion es un cliente nativo de barra de menús (macOS) y bandeja (Windows) para tu servicio local de Tokdash. Solo lectura, privacidad primero, sin telemetría, y solo habla con el endpoint que configures.`,
           'comp.shot.mac': `Popover de la barra de menús de macOS`,
           'comp.shot.win': `Ventana emergente de la bandeja de Windows`,
           'comp.shot.statusline': `Integración con la statusline de Claude Code`,
           'comp.1.h': `El gasto de hoy de un vistazo`,
           'comp.1.p': `Costo, tokens y mensajes de hoy, el % de cambio frente a ayer, y una línea de mes a la fecha como referencia.`,
           'comp.2.h': `Barras de cuota con cuenta regresiva de reinicio`,
-          'comp.2.p': `Las ventanas de suscripción por proveedor muestran la cuota restante y los tiempos relativos de reinicio — "se reinicia en 19 minutos" — además de tu herramienta más usada hoy.`,
+          'comp.2.p': `Las ventanas de suscripción por proveedor muestran la cuota restante y los tiempos relativos de reinicio, como "se reinicia en 19 minutos", además de tu herramienta más usada hoy.`,
           'comp.3.h': `Alertas que controlas tú`,
           'comp.3.p': `Notificaciones opcionales de cuota baja con tus umbrales, inicio con el sistema y una UI en System&nbsp;/&nbsp;English&nbsp;/&nbsp;简体中文&nbsp;/&nbsp;日本語&nbsp;/&nbsp;한국어&nbsp;/&nbsp;Español&nbsp;/&nbsp;Português.`,
           'comp.4.h': `Privado por diseño`,
-          'comp.4.p': `Sin telemetría, nada se sube. La app solo habla con el endpoint de Tokdash que defines — normalmente tu propio servicio local.`,
+          'comp.4.p': `Sin telemetría, nada se sube. La app solo habla con el endpoint de Tokdash que defines, normalmente tu propio servicio local.`,
           'comp.store': `<a href="https://apps.microsoft.com/detail/9ppnmpdq8b52?mode=direct" target="_blank" rel="noopener" class="ms-badge" aria-label="Obtener Tokdash Companion desde Microsoft Store"><img class="ms-badge-l" src="https://get.microsoft.com/images/en-us%20dark.svg" alt="Obtener Tokdash Companion desde Microsoft Store" width="161" height="44" /><img class="ms-badge-d" src="https://get.microsoft.com/images/en-us%20light.svg" alt="Obtener Tokdash Companion desde Microsoft Store" width="161" height="44" /></a>`,
           'comp.cta': `Descargar de GitHub Releases`,
           'related.eyebrow': `<span class="dot"></span> Proyecto relacionado`,
           'related.h': `Sincroniza y controla tus agentes`,
-          'related.sub': `De CLI a GUI, de escritorio a teléfono. Continúa justo donde lo dejaste, donde sea. Cosyncing mantiene tus agentes de codificación en sincronía a través de tu propia red — un proyecto hermano del mismo autor.`,
+          'related.sub': `De CLI a GUI, de escritorio a teléfono. Continúa justo donde lo dejaste, donde sea. Cosyncing mantiene tus agentes de codificación en sincronía a través de tu propia red, como proyecto hermano del mismo autor.`,
           'related.cta': `Ver en GitHub`,
           'related.site': `cosyncing.com`,
           'comp.caveat': `En Windows, la versión de Microsoft Store está firmada por Microsoft y se actualiza sola. El dmg universal de macOS y el zip portable de Windows en GitHub Releases no están firmados, así que Gatekeeper / SmartScreen advertirá en el primer arranque. Busca las etiquetas <code class="mono">companion-v*</code>.`,
@@ -2237,12 +2375,12 @@
           'start.2.h': `Configurar`,
           'start.2.p': `Ejecuta <code class="mono" style="color:var(--color-primary);">tokdash setup</code>. Configura un servicio en segundo plano reversible y sin sudo, y encuentra tus logs de CLI automáticamente.`,
           'start.3.h': `Listo`,
-          'start.3.p': `El asistente imprime la URL de tu dashboard — por defecto <code class="mono" style="color:var(--color-primary);">http://127.0.0.1:55423</code>.`,
-          'start.cta_try': `Pruébalo ahora — sin instalación`,
+          'start.3.p': `El asistente imprime la URL de tu dashboard, por defecto <code class="mono" style="color:var(--color-primary);">http://127.0.0.1:55423</code>.`,
+          'start.cta_try': `Pruébalo ahora sin instalación`,
           'start.cta_docs': `Leer la documentación`,
           'start.upgrade': `¿Ya lo configuraste? Actualiza cuando quieras con <code class="mono" style="color:var(--color-primary);">tokdash update</code>.`,
           'cta.h': `Míralo antes de instalar`,
-          'cta.sub': `La demo en vivo ejecuta el dashboard real con datos sintéticos — explora cada pestaña, tema y gráfico en tu navegador.`,
+          'cta.sub': `La demo en vivo ejecuta el dashboard real con datos sintéticos, para explorar cada pestaña, tema y gráfico en tu navegador.`,
           'cta.open': `Abrir la demo en vivo`,
           'footer.tagline': `Dashboard local de tokens y costos · MIT`,
           'footer.demo': `Demo en vivo`,
@@ -2251,7 +2389,7 @@
           'footer.license': `Licencia`,
           'footer.privacy': `Privacidad`,
           'footer.credit': `Los datos de la demo son totalmente sintéticos. Creado por <a href="https://github.com/JingbiaoMei" target="_blank" rel="noopener" style="color:var(--color-primary);font-weight:600;">Jingbiao Mei</a>.`,
-          'meta.title': `Tokdash — Dashboard local de tokens y costos para herramientas de IA`
+          'meta.title': `Tokdash: Dashboard local de tokens y costos para herramientas de IA`
         },
         pt: {
           'langSystem': `Sistema`,
@@ -2263,7 +2401,7 @@
           'nav.demo': `Demo`,
           'hero.eyebrow': `<span class="dot"></span> Código aberto · Local-first · MIT`,
           'hero.h1': `Dashboard local de tokens e custos <span class="grad-text">para suas ferramentas de IA</span>`,
-          'hero.sub': `O Tokdash lê os logs que já estão na sua máquina e mostra exatamente quantos tokens você queima — e quanto eles custam — em vinte e quatro agentes de codificação. Adicione as outras máquinas como servidores e veja tudo como um único total. Sem conta, sem upload, sem telemetria.`,
+          'hero.sub': `O Tokdash lê os logs que já estão na sua máquina e mostra exatamente quantos tokens você queima, e quanto eles custam, em vinte e quatro agentes de codificação. Adicione as outras máquinas como servidores e veja tudo como um único total. Sem conta, sem upload, sem telemetria.`,
           'hero.tag1': `<span class="dot"></span> Vinte e quatro agentes, um painel`,
           'hero.tag2': `Servidores WSL, macOS e Linux combinados`,
           'hero.cta_demo': `Ver demo ao vivo`,
@@ -2276,24 +2414,24 @@
           'trust.pwa.h': `O dashboard vira PWA`,
           'trust.pwa.p': `Fixe o dashboard como um app nativo, claro ou escuro, com interface em 6 idiomas.`,
           'tools.h': `Um dashboard para cada agente`,
-          'tools.sub': `O Tokdash unifica o uso de vinte e quatro ferramentas de IA — troque de agente sem perder a fatura.`,
+          'tools.sub': `O Tokdash unifica o uso de vinte e quatro ferramentas de IA, permitindo trocar de agente sem perder a fatura.`,
           'feat.eyebrow': `<span class="dot"></span> Recursos`,
           'feat.h': `Tudo o que você gasta, visível`,
           'feat.sub': `Das contagens brutas de tokens ao dinheiro real, até uma única sessão.`,
           'feat.1.h': `Tokens exatos, em dinheiro real`,
-          'feat.1.p': `Tokens de entrada, saída e cache por ferramenta, modelo e dia — os números reais dos seus logs, convertidos em dólares por um banco de preços embutido.`,
+          'feat.1.p': `Tokens de entrada, saída e cache por ferramenta, modelo e dia, trazendo os números reais dos seus logs, convertidos em dólares por um banco de preços embutido.`,
           'feat.2.h': `Aba Report pronta para compartilhar`,
-          'feat.2.p': `Um relatório de semana, mês ou ano corrente alinhado ao calendário — mapa de dias, pódios de ambiente, modelo e projeto, ritmo por hora e dia, e cartões PNG.`,
+          'feat.2.p': `Um relatório de semana, mês ou ano corrente alinhado ao calendário, com mapa de dias, pódios de ambiente, modelo e projeto, ritmo por hora e dia, e cartões PNG.`,
           'feat.3.h': `Mapa de calor de contribuições`,
-          'feat.3.p': `Um calendário de atividade estilo GitHub — com vista isométrica 3D e uma estimativa de energia para recolorir os dias por kWh.`,
+          'feat.3.p': `Um calendário de atividade estilo GitHub, com vista isométrica 3D e uma estimativa de energia para recolorir os dias por kWh.`,
           'feat.4.h': `Explorador de sessões`,
           'feat.4.p': `Abra qualquer sessão, agrupada por projeto e entre ferramentas, para encontrar exatamente o que elevou o custo.`,
           'feat.5.h': `Integração com a statusline`,
-          'feat.5.p': `Mostre indicadores ao vivo de tokens e custos direto no prompt do seu shell enquanto você trabalha — sem trocar de janela.`,
+          'feat.5.p': `Mostre indicadores ao vivo de tokens e custos direto no prompt do seu shell enquanto você trabalha, sem trocar de janela.`,
           'feat.6.h': `17 temas, claro e escuro`,
-          'feat.6.p': `Classic, Midnight, Terminal, Arcade e mais — com detecção de preferências do sistema, intervalos de data personalizados e UI em seis idiomas (English&nbsp;/&nbsp;中文&nbsp;/&nbsp;日本語&nbsp;/&nbsp;한국어&nbsp;/&nbsp;Español&nbsp;/&nbsp;Português).`,
+          'feat.6.p': `Classic, Midnight, Terminal, Arcade e mais, com detecção de preferências do sistema, intervalos de data personalizados e UI em seis idiomas (English&nbsp;/&nbsp;中文&nbsp;/&nbsp;日本語&nbsp;/&nbsp;한국어&nbsp;/&nbsp;Español&nbsp;/&nbsp;Português).`,
           'feat.7.h': `Serviço em segundo plano gerenciado`,
-          'feat.7.p': `<code class="mono" style="color:var(--color-primary);">tokdash setup</code> configura um serviço systemd/launchd reversível e sem sudo em um passo — <code class="mono" style="color:var(--color-primary);">doctor</code>, <code class="mono" style="color:var(--color-primary);">update</code> e <code class="mono" style="color:var(--color-primary);">uninstall</code> mantêm tudo saudável e totalmente removível.`,
+          'feat.7.p': `<code class="mono" style="color:var(--color-primary);">tokdash setup</code> configura um serviço systemd/launchd reversível e sem sudo em um passo, enquanto <code class="mono" style="color:var(--color-primary);">doctor</code>, <code class="mono" style="color:var(--color-primary);">update</code> e <code class="mono" style="color:var(--color-primary);">uninstall</code> mantêm tudo saudável e totalmente removível.`,
           'feat.8.h': `Acompanhamento de cota de assinatura`,
           'feat.8.p': `Monitore as cotas restantes do Codex, Claude Code e Antigravity. Acompanhe seu histórico de consumo, veja gráficos de uso e defina intervalos de atualização personalizados em uma única tela.`,
           'feat.9.h': `Visões multi-servidor`,
@@ -2312,13 +2450,13 @@
           'srv.cta': `Abra o demo com três servidores`,
           'opt.eyebrow': `<span class="dot"></span> Otimização de custos`,
           'opt.h': `Veja para onde vai cada dólar`,
-          'opt.sub': `O Tokdash detalha o gasto até a sessão, o modelo e o projeto — para você encontrar desperdício e cortá-lo, não apenas ver o número subir.`,
+          'opt.sub': `O Tokdash detalha o gasto até a sessão, o modelo e o projeto, para você encontrar desperdício e cortá-lo, não apenas ver o número subir.`,
           'opt.1.h': `Custo por modelo, agente e projeto`,
           'opt.1.p': `Classifique exatamente o que está elevando a fatura em cada ferramenta.`,
           'opt.2.h': `Encontre sessões com cache baixo`,
           'opt.2.p': `Taxa de acerto baixa significa que você está pagando o preço cheio de novo por contexto que poderia reutilizar.`,
           'opt.3.h': `Desça da sessão ao turno`,
-          'opt.3.p': `Tendência de turnos, leituras de cache e tempo estimado do agente por sessão — não um total diário embaralhado.`,
+          'opt.3.p': `Tendência de turnos, leituras de cache e tempo estimado do agente por sessão, em vez de um total diário embaralhado.`,
           'opt.4.h': `Compare máquinas lado a lado`,
           'opt.4.p': `Tokens, custo e taxa de acerto de cache por servidor Tokdash, com a coluna combinada ao lado.`,
           'opt.cta': `Explore na demo ao vivo`,
@@ -2327,23 +2465,23 @@
           'opt.card.readout.p': `Dois terços da entrada vieram do cache; o resto foi pago a preço cheio. Hit % é uma coluna ordenável de Sessões.`,
           'comp.eyebrow': `<span class="dot"></span> App Companion`,
           'comp.h': `O gasto de hoje, a um clique na barra de menus`,
-          'comp.sub': `O Tokdash Companion é um cliente nativo de barra de menus (macOS) e bandeja (Windows) para o seu serviço local do Tokdash. Somente leitura, privacidade em primeiro lugar — sem telemetria, e ele só fala com o endpoint que você configurar.`,
+          'comp.sub': `O Tokdash Companion é um cliente nativo de barra de menus (macOS) e bandeja (Windows) para o seu serviço local do Tokdash. Somente leitura, privacidade em primeiro lugar, sem telemetria, e ele só fala com o endpoint que você configurar.`,
           'comp.shot.mac': `Popover da barra de menus do macOS`,
           'comp.shot.win': `Janela da bandeja do Windows`,
           'comp.shot.statusline': `Integração com a statusline do Claude Code`,
           'comp.1.h': `O gasto de hoje de relance`,
           'comp.1.p': `Custo, tokens e mensagens de hoje, a variação % em relação a ontem e uma linha de mês até a data para contexto.`,
           'comp.2.h': `Barras de cota com contagem regressiva`,
-          'comp.2.p': `As janelas de assinatura por provedor mostram a cota restante e os tempos relativos de reset — "reseta em 19 minutos" — além da sua ferramenta mais usada hoje.`,
+          'comp.2.p': `As janelas de assinatura por provedor mostram a cota restante e os tempos relativos de reset, como "reseta em 19 minutos", além da sua ferramenta mais usada hoje.`,
           'comp.3.h': `Alertas que você controla`,
           'comp.3.p': `Notificações opcionais de cota baixa com seus próprios limiares, inicialização no login e UI em System&nbsp;/&nbsp;English&nbsp;/&nbsp;简体中文&nbsp;/&nbsp;日本語&nbsp;/&nbsp;한국어&nbsp;/&nbsp;Español&nbsp;/&nbsp;Português.`,
           'comp.4.h': `Privado por design`,
-          'comp.4.p': `Sem telemetria, nada é enviado. O app só fala com o endpoint do Tokdash que você definir — normalmente o seu próprio serviço local.`,
+          'comp.4.p': `Sem telemetria, nada é enviado. O app só fala com o endpoint do Tokdash que você definir, normalmente o seu próprio serviço local.`,
           'comp.store': `<a href="https://apps.microsoft.com/detail/9ppnmpdq8b52?mode=direct" target="_blank" rel="noopener" class="ms-badge" aria-label="Obter o Tokdash Companion da Microsoft Store"><img class="ms-badge-l" src="https://get.microsoft.com/images/en-us%20dark.svg" alt="Obter o Tokdash Companion da Microsoft Store" width="161" height="44" /><img class="ms-badge-d" src="https://get.microsoft.com/images/en-us%20light.svg" alt="Obter o Tokdash Companion da Microsoft Store" width="161" height="44" /></a>`,
           'comp.cta': `Baixar dos GitHub Releases`,
           'related.eyebrow': `<span class="dot"></span> Projeto relacionado`,
           'related.h': `Sincronize e controle seus agentes`,
-          'related.sub': `Do CLI ao GUI, do desktop ao celular. Continue de onde parou, onde estiver. O Cosyncing mantém seus agentes de codificação em sincronia na sua própria rede — um projeto-irmão do mesmo autor.`,
+          'related.sub': `Do CLI ao GUI, do desktop ao celular. Continue de onde parou, onde estiver. O Cosyncing mantém seus agentes de codificação em sincronia na sua própria rede, como um projeto-irmão do mesmo autor.`,
           'related.cta': `Ver no GitHub`,
           'related.site': `cosyncing.com`,
           'comp.caveat': `No Windows, o build da Microsoft Store é assinado pela Microsoft e se atualiza sozinho. O dmg universal do macOS e o zip portátil do Windows nos GitHub Releases não são assinados, então o Gatekeeper / SmartScreen avisará na primeira inicialização. Procure as tags <code class="mono">companion-v*</code>.`,
@@ -2355,12 +2493,12 @@
           'start.2.h': `Configurar`,
           'start.2.p': `Rode <code class="mono" style="color:var(--color-primary);">tokdash setup</code>. Ele configura um serviço em segundo plano reversível e sem sudo e encontra seus logs de CLI automaticamente.`,
           'start.3.h': `Pronto`,
-          'start.3.p': `O assistente imprime a URL do seu dashboard — por padrão <code class="mono" style="color:var(--color-primary);">http://127.0.0.1:55423</code>.`,
-          'start.cta_try': `Experimente agora — sem instalar`,
+          'start.3.p': `O assistente imprime a URL do seu dashboard, por padrão <code class="mono" style="color:var(--color-primary);">http://127.0.0.1:55423</code>.`,
+          'start.cta_try': `Experimente agora sem instalar`,
           'start.cta_docs': `Ler a documentação`,
           'start.upgrade': `Já configurou? Atualize quando quiser com <code class="mono" style="color:var(--color-primary);">tokdash update</code>.`,
           'cta.h': `Veja antes de instalar`,
-          'cta.sub': `A demo ao vivo roda o dashboard real com dados sintéticos — explore cada aba, tema e gráfico direto no navegador.`,
+          'cta.sub': `A demo ao vivo roda o dashboard real com dados sintéticos, permitindo explorar cada aba, tema e gráfico direto no navegador.`,
           'cta.open': `Abrir a demo ao vivo`,
           'footer.tagline': `Dashboard local de tokens e custos · MIT`,
           'footer.demo': `Demo ao vivo`,
@@ -2369,7 +2507,7 @@
           'footer.license': `Licença`,
           'footer.privacy': `Privacidade`,
           'footer.credit': `Os dados da demo são totalmente sintéticos. Feito por <a href="https://github.com/JingbiaoMei" target="_blank" rel="noopener" style="color:var(--color-primary);font-weight:600;">Jingbiao Mei</a>.`,
-          'meta.title': `Tokdash — Dashboard local de tokens e custos para ferramentas de IA`
+          'meta.title': `Tokdash: Dashboard local de tokens e custos para ferramentas de IA`
         }
       };
 
@@ -2407,6 +2545,239 @@
         try { localStorage.setItem('tokdash-site-lang', toggle.value); } catch (e) {}
         apply(currentLang());
       });
+    })();
+  </script>
+
+  <!-- Lenis Smooth Scrolling -->
+  <script src="/static/lenis.min.js"></script>
+  <script>
+    (function () {
+      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      if (typeof Lenis === 'undefined') return;
+
+      var lenis = new Lenis({
+        lerp: 0.0821,
+        wheelMultiplier: 0.95,
+        touchMultiplier: 1.2,
+        smoothWheel: true,
+        gestureOrientation: 'vertical',
+      });
+
+      function raf(time) {
+        lenis.raf(time);
+        requestAnimationFrame(raf);
+      }
+      requestAnimationFrame(raf);
+      window.__lenis = lenis;
+
+      // Intercept anchor links for buttery-smooth scrolling with navbar offset
+      document.querySelectorAll('a[href^="#"]').forEach(function (a) {
+        a.addEventListener('click', function (e) {
+          var targetId = a.getAttribute('href');
+          if (!targetId || targetId === '#') return;
+          var target = document.querySelector(targetId);
+          if (target) {
+            e.preventDefault();
+            lenis.scrollTo(target, {
+              offset: -76,
+              duration: 1.4,
+              easing: function (t) {
+                return Math.min(1, 1.001 - Math.pow(2, -10 * t));
+              }
+            });
+            try { history.pushState(null, '', targetId); } catch (err) {}
+          }
+        });
+      });
+    })();
+  </script>
+
+  <!-- Ambient Moving Lines and Dots Particle Canvas -->
+  <script>
+    (function () {
+      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      var canvas = document.getElementById('ambientNetworkCanvas');
+      if (!canvas) return;
+      var ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      var width = 0, height = 0, dpr = 1;
+      var particles = [];
+      var maxDistance = 145;
+      var mouse = { x: -1000, y: -1000, radius: 150 };
+
+      function isDark() {
+        return document.documentElement.classList.contains('dark');
+      }
+
+      function resize() {
+        dpr = Math.min(window.devicePixelRatio || 1, 2);
+        width = window.innerWidth;
+        height = window.innerHeight;
+        canvas.width = Math.floor(width * dpr);
+        canvas.height = Math.floor(height * dpr);
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.scale(dpr, dpr);
+        initParticles();
+      }
+
+      function initParticles() {
+        particles = [];
+        var count = Math.min(55, Math.max(22, Math.floor((width * height) / 28000)));
+        for (var i = 0; i < count; i++) {
+          var isAmber = Math.random() < 0.22;
+          particles.push({
+            x: Math.random() * width,
+            y: Math.random() * height,
+            vx: (Math.random() - 0.5) * 0.42,
+            vy: (Math.random() - 0.5) * 0.42,
+            radius: Math.random() * 1.6 + 1.2,
+            isAmber: isAmber,
+            alpha: Math.random() * 0.45 + 0.35
+          });
+        }
+      }
+
+      window.addEventListener('resize', resize, { passive: true });
+      window.addEventListener('mousemove', function (e) {
+        mouse.x = e.clientX;
+        mouse.y = e.clientY;
+      }, { passive: true });
+      window.addEventListener('mouseleave', function () {
+        mouse.x = -1000;
+        mouse.y = -1000;
+      }, { passive: true });
+
+      var running = true;
+      document.addEventListener('visibilitychange', function () {
+        running = !document.hidden;
+        if (running) requestAnimationFrame(loop);
+      });
+
+      function loop() {
+        if (!running) return;
+        ctx.clearRect(0, 0, width, height);
+
+        var dark = isDark();
+        var blueDot = dark ? 'rgba(96, 165, 250, ' : 'rgba(59, 130, 246, ';
+        var amberDot = dark ? 'rgba(251, 191, 36, ' : 'rgba(245, 158, 11, ';
+        var lineBase = dark ? 'rgba(148, 163, 184, ' : 'rgba(100, 116, 139, ';
+
+        var len = particles.length;
+        for (var i = 0; i < len; i++) {
+          var p = particles[i];
+          p.x += p.vx;
+          p.y += p.vy;
+
+          if (p.x < 0) p.x = width;
+          else if (p.x > width) p.x = 0;
+          if (p.y < 0) p.y = height;
+          else if (p.y > height) p.y = 0;
+
+          // Mouse gentle nudge
+          var dxm = p.x - mouse.x;
+          var dym = p.y - mouse.y;
+          var distMouse = Math.hypot(dxm, dym);
+          if (distMouse < mouse.radius && distMouse > 0) {
+            var force = (mouse.radius - distMouse) / mouse.radius * 0.5;
+            p.x += (dxm / distMouse) * force;
+            p.y += (dym / distMouse) * force;
+          }
+
+          // Draw dot
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+          ctx.fillStyle = (p.isAmber ? amberDot : blueDot) + (p.alpha * (dark ? 0.75 : 0.55)) + ')';
+          ctx.fill();
+
+          // Connect nearby dots
+          for (var j = i + 1; j < len; j++) {
+            var p2 = particles[j];
+            var dx = p.x - p2.x;
+            var dy = p.y - p2.y;
+            var dist = Math.hypot(dx, dy);
+            if (dist < maxDistance) {
+              var lineAlpha = (1 - dist / maxDistance) * (dark ? 0.18 : 0.12);
+              ctx.beginPath();
+              ctx.moveTo(p.x, p.y);
+              ctx.lineTo(p2.x, p2.y);
+              ctx.strokeStyle = lineBase + lineAlpha + ')';
+              ctx.lineWidth = 1;
+              ctx.stroke();
+            }
+          }
+        }
+
+        requestAnimationFrame(loop);
+      }
+
+      resize();
+      requestAnimationFrame(loop);
+    })();
+  </script>
+
+  <!-- Liquid Glass Cursor Follower on Setup section -->
+  <div id="setupGlassFollower" class="liquid-glass-follower" aria-hidden="true"></div>
+  <script>
+    (function () {
+      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      var follower = document.getElementById('setupGlassFollower');
+      var setupSection = document.getElementById('install');
+      if (!follower || !setupSection) return;
+
+      var targetX = -100, targetY = -100;
+      var currentX = -100, currentY = -100;
+      var isHovering = false;
+      var rafId = null;
+
+      function onMouseMove(e) {
+        var rect = setupSection.getBoundingClientRect();
+        // Trigger within setup section bounds plus 8px padding
+        if (e.clientX >= rect.left - 8 && e.clientX <= rect.right + 8 &&
+            e.clientY >= rect.top - 8 && e.clientY <= rect.bottom + 8) {
+          if (!isHovering) {
+            isHovering = true;
+            follower.style.opacity = '1';
+            if (currentX < 0) {
+              currentX = e.clientX;
+              currentY = e.clientY;
+            }
+          }
+          targetX = e.clientX;
+          targetY = e.clientY;
+        } else if (isHovering) {
+          isHovering = false;
+          follower.style.opacity = '0';
+        }
+      }
+
+      function update() {
+        if (isHovering || Math.abs(targetX - currentX) > 0.4 || Math.abs(targetY - currentY) > 0.4) {
+          // Smooth lag interpolation (lerp: 0.12)
+          currentX += (targetX - currentX) * 0.12;
+          currentY += (targetY - currentY) * 0.12;
+          var x = currentX - 39;
+          var y = currentY - 39;
+          follower.style.transform = 'translate3d(' + x.toFixed(1) + 'px, ' + y.toFixed(1) + 'px, 0)';
+        }
+        rafId = requestAnimationFrame(update);
+      }
+
+      window.addEventListener('mousemove', onMouseMove, { passive: true });
+      window.addEventListener('mouseleave', function () {
+        isHovering = false;
+        follower.style.opacity = '0';
+      });
+
+      document.addEventListener('visibilitychange', function () {
+        if (document.hidden) {
+          if (rafId) cancelAnimationFrame(rafId);
+        } else {
+          rafId = requestAnimationFrame(update);
+        }
+      });
+
+      rafId = requestAnimationFrame(update);
     })();
   </script>
 </body>

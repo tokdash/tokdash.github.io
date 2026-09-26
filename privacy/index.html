@@ -5,15 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#1E40AF" />
 
-  <title>Privacy Policy — Tokdash</title>
-  <meta name="description" content="Privacy policy for Tokdash Companion (the desktop tray/menu-bar app) and for the tokdash.github.io website. Covers what data each one collects — and what it does not." />
+  <title>Privacy Policy: Tokdash</title>
+  <meta name="description" content="Privacy policy for Tokdash Companion (the desktop tray/menu-bar app) and for the tokdash.github.io website. Covers what data each one collects, and what it does not." />
 
   <link rel="icon" href="/static/icons/icon-192.png" sizes="192x192" />
   <link rel="canonical" href="https://tokdash.github.io/privacy/" />
 
   <!-- Open Graph -->
   <meta property="og:type" content="website" />
-  <meta property="og:title" content="Privacy Policy — Tokdash" />
+  <meta property="og:title" content="Privacy Policy: Tokdash" />
   <meta property="og:description" content="What Tokdash Companion collects (nothing) and what tokdash.github.io collects (standard website analytics)." />
   <meta property="og:url" content="https://tokdash.github.io/privacy/" />
   <meta property="og:image" content="https://tokdash.github.io/static/icons/icon-512.png" />
@@ -26,6 +26,7 @@
 
   <!-- Tailwind: prebuilt static CSS shared with the rest of the site -->
   <link rel="stylesheet" href="/static/landing.css" />
+  <link rel="stylesheet" href="/static/lenis.css" />
 
   <!-- Avoid theme flash: set the class before paint (mirrors index.html) -->
   <script>
@@ -56,6 +57,18 @@
       --t-fast: 180ms;
       --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
       --shadow-md: 0 8px 24px rgba(15, 23, 42, 0.08);
+    }
+
+    /* ---- Lenis smooth scroll ---- */
+    html.lenis, html.lenis body { height: auto; }
+    html, html.lenis { scroll-behavior: auto !important; }
+    .lenis.lenis-smooth { scroll-behavior: auto !important; }
+    .lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+    .lenis.lenis-stopped { overflow: clip; }
+    .lenis.lenis-smooth iframe { pointer-events: none; }
+    header, .card {
+      transform: translateZ(0);
+      -webkit-transform: translateZ(0);
     }
     html.dark {
       --color-primary: #60A5FA;
@@ -188,7 +201,8 @@
           <svg id="iconMoon" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
           <svg id="iconSun" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true" style="display:none;"><circle cx="12" cy="12" r="5" stroke="currentColor" stroke-width="2"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
         </button>
-        <a href="/" class="nav-link">← Back to tokdash.github.io</a>
+        <a href="/demo/" class="nav-link">Live demo</a>
+        <a href="/" class="nav-link">← Home</a>
       </div>
     </div>
   </header>
@@ -200,7 +214,7 @@
       <p class="text-muted mt-3">
         This page covers two different things: the <strong>Tokdash Companion</strong> desktop
         app (Microsoft Store and portable builds), and <strong>this website</strong>
-        (tokdash.github.io). They behave differently, so each gets its own section below —
+        (tokdash.github.io). They behave differently, so each gets its own section below:
         read the heading before assuming a claim applies to both.
       </p>
       <p class="text-xs text-muted mt-4">Last updated: 2026-08-18</p>
@@ -228,8 +242,8 @@
 
         <h2>Data stored on your device</h2>
         <p>
-          Your settings — server addresses and labels, notification thresholds, language,
-          launch-at-login preference, and update-check preference — are stored on your
+          Your settings, including server addresses and labels, notification thresholds, language,
+          launch-at-login preference, and update-check preference, are stored on your
           device. In the Microsoft Store build they live in the app's own package storage
           and are removed when you uninstall the app.
         </p>
@@ -274,7 +288,7 @@
 
         <h2>Website analytics</h2>
         <p class="lede">
-          This section is about <strong>tokdash.github.io — the website, not the app.</strong>
+          This section is about <strong>tokdash.github.io, the website rather than the app.</strong>
           Nothing in this section applies to Tokdash Companion or to the Tokdash server;
           those remain exactly as described above: no telemetry, no accounts, no
           phone-home.
@@ -292,8 +306,8 @@
         <div class="callout callout-amber">
           <p>
             <strong>Why the split.</strong> The Tokdash <em>app</em> is local-first and
-            collects nothing. The Tokdash <em>website</em> — the marketing pages and demo
-            you may have arrived from — runs standard Google Analytics like most websites
+            collects nothing. The Tokdash <em>website</em>, including the marketing pages and demo
+            you may have arrived from, runs standard Google Analytics like most websites
             do. Those are two different pieces of software with two different privacy
             postures; this page states both plainly instead of letting one claim be read
             as covering the other.
@@ -354,6 +368,24 @@
         try { localStorage.setItem('tokdash-site-theme', root.classList.contains('dark') ? 'dark' : 'light'); } catch (e) {}
         sync();
       });
+    })();
+  </script>
+
+  <!-- Lenis Smooth Scrolling -->
+  <script src="/static/lenis.min.js"></script>
+  <script>
+    (function () {
+      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      if (typeof Lenis === 'undefined') return;
+      var lenis = new Lenis({
+        lerp: 0.12,
+        wheelMultiplier: 1.0,
+        touchMultiplier: 1.5,
+        smoothWheel: true,
+      });
+      function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
+      requestAnimationFrame(raf);
+      window.__lenis = lenis;
     })();
   </script>
 </body>
