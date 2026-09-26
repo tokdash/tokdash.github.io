@@ -26,6 +26,7 @@
 
   <!-- Tailwind: prebuilt static CSS shared with the rest of the site -->
   <link rel="stylesheet" href="/static/landing.css" />
+  <link rel="stylesheet" href="/static/lenis.css" />
 
   <!-- Avoid theme flash: set the class before paint (mirrors index.html) -->
   <script>
@@ -45,7 +46,7 @@
     :root {
       --color-primary: #1E40AF;
       --color-secondary: #3B82F6;
-      --color-cta: #F59E0B;
+      --color-cta: #B45309;
       --color-bg: #F8FAFC;
       --color-text: #0F172A;
       --color-muted: #475569;
@@ -57,6 +58,13 @@
       --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
       --shadow-md: 0 8px 24px rgba(15, 23, 42, 0.08);
     }
+
+    /* ---- Lenis smooth scroll ---- */
+    html.lenis, html.lenis body { height: auto; }
+    .lenis.lenis-smooth { scroll-behavior: auto !important; }
+    .lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+    .lenis.lenis-stopped { overflow: clip; }
+    .lenis.lenis-smooth iframe { pointer-events: none; }
     html.dark {
       --color-primary: #60A5FA;
       --color-secondary: #93C5FD;
@@ -188,7 +196,8 @@
           <svg id="iconMoon" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
           <svg id="iconSun" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true" style="display:none;"><circle cx="12" cy="12" r="5" stroke="currentColor" stroke-width="2"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
         </button>
-        <a href="/" class="nav-link">← Back to tokdash.github.io</a>
+        <a href="/demo/" class="nav-link">Live demo</a>
+        <a href="/" class="nav-link">← Home</a>
       </div>
     </div>
   </header>
@@ -354,6 +363,23 @@
         try { localStorage.setItem('tokdash-site-theme', root.classList.contains('dark') ? 'dark' : 'light'); } catch (e) {}
         sync();
       });
+    })();
+  </script>
+
+  <!-- Lenis Smooth Scrolling -->
+  <script src="/static/lenis.min.js"></script>
+  <script>
+    (function () {
+      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      if (typeof Lenis === 'undefined') return;
+      var lenis = new Lenis({
+        duration: 1.1,
+        easing: function (t) { return Math.min(1, 1.001 - Math.pow(2, -10 * t)); },
+        smoothWheel: true,
+      });
+      function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
+      requestAnimationFrame(raf);
+      window.__lenis = lenis;
     })();
   </script>
 </body>
