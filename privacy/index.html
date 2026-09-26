@@ -61,11 +61,15 @@
 
     /* ---- Lenis smooth scroll ---- */
     html.lenis, html.lenis body { height: auto; }
-    html.lenis { scroll-behavior: auto !important; }
+    html, html.lenis { scroll-behavior: auto !important; }
     .lenis.lenis-smooth { scroll-behavior: auto !important; }
     .lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
     .lenis.lenis-stopped { overflow: clip; }
     .lenis.lenis-smooth iframe { pointer-events: none; }
+    header, .card {
+      transform: translateZ(0);
+      -webkit-transform: translateZ(0);
+    }
     html.dark {
       --color-primary: #60A5FA;
       --color-secondary: #93C5FD;
@@ -374,7 +378,7 @@
       if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
       if (typeof Lenis === 'undefined') return;
       var lenis = new Lenis({
-        lerp: 0.08,
+        lerp: 0.12,
         wheelMultiplier: 1.0,
         touchMultiplier: 1.5,
         smoothWheel: true,

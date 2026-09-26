@@ -109,12 +109,17 @@
 
     /* ---- Lenis smooth scroll ---- */
     html.lenis, html.lenis body { height: auto; }
-    html.lenis { scroll-behavior: auto !important; }
+    html, html.lenis { scroll-behavior: auto !important; }
     .lenis.lenis-smooth { scroll-behavior: auto !important; }
     .lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
     .lenis.lenis-stopped { overflow: clip; }
     .lenis.lenis-smooth iframe { pointer-events: none; }
 
+    /* GPU layer promotion to prevent paint bottleneck during high-framerate scrolling */
+    header, .card, .setup-box {
+      transform: translateZ(0);
+      -webkit-transform: translateZ(0);
+    }
 
     /* min-height (not height:100%): a fixed-height body bounds position:sticky to
        one viewport, so the nav would stop sticking after the first screen. min-height
@@ -124,7 +129,10 @@
       min-height: 100%;
       overflow-x: clip;
     }
-    html { scroll-behavior: smooth; scroll-padding-top: 88px; }
+    html {
+      scroll-behavior: auto !important;
+      scroll-padding-top: 88px;
+    }
 
     body {
       font-family: "Fira Sans", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans";
@@ -2470,7 +2478,7 @@
       if (typeof Lenis === 'undefined') return;
 
       var lenis = new Lenis({
-        lerp: 0.08,
+        lerp: 0.12,
         wheelMultiplier: 1.0,
         touchMultiplier: 1.5,
         smoothWheel: true,
