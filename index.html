@@ -805,6 +805,9 @@
 </head>
 
 <body>
+  <!-- Ambient moving lines and dots background canvas -->
+  <canvas id="ambientNetworkCanvas" style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:-1;" aria-hidden="true"></canvas>
+
   <!-- ============ NAV ============ -->
   <header class="site-nav">
     <div class="max-w-[1180px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
@@ -2517,6 +2520,130 @@
         }
       });
     }
+  </script>
+
+  <!-- Ambient Moving Lines and Dots Particle Canvas -->
+  <script>
+    (function () {
+      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      var canvas = document.getElementById('ambientNetworkCanvas');
+      if (!canvas) return;
+      var ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      var width = 0, height = 0, dpr = 1;
+      var particles = [];
+      var maxDistance = 145;
+      var mouse = { x: -1000, y: -1000, radius: 150 };
+
+      function isDark() {
+        return document.documentElement.classList.contains('dark');
+      }
+
+      function resize() {
+        dpr = Math.min(window.devicePixelRatio || 1, 2);
+        width = window.innerWidth;
+        height = window.innerHeight;
+        canvas.width = Math.floor(width * dpr);
+        canvas.height = Math.floor(height * dpr);
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.scale(dpr, dpr);
+        initParticles();
+      }
+
+      function initParticles() {
+        particles = [];
+        var count = Math.min(55, Math.max(22, Math.floor((width * height) / 28000)));
+        for (var i = 0; i < count; i++) {
+          var isAmber = Math.random() < 0.22;
+          particles.push({
+            x: Math.random() * width,
+            y: Math.random() * height,
+            vx: (Math.random() - 0.5) * 0.42,
+            vy: (Math.random() - 0.5) * 0.42,
+            radius: Math.random() * 1.6 + 1.2,
+            isAmber: isAmber,
+            alpha: Math.random() * 0.45 + 0.35
+          });
+        }
+      }
+
+      window.addEventListener('resize', resize, { passive: true });
+      window.addEventListener('mousemove', function (e) {
+        mouse.x = e.clientX;
+        mouse.y = e.clientY;
+      }, { passive: true });
+      window.addEventListener('mouseleave', function () {
+        mouse.x = -1000;
+        mouse.y = -1000;
+      }, { passive: true });
+
+      var running = true;
+      document.addEventListener('visibilitychange', function () {
+        running = !document.hidden;
+        if (running) requestAnimationFrame(loop);
+      });
+
+      function loop() {
+        if (!running) return;
+        ctx.clearRect(0, 0, width, height);
+
+        var dark = isDark();
+        var blueDot = dark ? 'rgba(96, 165, 250, ' : 'rgba(59, 130, 246, ';
+        var amberDot = dark ? 'rgba(251, 191, 36, ' : 'rgba(245, 158, 11, ';
+        var lineBase = dark ? 'rgba(148, 163, 184, ' : 'rgba(100, 116, 139, ';
+
+        var len = particles.length;
+        for (var i = 0; i < len; i++) {
+          var p = particles[i];
+          p.x += p.vx;
+          p.y += p.vy;
+
+          if (p.x < 0) p.x = width;
+          else if (p.x > width) p.x = 0;
+          if (p.y < 0) p.y = height;
+          else if (p.y > height) p.y = 0;
+
+          // Mouse gentle nudge
+          var dxm = p.x - mouse.x;
+          var dym = p.y - mouse.y;
+          var distMouse = Math.hypot(dxm, dym);
+          if (distMouse < mouse.radius && distMouse > 0) {
+            var force = (mouse.radius - distMouse) / mouse.radius * 0.5;
+            p.x += (dxm / distMouse) * force;
+            p.y += (dym / distMouse) * force;
+          }
+
+          // Draw dot
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+          ctx.fillStyle = (p.isAmber ? amberDot : blueDot) + (p.alpha * (dark ? 0.75 : 0.55)) + ')';
+          ctx.fill();
+
+          // Connect nearby dots
+          for (var j = i + 1; j < len; j++) {
+            var p2 = particles[j];
+            var dx = p.x - p2.x;
+            var dy = p.y - p2.y;
+            var dist = Math.hypot(dx, dy);
+            if (dist < maxDistance) {
+              var lineAlpha = (1 - dist / maxDistance) * (dark ? 0.18 : 0.12);
+              ctx.beginPath();
+              ctx.moveTo(p.x, p.y);
+              ctx.lineTo(p2.x, p2.y);
+              ctx.strokeStyle = lineBase + lineAlpha + ')';
+              ctx.lineWidth = 1;
+              ctx.stroke();
+            }
+          }
+        }
+
+        requestAnimationFrame(loop);
+      }
+
+      resize();
+      requestAnimationFrame(loop);
+    })();
   </script>
 </body>
 </html>
