@@ -49,7 +49,7 @@
   <!-- Fonts (Design System: Fira Code / Fira Sans) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Fira+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Fira+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
 
   <!-- Tailwind: prebuilt static CSS so layout works with JS disabled/blocked.
        Regenerate after class changes: see README ("Rebuilding the landing CSS"). -->
@@ -91,9 +91,14 @@
       --t-fast: 180ms;
       --t-med: 240ms;
 
-      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
-      --shadow-md: 0 8px 24px rgba(15, 23, 42, 0.08);
-      --shadow-lg: 0 16px 44px rgba(15, 23, 42, 0.12);
+      /* Layered, low-alpha elevation: a tight contact shadow plus a wide,
+         diffuse one reads as real depth, where a single flat shadow reads flat. */
+      --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06), 0 1px 1px rgba(15, 23, 42, 0.04);
+      --shadow-md: 0 1px 2px rgba(15, 23, 42, 0.05), 0 8px 20px -6px rgba(15, 23, 42, 0.10);
+      --shadow-lg: 0 2px 4px rgba(15, 23, 42, 0.04), 0 18px 40px -12px rgba(15, 23, 42, 0.16);
+      /* 1px top highlight: the edge that separates a surface from its backdrop. */
+      --hairline: inset 0 1px 0 rgba(255, 255, 255, 0.75);
+      --ring: 0 0 0 1px rgba(15, 23, 42, 0.05);
     }
 
     html.dark {
@@ -106,8 +111,10 @@
       --color-border: #334155;
       --color-cost: #34D399;
       --shadow-sm: 0 1px 2px rgba(0,0,0,0.4);
-      --shadow-md: 0 8px 24px rgba(0,0,0,0.4);
-      --shadow-lg: 0 16px 44px rgba(0,0,0,0.5);
+      --shadow-md: 0 1px 2px rgba(0,0,0,0.35), 0 8px 20px -6px rgba(0,0,0,0.45);
+      --shadow-lg: 0 2px 4px rgba(0,0,0,0.3), 0 18px 40px -12px rgba(0,0,0,0.55);
+      --hairline: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      --ring: 0 0 0 1px rgba(255, 255, 255, 0.04);
     }
 
     /* ---- Lenis smooth scroll ---- */
@@ -159,21 +166,23 @@
       background: rgba(255, 255, 255, 0.95);
       border: 1px solid var(--color-border);
       border-radius: var(--radius-lg);
-      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+      box-shadow: var(--shadow-sm), var(--hairline);
       backdrop-filter: blur(12px);
-      transition: transform var(--t-med) ease, box-shadow var(--t-med) ease;
+      transition: transform var(--t-med) ease, box-shadow var(--t-med) ease, border-color var(--t-med) ease;
     }
     .surface:hover {
-      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
-      transform: translateY(-2px);
+      border-color: color-mix(in srgb, var(--color-primary) 28%, var(--color-border));
+      box-shadow: var(--shadow-md), var(--hairline);
+      transform: translateY(-3px);
     }
     html.dark .surface {
       background: rgba(30, 41, 59, 0.9);
       border-color: #334155;
-      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.3), 0 2px 4px -1px rgba(0,0,0,0.2);
+      box-shadow: var(--shadow-sm), var(--hairline);
     }
     html.dark .surface:hover {
-      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.4), 0 10px 10px -5px rgba(0,0,0,0.3);
+      border-color: color-mix(in srgb, var(--color-primary) 40%, #334155);
+      box-shadow: var(--shadow-md), var(--hairline);
     }
     /* Static surface, no lift on hover (used for the hero preview & terminal) */
     .surface-static:hover { transform: none; }
@@ -186,13 +195,13 @@
       transition: transform var(--t-fast) ease, box-shadow var(--t-fast) ease, background var(--t-fast) ease, border-color var(--t-fast) ease, color var(--t-fast) ease;
     }
     .btn:focus-visible { outline: none; box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.28); }
+    /* Solid at rest, not on hover: the primary action has to read as *the*
+       action the moment the page paints, not after the pointer finds it. */
     .btn-primary {
-      background: rgba(37, 99, 235, 0.07);
-      color: #1D4ED8;
-      border: 1px solid rgba(59, 130, 246, 0.45);
-      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.08);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
+      background: linear-gradient(135deg, #1D4ED8 0%, #2563EB 55%, #3B82F6 100%);
+      color: #ffffff;
+      border: 1px solid rgba(29, 78, 216, 0.9);
+      box-shadow: 0 1px 2px rgba(29, 78, 216, 0.24), 0 8px 20px -8px rgba(37, 99, 235, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.18);
     }
     .btn-primary svg path {
       stroke: currentColor;
@@ -210,10 +219,10 @@
       box-shadow: 0 2px 6px rgba(37, 99, 235, 0.2);
     }
     html.dark .btn-primary {
-      background: rgba(59, 130, 246, 0.12);
-      color: #93C5FD;
-      border: 1px solid rgba(147, 197, 253, 0.35);
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+      background: linear-gradient(135deg, #1D4ED8 0%, #2563EB 55%, #3B82F6 100%);
+      color: #ffffff;
+      border: 1px solid rgba(96, 165, 250, 0.55);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 22px -8px rgba(37, 99, 235, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.16);
     }
     html.dark .btn-primary:hover {
       background: linear-gradient(135deg, #1D4ED8 0%, #2563EB 100%);
@@ -221,6 +230,19 @@
       border-color: rgba(96, 165, 250, 0.75);
       box-shadow: 0 8px 22px rgba(37, 99, 235, 0.38), 0 3px 6px rgba(37, 99, 235, 0.2);
     }
+
+    /* The arrow leans into the direction of travel, and the primary button
+       keeps a sheen that only shows while the pointer is on it. */
+    .btn svg, .cmd .copy-ic { transition: transform var(--t-fast) cubic-bezier(0.22, 1, 0.36, 1); }
+    .btn:hover svg { transform: translateX(3px); }
+    .btn:active svg { transform: translateX(1px); }
+    .btn-primary::after {
+      content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+      background: linear-gradient(100deg, transparent 30%, rgba(255, 255, 255, 0.28) 50%, transparent 70%);
+      transform: translateX(-120%); opacity: 0;
+    }
+    .btn { position: relative; overflow: hidden; }
+    .btn-primary:hover::after { transform: translateX(120%); opacity: 1; transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.2s ease; }
 
     .btn-ghost {
       background: rgba(15, 23, 42, 0.04); color: var(--color-text);
@@ -256,12 +278,38 @@
       backdrop-filter: blur(14px);
       background: color-mix(in srgb, var(--color-bg) 78%, transparent);
       border-bottom: 1px solid color-mix(in srgb, var(--color-border) 70%, transparent);
+      transition: background var(--t-med) ease, box-shadow var(--t-med) ease, border-color var(--t-med) ease;
+    }
+    /* Once the hero starts leaving, the bar earns a real edge instead of
+       floating as a translucent band over moving content. */
+    .site-nav.scrolled {
+      background: color-mix(in srgb, var(--color-bg) 90%, transparent);
+      border-bottom-color: var(--color-border);
+      box-shadow: 0 10px 30px -14px rgba(15, 23, 42, 0.28);
+    }
+    html.dark .site-nav.scrolled { box-shadow: 0 10px 30px -14px rgba(0, 0, 0, 0.7); }
+    .nav-progress { position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; pointer-events: none; }
+    .nav-progress > i {
+      display: block; height: 100%; width: 0;
+      background: linear-gradient(90deg, var(--color-primary), var(--color-secondary) 55%, var(--color-cta));
+      box-shadow: 0 0 10px color-mix(in srgb, var(--color-primary) 55%, transparent);
     }
     .nav-link {
+      position: relative;
       font-size: 14px; font-weight: 600; color: var(--color-muted);
-      padding: 8px 12px; border-radius: 8px; transition: color var(--t-fast) ease, background var(--t-fast) ease;
+      padding: 8px 12px; border-radius: 8px;
+      transition: color var(--t-fast) ease, background var(--t-fast) ease;
     }
     .nav-link:hover { color: var(--color-text); background: rgba(30,64,175,0.06); }
+    /* Underline grows from the centre, so the nav reads as one considered set. */
+    .nav-link::after {
+      content: ""; position: absolute; left: 18%; right: 18%; bottom: 2px; height: 2px;
+      border-radius: 2px; background: var(--color-primary);
+      transform: scaleX(0); transform-origin: 50% 50%;
+      transition: transform var(--t-med) cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .nav-link:hover::after, .nav-link:focus-visible::after { transform: scaleX(1); }
+    html.dark .nav-link:hover { background: rgba(96, 165, 250, 0.10); }
 
     /* ---- Eyebrow chip ---- */
     .chip {
@@ -278,6 +326,165 @@
       background: linear-gradient(120deg, var(--color-primary), var(--color-secondary) 60%, var(--color-cta));
       -webkit-background-clip: text; background-clip: text; color: transparent;
     }
+
+    /* ---- Typographic polish ----
+       balance evens out the ragged last line of a heading; pretty stops the
+       browser leaving a single word stranded on the final line of a paragraph. */
+    h1, h2, h3 { text-wrap: balance; }
+    p { text-wrap: pretty; }
+
+    /* Section headings share one scale so the page keeps a single voice.
+       Defined here rather than as Tailwind utilities so the prebuilt,
+       purged static/landing.css does not have to be regenerated for it. */
+    .sec-title { font-size: 1.875rem; line-height: 1.14; }
+    @media (min-width: 640px) { .sec-title { font-size: 2.5rem; } }
+
+    /* Keyboard focus, everywhere. .btn keeps its own ring, so it opts out. */
+    :where(a, button, select, input, summary):not(.btn):focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+      border-radius: 8px;
+    }
+
+    /* ---- Section pacing ----
+       A barely-there tint every other section gives the long page a rhythm
+       instead of one undifferentiated white column. */
+    /* z-index: 0 makes the section its own stacking context, so the -1
+       pseudo paints above the page background instead of behind it. */
+    .band { position: relative; z-index: 0; }
+    .band::before {
+      content: ""; position: absolute; z-index: -1;
+      top: 0; bottom: 0; left: 50%; transform: translateX(-50%); width: 100vw;
+      background: linear-gradient(180deg,
+        color-mix(in srgb, var(--color-primary) 4%, transparent),
+        color-mix(in srgb, var(--color-primary) 1.5%, transparent));
+      border-top: 1px solid color-mix(in srgb, var(--color-border) 55%, transparent);
+      border-bottom: 1px solid color-mix(in srgb, var(--color-border) 55%, transparent);
+      -webkit-mask-image: linear-gradient(180deg, transparent, #000 12%, #000 88%, transparent);
+      mask-image: linear-gradient(180deg, transparent, #000 12%, #000 88%, transparent);
+    }
+    html.dark .band::before {
+      background: linear-gradient(180deg,
+        color-mix(in srgb, var(--color-primary) 10%, transparent),
+        color-mix(in srgb, var(--color-primary) 4%, transparent));
+    }
+
+    /* ---- Hero proof strip ---- */    .proof {
+      display: flex; flex-wrap: wrap; align-items: center; gap: 10px 26px;
+      margin-top: 30px; padding-top: 22px;
+      border-top: 1px solid color-mix(in srgb, var(--color-border) 80%, transparent);
+    }
+    .proof-item {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 13.5px; font-weight: 600; color: var(--color-muted);
+    }
+    .proof-item b {
+      color: var(--color-text); font-weight: 800; font-size: 16px;
+      font-variant-numeric: tabular-nums; letter-spacing: -0.01em;
+    }
+    .proof-item .tick {
+      width: 20px; height: 20px; border-radius: 50%; flex: none;
+      display: inline-flex; align-items: center; justify-content: center;
+      color: var(--color-cost);
+      background: color-mix(in srgb, var(--color-cost) 14%, transparent);
+    }
+    .proof-item b { font-variant-numeric: tabular-nums; }
+
+    /* ---- Scroll hint ---- */
+    .scroll-hint {
+      display: inline-flex; align-items: center; gap: 10px;
+      margin-top: 26px; color: var(--color-muted);
+      font-size: 11.5px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    .scroll-hint.gone { opacity: 0; transform: translateY(10px); pointer-events: none; }
+    .scroll-hint-mouse {
+      width: 20px; height: 32px; border-radius: 11px; flex: none; position: relative;
+      border: 1.5px solid color-mix(in srgb, var(--color-muted) 55%, transparent);
+    }
+    .scroll-hint-mouse > i {
+      position: absolute; left: 50%; top: 6px; width: 3px; height: 7px; margin-left: -1.5px;
+      border-radius: 2px; background: var(--color-primary);
+      animation: hint-wheel 1.9s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+    }
+    @keyframes hint-wheel {
+      0%   { transform: translateY(0);    opacity: 0; }
+      25%  { opacity: 1; }
+      70%  { transform: translateY(11px); opacity: 0; }
+      100% { transform: translateY(11px); opacity: 0; }
+    }
+    @media (prefers-reduced-motion: reduce) { .scroll-hint-mouse > i { animation: none; } }
+
+    /* ---- Scroll rail ----
+       Fixed, pointer-only, and desktop-only: the mobile layout already has the
+       progress hairline in the nav, and a rail over a 390px column is clutter. */
+    .rail {
+      position: fixed; z-index: 45;
+      right: clamp(12px, 1.5vw, 26px); top: 50%;
+      transform: translateY(-50%);
+      width: 132px; height: min(50vh, 430px);
+      pointer-events: none; user-select: none;
+      opacity: 0; transition: opacity 0.5s ease;
+    }
+    html.js .rail.ready { opacity: 1; }
+    .rail-track {
+      position: absolute; right: 0; top: 0; bottom: 0; width: 2px;
+      border-radius: 2px; overflow: visible;
+      background: color-mix(in srgb, var(--color-border) 80%, transparent);
+    }
+    .rail-fill {
+      position: absolute; inset: 0; border-radius: 2px;
+      transform-origin: right center;
+      transform: scaleY(0) scaleX(1);
+      background: linear-gradient(180deg, var(--color-primary), var(--color-secondary) 55%, var(--color-cta));
+      box-shadow: 0 0 12px color-mix(in srgb, var(--color-primary) 45%, transparent);
+    }
+    .rail-head {
+      position: absolute; right: -3px; top: 0; width: 8px; height: 8px;
+      border-radius: 50%; background: var(--color-cta);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-cta) 22%, transparent), 0 0 14px var(--color-cta);
+      will-change: transform;
+    }
+    .rail-nodes { position: absolute; inset: 0; margin: 0; padding: 0; list-style: none; }
+    .rail-node { position: absolute; right: -5px; top: var(--at, 0%); transform: translateY(-50%); }
+    .rail-node > a { display: flex; align-items: center; justify-content: flex-end; gap: 10px; pointer-events: auto; text-decoration: none; }
+    .rail-dot {
+      position: relative; order: 2; flex: none;
+      width: 12px; height: 12px; border-radius: 50%;
+      border: 2px solid color-mix(in srgb, var(--color-muted) 60%, transparent);
+      background: var(--color-bg);
+      transition: border-color var(--t-med) ease, background var(--t-med) ease;
+      will-change: transform;
+    }
+    .rail-ping {
+      position: absolute; inset: -2px; border-radius: 50%;
+      border: 2px solid var(--color-primary); opacity: 0;
+    }
+    .rail-label {
+      order: 1; white-space: nowrap;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--color-muted);
+      padding: 4px 9px; border-radius: 999px;
+      background: color-mix(in srgb, var(--color-bg) 82%, transparent);
+      border: 1px solid color-mix(in srgb, var(--color-border) 70%, transparent);
+      backdrop-filter: blur(6px);
+      opacity: 0; will-change: transform, opacity;
+    }
+    .rail-node.on .rail-dot { border-color: var(--color-primary); background: var(--color-primary); }
+    /* Hover affordance for a node you have not reached yet. The !important is
+       deliberate: the fill timeline writes opacity/transform inline, and an
+       inline style would otherwise beat this rule. */
+    .rail-node > a:hover .rail-dot { border-color: var(--color-primary); }
+    .rail-node > a:hover .rail-label { opacity: 1 !important; transform: none !important; }
+    .rail-node.on .rail-label { color: var(--color-text); border-color: color-mix(in srgb, var(--color-primary) 40%, transparent); }
+    .rail-node.active .rail-label {
+      color: #fff; background: var(--color-primary);
+      border-color: var(--color-primary);
+      box-shadow: 0 6px 18px -8px color-mix(in srgb, var(--color-primary) 80%, transparent);
+    }
+    html.dark .rail-dot { background: var(--color-bg); }
+    @media (max-width: 1023px) { .rail { display: none; } }
+    @media (prefers-reduced-motion: reduce) { .rail { display: none; } }
 
     /* ---- Install command pill ---- */
     .cmd {
@@ -314,6 +521,18 @@
     }
     html.dark .tool-pill { background: rgba(30,41,59,0.55); }
     .tool-pill:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--color-primary) 45%, var(--color-border)); box-shadow: var(--shadow-md); }
+    .tool-logo { transition: transform var(--t-med) cubic-bezier(0.22, 1, 0.36, 1), box-shadow var(--t-med) ease; }
+    .tool-pill:hover .tool-logo { transform: scale(1.12) rotate(-3deg); }
+    /* Card icon lifts a touch as its card does — the two read as one object. */
+    .feature-icon { transition: transform var(--t-med) cubic-bezier(0.22, 1, 0.36, 1), box-shadow var(--t-med) ease; }
+    .surface:hover .feature-icon { transform: translateY(-2px) scale(1.06); box-shadow: 0 8px 18px -8px color-mix(in srgb, var(--color-primary) 60%, transparent); }
+    /* A slow breath under the hero preview keeps the biggest surface alive. */
+    .preview-wrap .surface-static { animation: preview-breathe 9s ease-in-out infinite; }
+    @keyframes preview-breathe {
+      0%, 100% { box-shadow: var(--shadow-md), var(--hairline); }
+      50%      { box-shadow: var(--shadow-lg), var(--hairline); }
+    }
+    @media (prefers-reduced-motion: reduce) { .preview-wrap .surface-static { animation: none; } }
     /* White logo chip, keeping every mark (incl. dark monochrome glyphs) legible in light & dark. */
     .tool-logo { width: 30px; height: 30px; flex: none; object-fit: contain; border-radius: 7px; background: #fff; padding: 4px; box-shadow: inset 0 0 0 1px rgba(15,23,42,0.06); }
     /* Same chip for marks that are wordmarks: they carry the name, so the pill prints no label. */
@@ -1544,6 +1763,7 @@
           <span id="ghStarCount" class="gh-count" hidden></span>
         </a>
       </div>
+      <div class="nav-progress" aria-hidden="true"><i></i></div>
     </div>
   </header>
 
@@ -1571,7 +1791,7 @@
           </div>
 
           <div class="reveal flex flex-wrap items-center gap-3 mt-8">
-            <button id="copyCmd" class="cmd" data-cmd="pipx install tokdash" aria-label="Copy: pipx install tokdash">
+            <button class="cmd" data-cmd="pipx install tokdash" aria-label="Copy: pipx install tokdash">
               <span><span class="prompt">$</span>&nbsp;pipx install tokdash</span>
               <span class="copy-ic" aria-hidden="true">
                 <svg id="copyGlyph" class="copy-glyph" width="14" height="14" viewBox="0 0 24 24" fill="none" style="overflow:visible;">
@@ -1585,6 +1805,31 @@
               <svg class="svg-drawable" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </a>
           </div>
+
+          <!-- Proof strip: only claims the product can actually back up. The
+               figure lives *inside* the translated string, so word order and
+               counters stay natural in all six languages. -->
+          <div class="proof reveal" aria-label="Tokdash at a glance">
+            <span class="proof-item">
+              <span class="tick" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="m5 13 4 4L19 7" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              <span data-i18n="hero.proof1"><b>24</b> coding agents</span>
+            </span>
+            <span class="proof-item">
+              <span class="tick" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="m5 13 4 4L19 7" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              <span data-i18n="hero.proof2"><b>6</b> UI languages</span>
+            </span>
+            <span class="proof-item">
+              <span class="tick" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="m5 13 4 4L19 7" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              <span data-i18n="hero.proof3"><b>1</b> command to install</span>
+            </span>
+          </div>
+
+          <!-- Fades out on the first real scroll: the rail takes over from here. -->
+          <div class="scroll-hint reveal" aria-hidden="true">
+            <span class="scroll-hint-mouse"><i></i></span>
+            <span class="scroll-hint-text" data-i18n="hero.scroll">Scroll</span>
+          </div>
+
 
         </div>
 
@@ -1667,9 +1912,9 @@
     </section>
 
     <!-- ============ SUPPORTED TOOLS ============ -->
-    <section id="tools" class="max-w-[1180px] mx-auto px-4 sm:px-6 py-14 lg:py-20">
+    <section id="tools" class="band max-w-[1180px] mx-auto px-4 sm:px-6 py-14 lg:py-20">
       <div class="text-center max-w-2xl mx-auto reveal">
-        <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight" data-i18n="tools.h">One dashboard for every agent</h2>
+        <h2 class="sec-title font-extrabold tracking-tight" data-i18n="tools.h">One dashboard for every agent</h2>
         <p class="text-muted mt-3" data-i18n="tools.sub">Tokdash unifies usage across twenty-four AI coding tools, letting you switch agents without losing the bill.</p>
       </div>
 
@@ -1708,7 +1953,7 @@
     <section id="features" class="max-w-[1180px] mx-auto px-4 sm:px-6 py-14 lg:py-20">
       <div class="text-center max-w-2xl mx-auto reveal">
         <span class="chip" data-i18n="feat.eyebrow"><span class="dot"></span> Features</span>
-        <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight mt-5" data-i18n="feat.h">Everything you spend, made visible</h2>
+        <h2 class="sec-title font-extrabold tracking-tight mt-5" data-i18n="feat.h">Everything you spend, made visible</h2>
         <p class="text-muted mt-3" data-i18n="feat.sub">From raw token counts to real dollars, drilled down to a single session.</p>
       </div>
 
@@ -1778,7 +2023,7 @@
         <!-- Copy -->
         <div class="reveal">
           <span class="chip" data-i18n="srv.eyebrow"><span class="dot"></span> Multi-server</span>
-          <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight mt-5" data-i18n="srv.h">Every machine you code on, one total</h2>
+          <h2 class="sec-title font-extrabold tracking-tight mt-5" data-i18n="srv.h">Every machine you code on, one total</h2>
           <p class="text-muted mt-3 max-w-md" data-i18n="srv.sub">Add a Tokdash server for your WSL box, your Mac, or a spare machine. Select any combination and every tab follows it, while quota stays grouped by the machine that owns it.</p>
 
           <ul class="mt-7 space-y-4">
@@ -1853,7 +2098,7 @@
         <!-- Copy -->
         <div class="reveal">
           <span class="chip" data-i18n="opt.eyebrow"><span class="dot"></span> Cost optimization</span>
-          <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight mt-5" data-i18n="opt.h">See where every dollar goes</h2>
+          <h2 class="sec-title font-extrabold tracking-tight mt-5" data-i18n="opt.h">See where every dollar goes</h2>
           <p class="text-muted mt-3 max-w-md" data-i18n="opt.sub">Tokdash breaks spend down to the session, model, and project, so you can find waste and cut it, not just watch the number climb.</p>
 
           <ul class="mt-7 space-y-4">
@@ -1928,10 +2173,10 @@
     </section>
 
     <!-- ============ COMPANION APP ============ -->
-    <section id="companion" class="max-w-[1180px] mx-auto px-4 sm:px-6 py-14 lg:py-20">
+    <section id="companion" class="band max-w-[1180px] mx-auto px-4 sm:px-6 py-14 lg:py-20">
       <div class="text-center reveal">
         <span class="chip" data-i18n="comp.eyebrow"><span class="dot"></span> Companion app</span>
-        <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight mt-5" data-i18n="comp.h">Today's spend, one click away in your menu bar</h2>
+        <h2 class="sec-title font-extrabold tracking-tight mt-5" data-i18n="comp.h">Today's spend, one click away in your menu bar</h2>
         <p class="text-muted mt-3 max-w-2xl mx-auto" data-i18n="comp.sub">Tokdash Companion is a native menu-bar (macOS) and tray (Windows) client for your local Tokdash service. Read-only and privacy-first, with no telemetry, and it talks only to the endpoint you configure.</p>
       </div>
 
@@ -2193,7 +2438,7 @@
       <div class="grid lg:grid-cols-2 gap-10 lg:gap-14 items-center">
         <div class="reveal">
           <span class="chip" data-i18n="start.eyebrow"><span class="dot"></span> Get started</span>
-          <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight mt-5" data-i18n="start.h">Up and running in 30 seconds</h2>
+          <h2 class="sec-title font-extrabold tracking-tight mt-5" data-i18n="start.h">Up and running in 30 seconds</h2>
           <p class="text-muted mt-3 max-w-md" data-i18n="start.sub">Python package, one command to install, one to set up. Your data never leaves your laptop.</p>
 
           <ol class="mt-8 space-y-5">
@@ -2256,14 +2501,14 @@
     <section class="max-w-[1180px] mx-auto px-4 sm:px-6 pb-20">
       <div class="surface surface-static reveal overflow-hidden text-center px-6 py-12 sm:py-16"
            style="background: linear-gradient(135deg, color-mix(in srgb, var(--color-primary) 16%, var(--color-bg)), color-mix(in srgb, var(--color-cta) 12%, var(--color-bg)));">
-        <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight" data-i18n="cta.h">See it before you install</h2>
+        <h2 class="sec-title font-extrabold tracking-tight" data-i18n="cta.h">See it before you install</h2>
         <p class="text-muted mt-3 max-w-xl mx-auto" data-i18n="cta.sub">The live demo runs the real dashboard on synthetic data, letting you explore every tab, theme, and chart right in your browser.</p>
         <div class="flex flex-wrap justify-center gap-3 mt-8">
           <a href="/demo/" class="btn btn-primary">
             <span data-i18n="cta.open">Open the live demo</span>
             <svg class="svg-drawable" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </a>
-          <button class="cmd" data-cmd="pipx install tokdash" aria-label="Copy: pipx install tokdash" onclick="window.__copyCmd(this)">
+          <button class="cmd" data-cmd="pipx install tokdash" aria-label="Copy: pipx install tokdash">
             <span><span class="prompt">$</span>&nbsp;pipx install tokdash</span>
             <span class="copy-ic" aria-hidden="true">
               <svg class="copy-glyph" width="14" height="14" viewBox="0 0 24 24" fill="none" style="overflow:visible;">
@@ -2293,6 +2538,25 @@
       </div>
     </section>
   </main>
+
+  <!-- ============ SCROLL RAIL ============
+       A fixed progress rail: the line thickens as the page scrolls and each
+       hollow node fills the moment the line head reaches it. Decorative — the
+       same destinations are already reachable from the header nav, so it is
+       hidden from assistive tech and out of the tab order. -->
+  <nav class="rail" aria-hidden="true">
+    <div class="rail-track">
+      <span class="rail-fill"><i class="rail-head"></i></span>
+    </div>
+    <ul class="rail-nodes">
+      <li class="rail-node"><a href="#tools" tabindex="-1"><span class="rail-dot"><i class="rail-ping"></i></span><span class="rail-label" data-i18n="rail.tools">Tools</span></a></li>
+      <li class="rail-node"><a href="#features" tabindex="-1"><span class="rail-dot"><i class="rail-ping"></i></span><span class="rail-label" data-i18n="rail.features">Features</span></a></li>
+      <li class="rail-node"><a href="#servers" tabindex="-1"><span class="rail-dot"><i class="rail-ping"></i></span><span class="rail-label" data-i18n="rail.servers">Multi-server</span></a></li>
+      <li class="rail-node"><a href="#optimize" tabindex="-1"><span class="rail-dot"><i class="rail-ping"></i></span><span class="rail-label" data-i18n="rail.cost">Cost</span></a></li>
+      <li class="rail-node"><a href="#companion" tabindex="-1"><span class="rail-dot"><i class="rail-ping"></i></span><span class="rail-label" data-i18n="rail.companion">Companion</span></a></li>
+      <li class="rail-node"><a href="#install" tabindex="-1"><span class="rail-dot"><i class="rail-ping"></i></span><span class="rail-label" data-i18n="rail.install">Install</span></a></li>
+    </ul>
+  </nav>
 
   <!-- ============ FOOTER ============ -->
   <footer class="border-t" style="border-color: color-mix(in srgb, var(--color-border) 70%, transparent);">
@@ -2390,7 +2654,7 @@
     })();
 
     // ---- Copy-to-clipboard with SVG Morphing Engine ----
-    window.__copyCmd = function (el) {
+    function copyCmd(el) {
       if (!el || el.dataset.copying === 'true') return;
       el.dataset.copying = 'true';
       var cmd = el.getAttribute('data-cmd') || '';
@@ -2492,8 +2756,173 @@
         } catch (e) { failure(); }
       }
     };
-    var heroCopy = document.getElementById('copyCmd');
-    if (heroCopy) heroCopy.addEventListener('click', function () { window.__copyCmd(heroCopy); });
+    // One delegated listener covers every install-command pill on the page
+    // (hero and closing CTA alike), so a new .cmd needs no wiring of its own.
+    document.addEventListener('click', function (e) {
+      var el = e.target.closest ? e.target.closest('[data-cmd]') : null;
+      if (el) copyCmd(el);
+    });
+
+    // ---- onScroll: one rAF-coalesced driver for every scroll-linked effect ----
+    // Lenis fires scroll at frame rate and a momentum trackpad fires faster, so
+    // the layout reads are coalesced into one frame. Every subscriber gets the
+    // same normalised progress: 0 at the top, 1 at the last scrollable pixel.
+    var onScroll = (function () {
+      var subs = [], queued = false;
+      function frame() {
+        queued = false;
+        var y = window.pageYOffset || document.documentElement.scrollTop || 0;
+        var vh = window.innerHeight;
+        var range = Math.max(1, document.documentElement.scrollHeight - vh);
+        var p = Math.min(1, Math.max(0, y / range));
+        for (var i = 0; i < subs.length; i++) subs[i](p, y, vh, range);
+      }
+      function request() { if (queued) return; queued = true; requestAnimationFrame(frame); }
+      window.addEventListener('scroll', request, { passive: true });
+      window.addEventListener('resize', request, { passive: true });
+      return { add: function (fn) { subs.push(fn); frame(); return fn; }, request: request };
+    })();
+
+    // Sticky nav state + reading progress
+    (function () {
+      var nav = document.querySelector('.site-nav');
+      var bar = document.querySelector('.nav-progress > i');
+      if (!nav && !bar) return;
+      onScroll.add(function (p, y) {
+        if (nav) nav.classList.toggle('scrolled', y > 8);
+        if (bar) bar.style.width = (p * 100) + '%';
+      });
+    })();
+
+    // Hero scroll hint: the rail takes over as soon as the reader commits.
+    (function () {
+      var hint = document.querySelector('.scroll-hint');
+      if (!hint) return;
+      onScroll.add(function (p, y) { hint.classList.toggle('gone', y > 260); });
+    })();
+
+    // ---- Scroll rail: a line that thickens, and nodes that fill as you reach them ----
+    (function () {
+      var rail = document.querySelector('.rail');
+      if (!rail) return;
+      // CSS hides the rail on small screens and under reduced motion; bail out
+      // rather than run a rAF loop that paints nothing.
+      if (getComputedStyle(rail).display === 'none') return;
+      if (typeof anime === 'undefined') return;   // static rail: links still work
+
+      var track = rail.querySelector('.rail-track');
+      var fill = rail.querySelector('.rail-fill');
+      var head = rail.querySelector('.rail-head');
+      var nodes = Array.prototype.slice.call(rail.querySelectorAll('.rail-node'));
+      if (!track || !fill || !head || !nodes.length) return;
+
+      var sections = nodes.map(function (n) {
+        return document.querySelector(n.firstElementChild.getAttribute('href'));
+      });
+
+      // Each node gets its own reversible timeline, plus a ping loop that only
+      // runs on whichever node the line head is currently sitting on.
+      var state = [], loops = [], lastActive = -1;
+      nodes.forEach(function (node, i) {
+        var dot = node.querySelector('.rail-dot');
+        var label = node.querySelector('.rail-label');
+        var ping = node.querySelector('.rail-ping');
+        var tl = anime.timeline({ autoplay: false, easing: 'cubicBezier(0.22, 1, 0.36, 1)' })
+          .add({ targets: dot, scale: [1, 1.55], duration: 240, easing: 'easeOutBack' })
+          .add({ targets: dot, scale: 1.18, duration: 300 })
+          .add({ targets: label, opacity: [0, 1], translateX: [9, 0], duration: 280 }, '-=280');
+        state.push(false);
+        node.__tl = tl;
+        loops.push(anime({
+          targets: ping, scale: [0.55, 2.4], opacity: [0.5, 0],
+          duration: 1150, easing: 'easeOutQuad', loop: true, autoplay: false
+        }));
+      });
+
+      var trackH = 0, at = [], measured = -1;
+
+      // Anchor every node to where its section sits in the document, so the
+      // moving line head lands exactly on a node at the moment you reach it.
+      // 0.35 down the section reads better than its midpoint: by then the
+      // heading is on screen and the content below it is what you are reading.
+      function measure() {
+        trackH = track.clientHeight;
+        measured = document.documentElement.scrollHeight;
+        var range = Math.max(1, measured - window.innerHeight);
+        at = sections.map(function (sec) {
+          if (!sec) return 0;
+          var r = sec.getBoundingClientRect();
+          var mid = r.top + window.pageYOffset + r.height * 0.35;
+          return Math.min(100, Math.max(0, (mid / range) * 100));
+        });
+        nodes.forEach(function (n, i) { n.style.setProperty('--at', at[i] + '%'); });
+      }
+
+      onScroll.add(function (p) {
+        // Self-healing: switching language or a late webfont re-flows the page,
+        // so re-measure whenever the document height stops matching what we saw.
+        if (document.documentElement.scrollHeight !== measured) measure();
+
+        var pct = p * 100;
+        fill.style.transform = 'scaleY(' + p + ') scaleX(' + (1 + p * 1.7) + ')';
+        head.style.transform = 'translateY(' + (p * trackH) + 'px)';
+
+        var active = -1;
+        for (var i = 0; i < nodes.length; i++) {
+          var reached = pct >= at[i] - 0.25;
+          if (reached !== state[i]) {
+            state[i] = reached;
+            nodes[i].classList.toggle('on', reached);
+            if (reached) nodes[i].__tl.play(); else nodes[i].__tl.reverse();
+          }
+          if (reached) active = i;
+        }
+        if (active !== lastActive) {
+          if (lastActive >= 0) { nodes[lastActive].classList.remove('active'); loops[lastActive].pause(); }
+          if (active >= 0) { nodes[active].classList.add('active'); loops[active].play(); }
+          lastActive = active;
+        }
+      });
+
+      // Stash the timelines on the nodes so the frame loop stays allocation-free.
+      measure();
+      rail.classList.add('ready');
+      window.addEventListener('load', measure);
+    })();
+
+    // ---- Proof figures roll up once, the first time they come into view ----
+    (function () {
+      if (typeof anime === 'undefined' || !('IntersectionObserver' in window)) return;
+      var items = document.querySelectorAll('.proof-item');
+      if (!items.length) return;
+      var counted = new WeakSet();
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (!e.isIntersecting || counted.has(e.target)) return;
+          counted.add(e.target);
+          // Observe the .proof-item, not the <b> inside it: the i18n pass
+          // replaces that inner span wholesale, so a <b> observed up front ends
+          // up detached and the counter would tick on a node nobody can see.
+          var num = e.target.querySelector('b');
+          if (!num) return;
+          var target = parseFloat(String(num.textContent).replace(/[^0-9.]/g, ''));
+          if (!target) return;
+          io.unobserve(e.target);
+          // Animate a plain counter object, not the element: anime v3 only reads
+          // back real CSS values from the instance, so a custom `count` key on
+          // the element target would come back NaN on every frame.
+          var counter = { value: 0 };
+          anime({
+            targets: counter,
+            value: target,
+            duration: 1200,
+            easing: 'easeOutExpo',
+            update: function () { num.textContent = Math.round(counter.value); }
+          });
+        });
+      }, { threshold: 0.4 });
+      Array.prototype.forEach.call(items, function (n) { io.observe(n); });
+    })();
 
     // ---- Hero mini-heatmap (deterministic synthetic pattern) ----
     (function () {
@@ -2804,6 +3233,16 @@
           'hero.tag1': `<span class="dot"></span> Twenty-four agents, one dashboard`,
           'hero.tag2': `WSL, macOS and Linux servers, combined`,
           'hero.cta_demo': `View live demo`,
+          'hero.proof1': `<b>24</b> coding agents`,
+          'hero.proof2': `<b>6</b> UI languages`,
+          'hero.proof3': `<b>1</b> command to install`,
+          'hero.scroll': `Scroll`,
+          'rail.tools': `Tools`,
+          'rail.features': `Features`,
+          'rail.servers': `Multi-server`,
+          'rail.cost': `Cost`,
+          'rail.companion': `Companion`,
+          'rail.install': `Install`,
           'trust.local.h': `100% local`,
           'trust.local.p': `Reads logs already on your disk. Nothing is ever uploaded.`,
           'trust.telemetry.h': `Zero telemetry`,
@@ -2922,6 +3361,16 @@
           'hero.tag1': `<span class="dot"></span> 二十四款工具，一个仪表盘`,
           'hero.tag2': `WSL、macOS、Linux 服务器合并统计`,
           'hero.cta_demo': `查看在线演示`,
+          'hero.proof1': `<b>24</b> 款 AI 编码工具`,
+          'hero.proof2': `<b>6</b> 种界面语言`,
+          'hero.proof3': `<b>1</b> 条命令即可安装`,
+          'hero.scroll': `向下滚动`,
+          'rail.tools': `支持工具`,
+          'rail.features': `功能`,
+          'rail.servers': `多服务器`,
+          'rail.cost': `成本`,
+          'rail.companion': `状态栏`,
+          'rail.install': `安装`,
           'trust.local.h': `100% 本地`,
           'trust.local.p': `直接读取你磁盘上已有的日志，任何数据都不会上传。`,
           'trust.telemetry.h': `零遥测`,
@@ -3040,6 +3489,16 @@
           'hero.tag1': `<span class="dot"></span> 24 ツール、ひとつのダッシュボード`,
           'hero.tag2': `WSL・macOS・Linux サーバーを合算`,
           'hero.cta_demo': `ライブデモを見る`,
+          'hero.proof1': `<b>24</b> 種のコーディングツール`,
+          'hero.proof2': `<b>6</b> 言語の UI`,
+          'hero.proof3': `<b>1</b> コマンドでインストール`,
+          'hero.scroll': `スクロール`,
+          'rail.tools': `対応ツール`,
+          'rail.features': `機能`,
+          'rail.servers': `マルチサーバー`,
+          'rail.cost': `コスト`,
+          'rail.companion': `コンパニオン`,
+          'rail.install': `インストール`,
           'trust.local.h': `100% ローカル`,
           'trust.local.p': `ディスク上にあるログを読み取るだけ。何もアップロードされません。`,
           'trust.telemetry.h': `テレメトリゼロ`,
@@ -3158,6 +3617,16 @@
           'hero.tag1': `<span class="dot"></span> 24개 도구, 하나의 대시보드`,
           'hero.tag2': `WSL·macOS·Linux 서버 합산`,
           'hero.cta_demo': `라이브 데모 보기`,
+          'hero.proof1': `<b>24</b>개의 코딩 도구`,
+          'hero.proof2': `<b>6</b>개 UI 언어`,
+          'hero.proof3': `<b>1</b>개의 명령어로 설치`,
+          'hero.scroll': `스크롤`,
+          'rail.tools': `지원 도구`,
+          'rail.features': `기능`,
+          'rail.servers': `다중 서버`,
+          'rail.cost': `비용`,
+          'rail.companion': `컴패니언`,
+          'rail.install': `설치`,
           'trust.local.h': `100% 로컬`,
           'trust.local.p': `이미 디스크에 있는 로그를 읽어옵니다. 어떤 데이터도 업로드되지 않습니다.`,
           'trust.telemetry.h': `텔레메트리 제로`,
@@ -3276,6 +3745,16 @@
           'hero.tag1': `<span class="dot"></span> Veinticuatro agentes, un panel`,
           'hero.tag2': `Servidores WSL, macOS y Linux combinados`,
           'hero.cta_demo': `Ver demo en vivo`,
+          'hero.proof1': `<b>24</b> agentes de codificación`,
+          'hero.proof2': `<b>6</b> idiomas de interfaz`,
+          'hero.proof3': `<b>1</b> comando y listo`,
+          'hero.scroll': `Desplázate`,
+          'rail.tools': `Herramientas`,
+          'rail.features': `Funciones`,
+          'rail.servers': `Multi-servidor`,
+          'rail.cost': `Coste`,
+          'rail.companion': `Companion`,
+          'rail.install': `Instalación`,
           'trust.local.h': `100% local`,
           'trust.local.p': `Lee los logs que ya están en tu disco. Nunca se sube nada.`,
           'trust.telemetry.h': `Cero telemetría`,
@@ -3394,6 +3873,16 @@
           'hero.tag1': `<span class="dot"></span> Vinte e quatro agentes, um painel`,
           'hero.tag2': `Servidores WSL, macOS e Linux combinados`,
           'hero.cta_demo': `Ver demo ao vivo`,
+          'hero.proof1': `<b>24</b> agentes de codificação`,
+          'hero.proof2': `<b>6</b> idiomas de interface`,
+          'hero.proof3': `<b>1</b> comando e pronto`,
+          'hero.scroll': `Role para baixo`,
+          'rail.tools': `Ferramentas`,
+          'rail.features': `Recursos`,
+          'rail.servers': `Multisservidor`,
+          'rail.cost': `Custo`,
+          'rail.companion': `Companion`,
+          'rail.install': `Instalação`,
           'trust.local.h': `100% local`,
           'trust.local.p': `Lê logs que já estão no seu disco. Nada é enviado para fora.`,
           'trust.telemetry.h': `Telemetria zero`,
