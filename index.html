@@ -568,6 +568,13 @@
     html.dark .l3 { background: #2563EB; } html.dark .l4 { background: #3B82F6; } html.dark .l5 { background: #60A5FA; }
     html.dark .l6 { background: #93C5FD; } html.dark .l7 { background: #BFDBFE; } html.dark .l8 { background: #DBEAFE; } html.dark .l9 { background: #EFF6FF; }
 
+    /* ---- Mini-dashboard entrance stage ----
+       perspective only reaches direct children, so the KPI grid and the
+       heatmap each get their own 3D context rather than one on .preview-wrap. */
+    .kpi-stage { perspective: 900px; }
+    #miniHeat { perspective: 620px; }
+    .kpi-in, .hcell { will-change: transform, opacity; backface-visibility: hidden; }
+
     /* floating glow behind preview */
     .preview-wrap { position: relative; }
     .preview-wrap::before {
@@ -1845,7 +1852,7 @@
         </div>
 
         <!-- Preview mini-dashboard -->
-        <div class="reveal preview-wrap">
+        <div class="reveal preview-wrap preview-dash">
           <div class="surface surface-static overflow-hidden" aria-hidden="true">
             <div class="preview-topbar">
               <span class="dot-r" style="background:#F87171;"></span>
@@ -1857,23 +1864,23 @@
 
             <div class="p-4 sm:p-5">
               <!-- KPIs -->
-              <div class="grid grid-cols-2 gap-3">
-                <div class="kpi">
+              <div class="grid grid-cols-2 gap-3 kpi-stage">
+                <div class="kpi kpi-in">
                   <div class="kpi-label">Total Tokens</div>
                   <div class="kpi-val" style="color:var(--color-primary);">48.2M</div>
                   <div class="text-[11px] font-semibold mt-1" style="color:var(--color-cost);">▲ 12.4% vs prev</div>
                 </div>
-                <div class="kpi">
+                <div class="kpi kpi-in">
                   <div class="kpi-label">Total Cost</div>
                   <div class="kpi-val" style="color:var(--color-cost);">$312.40</div>
                   <div class="text-[11px] font-semibold mt-1 text-muted">$11.16 / day avg</div>
                 </div>
-                <div class="kpi">
+                <div class="kpi kpi-in">
                   <div class="kpi-label">Messages</div>
                   <div class="kpi-val">5,847</div>
                   <div class="text-[11px] font-semibold mt-1 text-muted">212 sessions</div>
                 </div>
-                <div class="kpi">
+                <div class="kpi kpi-in">
                   <div class="kpi-label">Cache Hit</div>
                   <div class="kpi-val" style="color:var(--color-cta);">73%</div>
                   <div class="text-[11px] font-semibold mt-1 text-muted">34.1M cached</div>
@@ -2969,6 +2976,108 @@
       // legend swatches
       var legend = document.getElementById('legend');
       if (legend) { for (var i = 0; i <= 4; i++) { var s = document.createElement('span'); s.className = 'hcell l' + (i*2); s.style.display = 'inline-block'; s.style.margin = '0 1px'; s.style.verticalAlign = 'middle'; legend.appendChild(s); } }
+    })();
+
+    // ---- Hero mini-dashboard entrance ----
+    // Runs after the heatmap above, because it animates the cells that block
+    // just built. The four KPI cards do not simply fade up where they sit: each
+    // one starts away from its real grid cell, in 3D, and converges fast. The
+    // heatmap then drops into place behind them, leftmost column first and
+    // finishing on the right, with enough per-cell jitter that the wave never
+    // reads as a linear sweep. The randomiser is reseeded on every visit.
+    (function () {
+      var dash = document.querySelector('.preview-dash');
+      if (!dash || typeof anime === 'undefined') return;
+      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+      var kpis = Array.prototype.slice.call(dash.querySelectorAll('.kpi-in'));
+      var cells = Array.prototype.slice.call(dash.querySelectorAll('#miniHeat .hcell'));
+      var played = false;
+      if (!kpis.length) return;
+
+      function rnd(min, max) { return min + Math.random() * (max - min); }
+
+      // Tween a headline figure while keeping its affixes and precision, so
+      // "$312.40" never lands as "$312.2" and "5,847" keeps its separator.
+      function countUp(el) {
+        if (!el) return;
+        var text = el.textContent.trim();
+        var m = text.match(/^([^\d.-]*)(-?[\d.,]+)([\s\S]*)$/);
+        if (!m) return;
+        var pre = m[1], raw = m[2], post = m[3];
+        var decimals = ((raw.split('.')[1] || '').match(/\d/g) || []).length;
+        var grouped = raw.indexOf(',') !== -1;
+        var end = parseFloat(raw.replace(/,/g, ''));
+        if (!isFinite(end)) return;
+        var o = { v: 0 };
+        anime({
+          targets: o, v: end, duration: 950, easing: 'easeOutExpo',
+          update: function () {
+            var n = grouped ? Math.round(o.v).toLocaleString('en-US') : o.v.toFixed(decimals);
+            el.textContent = pre + n + post;
+          },
+          complete: function () { el.textContent = text; }
+        });
+      }
+
+      function play() {
+        if (played) return;
+        played = true;
+
+        var tl = anime.timeline({ easing: 'cubicBezier(0.22, 1, 0.36, 1)' });
+
+        kpis.forEach(function (kpi, i) {
+          tl.add({
+            targets: kpi,
+            translateX: [rnd(-52, 52), 0],
+            translateY: [rnd(-38, 38), 0],
+            translateZ: [rnd(-280, -110), 0],
+            rotateX: [rnd(-28, 28), 0],
+            rotateZ: [rnd(-6, 6), 0],
+            scale: [rnd(0.84, 0.95), 1],
+            opacity: [0, 1],
+            duration: 560,
+            easing: 'cubicBezier(0.16, 1, 0.3, 1)'
+          }, i === 0 ? 0 : i * rnd(74, 150));
+          countUp(kpi.querySelector('.kpi-val'));
+        });
+
+        // The heat wave opens a beat before the cards have finished landing, so
+        // the two overlap instead of queueing up.
+        var n = cells.length;
+        if (!n) return;
+        var wave = 1500;   // left-to-right spread of the whole wave
+        var jitter = 640;  // how far ahead of the wave any one cell may start
+        var open = Math.max(0, tl.duration - 280);
+
+        cells.forEach(function (cell, i) {
+          var start = Math.max(0, (i / (n - 1)) * wave - rnd(0, jitter));
+          tl.add({
+            targets: cell,
+            translateZ: [rnd(-880, -540), 0],
+            translateY: [rnd(-110, -34), 0],
+            rotateX: [rnd(96, 142), 0],
+            rotateZ: [rnd(-26, 26), 0],
+            scale: [0.55, 1],
+            opacity: [0, 1],
+            duration: rnd(520, 780),
+            easing: 'cubicBezier(0.22, 1, 0.36, 1)'
+          }, open + start);
+        });
+      }
+
+      // The intro overlay covers the hero on a first visit, so wait for it to
+      // clear rather than playing the whole choreography behind the curtain.
+      if (document.documentElement.classList.contains('lander-skipped')) {
+        play();
+      } else {
+        var mo = new MutationObserver(function () {
+          if (!document.documentElement.classList.contains('lander-skipped')) return;
+          mo.disconnect();
+          play();
+        });
+        mo.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+      }
     })();
 
     // ---- Scroll-driven Staggered Reveal Engine ----
