@@ -420,48 +420,61 @@
        progress hairline in the nav, and a rail over a 390px column is clutter. */
     .rail {
       position: fixed; z-index: 45;
-      right: clamp(12px, 1.5vw, 26px); top: 50%;
+      left: clamp(12px, 1.5vw, 26px); top: 50%;
       transform: translateY(-50%);
       width: 132px; height: min(50vh, 430px);
       pointer-events: none; user-select: none;
       opacity: 0; transition: opacity 0.5s ease;
     }
     html.js .rail.ready { opacity: 1; }
+    /* The line is white, so it needs something to sit on in light mode: a
+       hairline track plus a soft blue bloom is what makes pure white readable
+       without tinting the line itself. */
     .rail-track {
-      position: absolute; right: 0; top: 0; bottom: 0; width: 2px;
-      border-radius: 2px; overflow: visible;
-      background: color-mix(in srgb, var(--color-border) 80%, transparent);
+      position: absolute; left: 5px; top: 0; bottom: 0; width: 2px;
+      border-radius: 2px;
+      background: color-mix(in srgb, var(--color-text) 12%, transparent);
     }
     .rail-fill {
       position: absolute; inset: 0; border-radius: 2px;
-      transform-origin: right center;
+      transform-origin: center center;
       transform: scaleY(0) scaleX(1);
-      background: linear-gradient(180deg, var(--color-primary), var(--color-secondary) 55%, var(--color-cta));
-      box-shadow: 0 0 12px color-mix(in srgb, var(--color-primary) 45%, transparent);
+      background: #ffffff;
+      box-shadow: 0 0 10px rgba(37, 99, 235, 0.45), 0 0 3px rgba(255, 255, 255, 0.9);
+      will-change: transform, opacity;
     }
+    /* Sibling of the fill, not a child: the fill scales in X, and a child dot
+       would be stretched into an ellipse along with it. */
     .rail-head {
-      position: absolute; right: -3px; top: 0; width: 8px; height: 8px;
-      border-radius: 50%; background: var(--color-cta);
-      box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-cta) 22%, transparent), 0 0 14px var(--color-cta);
+      position: absolute; left: 50%; top: 0; width: 8px; height: 8px;
+      margin-left: -4px; border-radius: 50%; background: #ffffff;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18), 0 0 12px rgba(255, 255, 255, 0.9);
       will-change: transform;
     }
     .rail-nodes { position: absolute; inset: 0; margin: 0; padding: 0; list-style: none; }
-    .rail-node { position: absolute; right: -5px; top: var(--at, 0%); transform: translateY(-50%); }
-    .rail-node > a { display: flex; align-items: center; justify-content: flex-end; gap: 10px; pointer-events: auto; text-decoration: none; }
+    .rail-node { position: absolute; left: 6px; top: var(--at, 0%); transform: translate(-50%, -50%); }
+    .rail-node > a { display: flex; align-items: center; justify-content: flex-start; gap: 10px; pointer-events: auto; text-decoration: none; }
+    /* Hollow ring: the core inside is what scales up from the centre. */
     .rail-dot {
-      position: relative; order: 2; flex: none;
+      position: relative; order: 1; flex: none;
       width: 12px; height: 12px; border-radius: 50%;
-      border: 2px solid color-mix(in srgb, var(--color-muted) 60%, transparent);
-      background: var(--color-bg);
-      transition: border-color var(--t-med) ease, background var(--t-med) ease;
+      border: 2px solid rgba(255, 255, 255, 0.92);
+      background: color-mix(in srgb, var(--color-text) 10%, transparent);
+      box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-text) 14%, transparent);
+      will-change: transform;
+    }
+    .rail-core {
+      position: absolute; inset: 0; border-radius: 50%;
+      background: #ffffff; transform: scale(0);
+      box-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
       will-change: transform;
     }
     .rail-ping {
       position: absolute; inset: -2px; border-radius: 50%;
-      border: 2px solid var(--color-primary); opacity: 0;
+      border: 2px solid rgba(255, 255, 255, 0.9); opacity: 0;
     }
     .rail-label {
-      order: 1; white-space: nowrap;
+      order: 2; white-space: nowrap;
       font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
       color: var(--color-muted);
       padding: 4px 9px; border-radius: 999px;
@@ -470,11 +483,10 @@
       backdrop-filter: blur(6px);
       opacity: 0; will-change: transform, opacity;
     }
-    .rail-node.on .rail-dot { border-color: var(--color-primary); background: var(--color-primary); }
     /* Hover affordance for a node you have not reached yet. The !important is
        deliberate: the fill timeline writes opacity/transform inline, and an
        inline style would otherwise beat this rule. */
-    .rail-node > a:hover .rail-dot { border-color: var(--color-primary); }
+    .rail-node > a:hover .rail-dot { border-color: #ffffff; box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-text) 22%, transparent), 0 0 10px rgba(255, 255, 255, 0.75); }
     .rail-node > a:hover .rail-label { opacity: 1 !important; transform: none !important; }
     .rail-node.on .rail-label { color: var(--color-text); border-color: color-mix(in srgb, var(--color-primary) 40%, transparent); }
     .rail-node.active .rail-label {
@@ -482,7 +494,6 @@
       border-color: var(--color-primary);
       box-shadow: 0 6px 18px -8px color-mix(in srgb, var(--color-primary) 80%, transparent);
     }
-    html.dark .rail-dot { background: var(--color-bg); }
     @media (max-width: 1023px) { .rail { display: none; } }
     @media (prefers-reduced-motion: reduce) { .rail { display: none; } }
 
@@ -2546,15 +2557,16 @@
        hidden from assistive tech and out of the tab order. -->
   <nav class="rail" aria-hidden="true">
     <div class="rail-track">
-      <span class="rail-fill"><i class="rail-head"></i></span>
+      <span class="rail-fill"></span>
+      <i class="rail-head"></i>
     </div>
     <ul class="rail-nodes">
-      <li class="rail-node"><a href="#tools" tabindex="-1"><span class="rail-dot"><i class="rail-ping"></i></span><span class="rail-label" data-i18n="rail.tools">Tools</span></a></li>
-      <li class="rail-node"><a href="#features" tabindex="-1"><span class="rail-dot"><i class="rail-ping"></i></span><span class="rail-label" data-i18n="rail.features">Features</span></a></li>
-      <li class="rail-node"><a href="#servers" tabindex="-1"><span class="rail-dot"><i class="rail-ping"></i></span><span class="rail-label" data-i18n="rail.servers">Multi-server</span></a></li>
-      <li class="rail-node"><a href="#optimize" tabindex="-1"><span class="rail-dot"><i class="rail-ping"></i></span><span class="rail-label" data-i18n="rail.cost">Cost</span></a></li>
-      <li class="rail-node"><a href="#companion" tabindex="-1"><span class="rail-dot"><i class="rail-ping"></i></span><span class="rail-label" data-i18n="rail.companion">Companion</span></a></li>
-      <li class="rail-node"><a href="#install" tabindex="-1"><span class="rail-dot"><i class="rail-ping"></i></span><span class="rail-label" data-i18n="rail.install">Install</span></a></li>
+      <li class="rail-node"><a href="#tools" tabindex="-1"><span class="rail-dot"><i class="rail-core"></i><i class="rail-ping"></i></span><span class="rail-label" data-i18n="rail.tools">Tools</span></a></li>
+      <li class="rail-node"><a href="#features" tabindex="-1"><span class="rail-dot"><i class="rail-core"></i><i class="rail-ping"></i></span><span class="rail-label" data-i18n="rail.features">Features</span></a></li>
+      <li class="rail-node"><a href="#servers" tabindex="-1"><span class="rail-dot"><i class="rail-core"></i><i class="rail-ping"></i></span><span class="rail-label" data-i18n="rail.servers">Multi-server</span></a></li>
+      <li class="rail-node"><a href="#optimize" tabindex="-1"><span class="rail-dot"><i class="rail-core"></i><i class="rail-ping"></i></span><span class="rail-label" data-i18n="rail.cost">Cost</span></a></li>
+      <li class="rail-node"><a href="#companion" tabindex="-1"><span class="rail-dot"><i class="rail-core"></i><i class="rail-ping"></i></span><span class="rail-label" data-i18n="rail.companion">Companion</span></a></li>
+      <li class="rail-node"><a href="#install" tabindex="-1"><span class="rail-dot"><i class="rail-core"></i><i class="rail-ping"></i></span><span class="rail-label" data-i18n="rail.install">Install</span></a></li>
     </ul>
   </nav>
 
@@ -2820,21 +2832,31 @@
         return document.querySelector(n.firstElementChild.getAttribute('href'));
       });
 
-      // Each node gets its own reversible timeline, plus a ping loop that only
-      // runs on whichever node the line head is currently sitting on.
+      // Each node gets its own fill and drain timelines, plus a ping loop that
+      // only runs on whichever node the line head is currently sitting on.
       var state = [], loops = [], lastActive = -1;
       nodes.forEach(function (node, i) {
-        var dot = node.querySelector('.rail-dot');
+        var core = node.querySelector('.rail-core');
         var label = node.querySelector('.rail-label');
         var ping = node.querySelector('.rail-ping');
-        var tl = anime.timeline({ autoplay: false, easing: 'cubicBezier(0.22, 1, 0.36, 1)' })
-          .add({ targets: dot, scale: [1, 1.55], duration: 240, easing: 'easeOutBack' })
-          .add({ targets: dot, scale: 1.18, duration: 300 })
-          .add({ targets: label, opacity: [0, 1], translateX: [9, 0], duration: 280 }, '-=280');
+
+        // Two timelines rather than play/reverse on one: anime v3 leaves a
+        // finished animation `completed`, and reverse() on a completed instance
+        // only flips a flag — it never animates back. A direction:'reverse'
+        // twin, both driven by restart(), is replayable in either direction
+        // however many times the reader changes their mind.
+        // Scaling the core rather than the dot makes the fill grow out of the
+        // centre of the ring and drain back to hollow on the way up.
+        function build(direction) {
+          return anime.timeline({ autoplay: false, direction: direction, easing: 'cubicBezier(0.22, 1, 0.36, 1)' })
+            .add({ targets: core, scale: [0, 1], duration: 420 })
+            .add({ targets: label, opacity: [0, 1], translateX: [-9, 0], duration: 280 }, '-=300');
+        }
         state.push(false);
-        node.__tl = tl;
+        node.__fill = build('normal');
+        node.__drain = build('reverse');
         loops.push(anime({
-          targets: ping, scale: [0.55, 2.4], opacity: [0.5, 0],
+          targets: ping, scale: [0.55, 2.4], opacity: [0.55, 0],
           duration: 1150, easing: 'easeOutQuad', loop: true, autoplay: false
         }));
       });
@@ -2864,7 +2886,9 @@
         if (document.documentElement.scrollHeight !== measured) measure();
 
         var pct = p * 100;
-        fill.style.transform = 'scaleY(' + p + ') scaleX(' + (1 + p * 1.7) + ')';
+        // Thin and translucent at the top, thick and fully white by the bottom.
+        fill.style.transform = 'scaleY(' + p + ') scaleX(' + (1 + p * 1.6) + ')';
+        fill.style.opacity = 0.45 + p * 0.55;
         head.style.transform = 'translateY(' + (p * trackH) + 'px)';
 
         var active = -1;
@@ -2873,7 +2897,7 @@
           if (reached !== state[i]) {
             state[i] = reached;
             nodes[i].classList.toggle('on', reached);
-            if (reached) nodes[i].__tl.play(); else nodes[i].__tl.reverse();
+            if (reached) nodes[i].__fill.restart(); else nodes[i].__drain.restart();
           }
           if (reached) active = i;
         }
