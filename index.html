@@ -80,13 +80,13 @@
       --color-primary: #1E40AF;
       --color-secondary: #3B82F6;
       --color-cta: #F59E0B;
-      /* Warm, not cool: a sand-toned canvas leaves the blue to the accent,
-         and warm-on-white is where a panel actually reads as a raised object
-         rather than as a slightly different patch of white. */
-      --color-bg: #EDE7DB;
-      --color-text: #17130C;
-      --color-muted: #55503F;
-      --color-border: #D5CDBD;
+      /* Near-neutral, and just dark enough that a white panel still reads as
+         raised. Whiter than a sand tone: the blue is the accent's job, and a
+         tinted page reads as stained rather than as tinted. */
+      --color-bg: #EAE8E5;
+      --color-text: #16130E;
+      --color-muted: #55524C;
+      --color-border: #D6D2CB;
       --color-cost: #0F766E;
 
       /* Glass over a light canvas only reads if the canvas is itself tinted:
@@ -96,7 +96,7 @@
          inverse of the dark theme, and both end up with one rule. */
       --glass: rgba(255, 255, 255, 0.90);
       --glass-strong: rgba(255, 255, 255, 0.97);
-      --glass-line: rgba(58, 42, 20, 0.28);
+      --glass-line: rgba(40, 38, 34, 0.26);
       --glass-blur: saturate(160%) blur(20px);
 
       --radius-md: 12px;
@@ -107,16 +107,15 @@
       /* Three layers, not one: a tight contact shadow that grounds the panel,
          a near one that gives it a lip, and a wide diffuse one that reads as
          the panel sitting above the page. A single shadow reads flat, which is
-         exactly what made the boxes disappear into the background. Shadows are
-         warm because the canvas is warm; a cool shadow on sand looks dirty. */
-      --shadow-sm: 0 1px 2px rgba(52, 40, 22, 0.11), 0 1px 1px rgba(52, 40, 22, 0.07);
-      --shadow-md: 0 1px 2px rgba(52, 40, 22, 0.09), 0 5px 12px -4px rgba(52, 40, 22, 0.15), 0 14px 30px -12px rgba(52, 40, 22, 0.18);
-      --shadow-lg: 0 2px 4px rgba(52, 40, 22, 0.09), 0 12px 26px -8px rgba(52, 40, 22, 0.22), 0 30px 62px -26px rgba(52, 40, 22, 0.28);
+         exactly what made the boxes disappear into the background. */
+      --shadow-sm: 0 1px 2px rgba(40, 36, 30, 0.11), 0 1px 1px rgba(40, 36, 30, 0.07);
+      --shadow-md: 0 1px 2px rgba(40, 36, 30, 0.09), 0 5px 12px -4px rgba(40, 36, 30, 0.15), 0 14px 30px -12px rgba(40, 36, 30, 0.18);
+      --shadow-lg: 0 2px 4px rgba(40, 36, 30, 0.09), 0 12px 26px -8px rgba(40, 36, 30, 0.22), 0 30px 62px -26px rgba(40, 36, 30, 0.28);
       /* A white top highlight only reads on a panel darker than the page.
          A light panel is already near-white, so its top edge has to be a
          faint dark one instead, reinforcing the 1px border it sits under. */
-      --hairline: inset 0 1px 0 rgba(58, 42, 20, 0.07);
-      --ring: 0 0 0 1px rgba(58, 42, 20, 0.06);
+      --hairline: inset 0 1px 0 rgba(40, 38, 34, 0.07);
+      --ring: 0 0 0 1px rgba(40, 38, 34, 0.06);
     }
 
     html.dark {
@@ -176,10 +175,10 @@
 
     body {
       font-family: "Fira Sans", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans";
-      /* Warm and wide rather than saturated and local: the canvas carries the
-         colour, so the panels on top of it can stay neutral. */
-      background: radial-gradient(1200px 700px at 10% -16%, rgba(196, 138, 74, 0.13), transparent 66%),
-                  radial-gradient(900px 560px at 92% 2%, rgba(214, 168, 108, 0.10), transparent 60%),
+      /* Barely there, and cool rather than warm: a warm glow on a near-neutral
+         canvas just re-yellows the page the tint was removed from. */
+      background: radial-gradient(1200px 700px at 10% -16%, rgba(88, 116, 176, 0.09), transparent 66%),
+                  radial-gradient(900px 560px at 92% 2%, rgba(132, 146, 186, 0.07), transparent 60%),
                   var(--color-bg);
       background-attachment: fixed;
       color: var(--color-text);
@@ -4685,9 +4684,18 @@
         ctx.clearRect(0, 0, width, height);
 
         var dark = isDark();
-        var blueDot = dark ? 'rgba(96, 165, 250, ' : 'rgba(59, 130, 246, ';
-        var amberDot = dark ? 'rgba(251, 191, 36, ' : 'rgba(245, 158, 11, ';
-        var lineBase = dark ? 'rgba(148, 163, 184, ' : 'rgba(100, 116, 139, ';
+        // Light mode used to draw these dimmer than dark mode, on the
+        // reasoning that saturated blue on white reads stronger. That is true
+        // for the hue but not for the result: on a near-white canvas a 0.19
+        // alpha dot disappears into the panel behind it, so the network was
+        // effectively off in light mode and loud in dark. Both themes now
+        // draw at a strength you can actually see, with light using deeper
+        // colours because pale ones vanish against a light field.
+        var blueDot = dark ? 'rgba(96, 165, 250, ' : 'rgba(37, 99, 235, ';
+        var amberDot = dark ? 'rgba(251, 191, 36, ' : 'rgba(217, 119, 6, ';
+        var lineBase = dark ? 'rgba(148, 163, 184, ' : 'rgba(71, 85, 105, ';
+        var dotGain = dark ? 0.75 : 0.62;
+        var lineGain = dark ? 0.18 : 0.155;
 
         var len = particles.length;
         for (var i = 0; i < len; i++) {
@@ -4713,7 +4721,7 @@
           // Draw dot
           ctx.beginPath();
           ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-          ctx.fillStyle = (p.isAmber ? amberDot : blueDot) + (p.alpha * (dark ? 0.75 : 0.55)) + ')';
+          ctx.fillStyle = (p.isAmber ? amberDot : blueDot) + (p.alpha * dotGain) + ')';
           ctx.fill();
 
           // Connect nearby dots
@@ -4723,7 +4731,7 @@
             var dy = p.y - p2.y;
             var dist = Math.hypot(dx, dy);
             if (dist < maxDistance) {
-              var lineAlpha = (1 - dist / maxDistance) * (dark ? 0.18 : 0.12);
+              var lineAlpha = (1 - dist / maxDistance) * lineGain;
               ctx.beginPath();
               ctx.moveTo(p.x, p.y);
               ctx.lineTo(p2.x, p2.y);
