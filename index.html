@@ -339,7 +339,7 @@
        Frosted glass, but the blur is only switched on once the bar is actually
        sitting over content. At the top of the hero there is nothing behind it
        to blur, so paying for a full-width backdrop filter there would be cost
-       with no visible return — and a backdrop filter on a fixed-width element
+       with no visible return, and a backdrop filter on a fixed-width element
        has to re-blur on every frame the page moves under it. */
     .site-nav {
       position: sticky; top: 0; z-index: 50;
@@ -542,7 +542,7 @@
     .tool-pill:hover { transform: translate3d(var(--mx, 0px), calc(var(--my, 0px) - 2px), 0); border-color: color-mix(in srgb, var(--color-primary) 45%, var(--color-border)); box-shadow: var(--shadow-md); }
     .tool-logo { transition: transform var(--t-med) cubic-bezier(0.22, 1, 0.36, 1), box-shadow var(--t-med) ease; }
     .tool-pill:hover .tool-logo { transform: scale(1.12) rotate(-3deg); }
-    /* Card icon lifts a touch as its card does — the two read as one object. */
+    /* Card icon lifts a touch as its card does, so the two read as one object. */
     .feature-icon { transition: transform var(--t-med) cubic-bezier(0.22, 1, 0.36, 1), box-shadow var(--t-med) ease; }
     .surface:hover .feature-icon { transform: translateY(-2px) scale(1.06); box-shadow: 0 8px 18px -8px color-mix(in srgb, var(--color-primary) 60%, transparent); }
     /* The hero preview used to carry a 9s infinite box-shadow "breath".
@@ -583,7 +583,7 @@
     /* ---- Scroll mini-map ----
        Fixed, pointer-only and desktop-only: below 1024px the header nav already
        carries the same information and the column would sit on top of the
-       content. The blur is deliberately not used here — this is a fixed
+       content. The blur is deliberately not used here: this is a fixed
        full-height element, so a backdrop filter on it would re-run every frame
        for the entire scroll. */
     .minimap {
@@ -606,6 +606,23 @@
       height: 7px; width: 64px;
       pointer-events: auto;
     }
+    /* The bar is 7px tall, which is not something anyone can aim at. The link
+       is stretched well past it without disturbing the layout, so the rail is
+       as easy to hit as it looks to be. */
+    .minimap-node > a {
+      position: absolute; inset: -6px -6px -6px 0;
+      display: flex; align-items: center;
+      text-decoration: none; color: inherit; border-radius: 4px;
+    }
+    .minimap-node > a:focus-visible {
+      outline: 2px solid var(--color-primary); outline-offset: 2px;
+    }
+    /* Pointing anywhere at the rail lifts the whole thing, not just the bar
+       under the pointer. It reads as the rail leaning in to meet you, and it
+       gives the labels room to be read without a per-bar animation. */
+    .minimap-rail { transition: transform 0.42s cubic-bezier(0.22, 1, 0.36, 1); transform-origin: 100% 50%; }
+    .minimap:hover .minimap-rail,
+    .minimap:focus-within .minimap-rail { transform: scale(1.12); }
     /* Bars grow leftwards from a spine on the right, so the rail has one edge
        the eye can follow instead of a ragged one, and length reads as distance
        travelled into the content rather than away from it. */
@@ -1923,7 +1940,7 @@
     </div>
   </header>
 
-  <main>
+  <main id="top">
     <!-- ============ HERO ============ -->
     <section class="max-w-[1180px] mx-auto px-4 sm:px-6 pt-14 pb-10 lg:pt-20 lg:pb-16">
       <div class="grid lg:grid-cols-2 gap-12 lg:gap-10 items-center">
@@ -2697,20 +2714,19 @@
   </main>
 
   <!-- ============ SCROLL MINI-MAP ============
-       A quiet map of the page down the left edge. Each bar is a section, and
+       A quiet map of the page down the right edge. Each bar is a section, and
        its length is how close that section is to where you are reading now, so
-       the rail doubles as a sense of distance. The same destinations are in the
-       header nav, so it is decorative: hidden from assistive tech and out of
-       the tab order. -->
-  <nav class="minimap" aria-hidden="true">
+       the rail doubles as a sense of distance. It is also a set of links, so
+       it is a real nav landmark in the tab order rather than a decoration:
+       every bar can be reached by keyboard and every one goes somewhere. -->
+  <nav class="minimap" aria-label="Page sections">
     <ul class="minimap-rail">
-      <li class="minimap-node"><span class="minimap-bar"></span><span class="minimap-tip"></span></li>
-      <li class="minimap-node"><span class="minimap-bar"></span><span class="minimap-tip"></span></li>
-      <li class="minimap-node"><span class="minimap-bar"></span><span class="minimap-tip"></span></li>
-      <li class="minimap-node"><span class="minimap-bar"></span><span class="minimap-tip"></span></li>
-      <li class="minimap-node"><span class="minimap-bar"></span><span class="minimap-tip"></span></li>
-      <li class="minimap-node"><span class="minimap-bar"></span><span class="minimap-tip"></span></li>
-      <li class="minimap-node"><span class="minimap-bar"></span><span class="minimap-tip"></span></li>
+      <li class="minimap-node"><a href="#top"><span class="minimap-bar"></span><span class="minimap-tip" data-i18n="rail.first">Quickstart</span></a></li>
+      <li class="minimap-node"><a href="#features"><span class="minimap-bar"></span><span class="minimap-tip"></span></a></li>
+      <li class="minimap-node"><a href="#servers"><span class="minimap-bar"></span><span class="minimap-tip"></span></a></li>
+      <li class="minimap-node"><a href="#optimize"><span class="minimap-bar"></span><span class="minimap-tip"></span></a></li>
+      <li class="minimap-node"><a href="#companion"><span class="minimap-bar"></span><span class="minimap-tip"></span></a></li>
+      <li class="minimap-node"><a href="#install"><span class="minimap-bar"></span><span class="minimap-tip" data-i18n="rail.last">Setup</span></a></li>
     </ul>
   </nav>
 
@@ -3421,11 +3437,9 @@
       if (!map) return;
       var nodes = Array.prototype.slice.call(map.querySelectorAll('.minimap-node'));
       if (!nodes.length) return;
-      var ids = ['top', 'tools', 'features', 'servers', 'optimize', 'companion', 'install'];
+      var ids = ['top', 'features', 'servers', 'optimize', 'companion', 'install'];
 
-      var sections = ids.map(function (id) {
-        return id === 'top' ? document.body : document.getElementById(id);
-      });
+      var sections = ids.map(function (id) { return document.getElementById(id); });
       if (sections.some(function (s) { return !s; })) return;
 
       var marks = [];
@@ -3434,12 +3448,11 @@
 
       // Tip labels are borrowed from copy the page already carries rather than
       // spelled out in English here. A rail that reads "Companion app" on a
-      // Japanese page is worse than no rail at all, and adding seven more keys
-      // in six languages would be a second dictionary to keep in step with the
-      // first. Each section's eyebrow chip is the shortest label it already
-      // has; the nav link covers the sections with no chip; the heading is the
-      // last resort. The wordmark stands in for the hero, which is a product
-      // name in every language anyway.
+      // Japanese page is worse than no rail at all. Each section's eyebrow
+      // chip is the shortest label it already has; the nav link covers the
+      // sections with no chip; the heading is the last resort. The two ends
+      // are named rather than derived, so they carry their own keys and are
+      // left alone here.
       function eyebrowText(sec) {
         var chip = sec.querySelector('[data-i18n$="eyebrow"]');
         return chip ? chip.textContent.trim() : '';
@@ -3453,12 +3466,14 @@
         return h ? h.textContent.trim() : '';
       }
       function labelFor(sec, id) {
-        if (id === 'top') return 'Tokdash';
         return eyebrowText(sec) || navText(id) || headingText(sec);
       }
       function refreshTips() {
         sections.forEach(function (sec, i) {
-          if (tips[i]) tips[i].textContent = labelFor(sec, ids[i]);
+          var tip = tips[i];
+          // data-i18n owns its own text; do not overwrite what the applier
+          // just put there.
+          if (tip && !tip.hasAttribute('data-i18n')) tip.textContent = labelFor(sec, ids[i]);
         });
       }
       refreshTips();
@@ -3467,7 +3482,12 @@
       function measure() {
         var vh = window.innerHeight;
         var range = Math.max(1, document.documentElement.scrollHeight - vh);
-        marks = sections.map(function (sec) {
+        marks = sections.map(function (sec, i) {
+          // The first section is where you already are when the page opens,
+          // so it counts as reached from the very top. Running it through the
+          // rule below would put its mark a third of the way down the page and
+          // leave the rail with nothing highlighted at scroll zero.
+          if (i === 0) return 0;
           var r = sec.getBoundingClientRect();
           var top = r.top + window.pageYOffset;
           // Where the section is "reached" is a third of the way down it: by
@@ -3481,25 +3501,72 @@
       // layout on every frame of every scroll.
       onScroll.onResize(measure);
 
-      var active = -1, lastActive = -1;
-      onScroll.add(function (p) {
-        for (var i = 0; i < nodes.length; i++) {
-          // Length is proximity, not progress: the section you are reading or
-          // about to read is the longest bar, so the rail doubles as a sense
-          // of how far away everything else is.
-          var d = Math.abs(p - marks[i]) / Math.max(0.08, Math.min(p, 1 - p) + 0.08);
-          var near = Math.max(0.16, 1 - Math.min(1, d));
-          bars[i].style.transform = 'scaleX(' + near.toFixed(3) + ')';
+      // Bar lengths come from two things. A fixed shape gives the rail its
+      // silhouette: short at both ends, fullest in the middle, so the eye
+      // follows one curve rather than a column of equal dashes. Proximity
+      // then pulls the bar you are near, or about to reach, out towards full
+      // length. The section you are reading overrides to full outright, so
+      // the peak travels down the rail as you read and the shape moves with
+      // it rather than jumping.
+      var SHAPE = [0.40, 0.62, 0.80, 0.70, 0.52, 0.32];
+      var FLOOR = 0.26;   // shortest any bar ever gets
+      var REST = 0.80;    // the fullest the silhouette goes on its own
 
+      // The resting length of bar i, before proximity is taken into account.
+      var base = SHAPE.map(function (s) { return FLOOR + (REST - FLOOR) * s; });
+
+      var active = -1, lastActive = -1;
+
+      // How long bar i should be right now, as a fraction of its full width.
+      function lengthFor(i, p) {
+        if (i === active) return 1;
+        // Distance from where this section sits in the page to where you
+        // actually are, softened near the two ends of the scroll so the first
+        // and last sections are not pinned to a bare minimum.
+        var d = Math.abs(p - marks[i]) / Math.max(0.08, Math.min(p, 1 - p) + 0.08);
+        var near = 1 - Math.min(1, d);
+        return base[i] + (1 - base[i]) * near;
+      }
+      function paint(i, p) {
+        bars[i].style.transform = 'scaleX(' + lengthFor(i, p).toFixed(3) + ')';
+      }
+
+      onScroll.add(function (p) {
+        // The active section is the one whose mark you have just passed, so
+        // it can only be known after the pass. Two passes: the first finds it
+        // and lays the bars out, the second gives the new active bar its full
+        // length and the old one its ordinary one.
+        for (var i = 0; i < nodes.length; i++) {
           var reached = p >= marks[i] - 0.02;
           nodes[i].classList.toggle('on', reached);
           if (reached) active = i;
         }
-        if (active !== lastActive) {
-          if (lastActive >= 0) nodes[lastActive].classList.remove('active');
+        var changed = active !== lastActive;
+        var wasActive = lastActive;
+        for (var j = 0; j < nodes.length; j++) {
+          if (changed && (j === wasActive || j === active)) continue;
+          paint(j, p);
+        }
+        if (changed) {
+          if (wasActive >= 0) nodes[wasActive].classList.remove('active');
           if (active >= 0) nodes[active].classList.add('active');
+          if (wasActive >= 0) paint(wasActive, p);
+          if (active >= 0) paint(active, p);
           lastActive = active;
         }
+      });
+
+      // Each bar is a real link, so it has to land where it says it does.
+      // Lenis owns the scroll, and a bare hash jump would fight it and land
+      // under the fixed header, so the offset is applied here.
+      map.addEventListener('click', function (e) {
+        var a = e.target.closest('a[href^="#"]');
+        if (!a) return;
+        var target = document.getElementById(a.getAttribute('href').slice(1));
+        if (!target) return;
+        e.preventDefault();
+        if (window.__lenis) window.__lenis.scrollTo(target, { offset: -72, duration: 1.1 });
+        else target.scrollIntoView({ behavior: 'smooth', block: 'start' });
       });
 
       map.classList.add('ready');
@@ -3928,6 +3995,8 @@
           'nav.tools': `Tools`,
           'nav.privacy': `Privacy`,
           'nav.companion': `Companion`,
+          'rail.first': `Quickstart`,
+          'rail.last': `Setup`,
           'nav.install': `Install`,
           'nav.demo': `Demo`,
           'hero.eyebrow': `<span class="dot"></span> Open source · Local-first · MIT`,
@@ -4050,6 +4119,8 @@
           'nav.tools': `支持工具`,
           'nav.privacy': `隐私`,
           'nav.companion': `状态栏`,
+          'rail.first': `快速开始`,
+          'rail.last': `安装设置`,
           'nav.install': `安装`,
           'nav.demo': `演示`,
           'hero.eyebrow': `<span class="dot"></span> 开源 · 本地优先 · MIT`,
@@ -4172,6 +4243,8 @@
           'nav.tools': `対応ツール`,
           'nav.privacy': `プライバシー`,
           'nav.companion': `コンパニオン`,
+          'rail.first': `クイックスタート`,
+          'rail.last': `セットアップ`,
           'nav.install': `インストール`,
           'nav.demo': `デモ`,
           'hero.eyebrow': `<span class="dot"></span> オープンソース · ローカルファースト · MIT`,
@@ -4294,6 +4367,8 @@
           'nav.tools': `지원 도구`,
           'nav.privacy': `프라이버시`,
           'nav.companion': `컴패니언`,
+          'rail.first': `빠른 시작`,
+          'rail.last': `설정하기`,
           'nav.install': `설치`,
           'nav.demo': `데모`,
           'hero.eyebrow': `<span class="dot"></span> 오픈소스 · 로컬 우선 · MIT`,
@@ -4416,6 +4491,8 @@
           'nav.tools': `Herramientas`,
           'nav.privacy': `Privacidad`,
           'nav.companion': `Companion`,
+          'rail.first': `Inicio rápido`,
+          'rail.last': `Configuración`,
           'nav.install': `Instalación`,
           'nav.demo': `Demo`,
           'hero.eyebrow': `<span class="dot"></span> Código abierto · Local-first · MIT`,
@@ -4538,6 +4615,8 @@
           'nav.tools': `Ferramentas`,
           'nav.privacy': `Privacidade`,
           'nav.companion': `Companion`,
+          'rail.first': `Início rápido`,
+          'rail.last': `Configuração`,
           'nav.install': `Instalação`,
           'nav.demo': `Demo`,
           'hero.eyebrow': `<span class="dot"></span> Código aberto · Local-first · MIT`,
@@ -5295,6 +5374,10 @@
         smoothWheel: true,
         gestureOrientation: 'vertical',
       });
+      // The mini-map links have to land where they say, and a hash jump would
+      // fight the smooth scroller and land under the fixed header. One handle
+      // on the instance is cheaper than leaving scroll ownership ambiguous.
+      window.__lenis = lenis;
 
       function raf(time) {
         lenis.raf(time);
