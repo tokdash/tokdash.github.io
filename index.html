@@ -654,8 +654,11 @@
                   margin 0.28s ease, background 0.28s ease, border-color 0.28s ease;
     }
     html.js.cursor-on .cursor-dot, html.js.cursor-on .cursor-ring { opacity: 1; }
+    /* Hover changes the ring's scale, not its size. Animating width/height
+       reflows the element every frame, and the cursor is the one thing on the
+       page that is guaranteed to be moving; the ring script below writes the
+       transform instead, which is the same visual with no layout. */
     html.js.cursor-on.cursor-hot .cursor-ring {
-      width: 54px; height: 54px; margin: -27px 0 0 -27px;
       background: color-mix(in srgb, var(--color-text) 7%, transparent);
       border-color: color-mix(in srgb, var(--color-text) 70%, transparent);
     }
@@ -3574,12 +3577,19 @@
       var REACH = 46;
       var PULL = 7;
       var lastMX = -1, lastMY = -1, lastY = -1, still = 0;
+      // Hover is a scale rather than a width/height change, eased here rather
+      // than by a CSS transition: the transform is already being rewritten
+      // every frame, and a transition on it would fight that rather than blend
+      // with it. 1.8 takes the 30px ring to the 54px it used to become.
+      var ringScale = 1;
 
       function loop() {
         rx += (dx - rx) * RING_EASE;
         ry += (dy - ry) * RING_EASE;
         dot.style.transform = 'translate3d(' + dx + 'px,' + dy + 'px,0)';
-        ring.style.transform = 'translate3d(' + rx.toFixed(2) + 'px,' + ry.toFixed(2) + 'px,0)';
+        var want = document.documentElement.classList.contains('cursor-hot') ? 1.8 : 1;
+        ringScale += (want - ringScale) * 0.18;
+        ring.style.transform = 'translate3d(' + rx.toFixed(2) + 'px,' + ry.toFixed(2) + 'px,0) scale(' + ringScale.toFixed(3) + ')';
 
         var y = window.pageYOffset || document.documentElement.scrollTop || 0;
         // Neither the pointer nor the page has moved, so no button can be in a
