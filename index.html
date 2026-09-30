@@ -3708,14 +3708,43 @@
       // than by a CSS transition: the transform is already being rewritten
       // every frame, and a transition on it would fight that rather than blend
       // with it. 1.8 takes the 30px ring to the 54px it used to become.
-      var ringScale = 1;
+      //
+      // The scale is a real spring rather than a fixed share of the remaining
+      // gap each frame. A fixed share is really tied to the frame rate and
+      // knows nothing about speed, so the ring can only creep towards its new
+      // size. A spring carries its momentum, goes about two percent past and
+      // comes back, and that is the part which reads as weight rather than as
+      // a fade. These numbers give the same settling time the old share did,
+      // so a hover still feels immediate. The ring is stepped in small
+      // increments of real time rather than one big jump per frame, so a
+      // frame that arrives late cannot fling the ring across the screen.
+      var RING_STIFF = 380;   // how hard it is pulled towards the new size
+      var RING_DAMP = 30;     // how fast that pull is handed back
+      var RING_EPS = 0.002;   // close enough to call it arrived
+      var ringScale = 1, ringVel = 0, ringLast = 0;
 
       function loop() {
+        var now = performance.now();
+        var dt = ringLast ? Math.min(0.05, (now - ringLast) / 1000) : 0.004;
+        ringLast = now;
         rx += (dx - rx) * RING_EASE;
         ry += (dy - ry) * RING_EASE;
         dot.style.transform = 'translate3d(' + dx + 'px,' + dy + 'px,0)';
         var want = document.documentElement.classList.contains('cursor-hot') ? 1.8 : 1;
-        ringScale += (want - ringScale) * 0.18;
+        var left = dt;
+        while (left > 0) {
+          var h = left < 1 / 240 ? left : 1 / 240;
+          ringVel += ((want - ringScale) * RING_STIFF - ringVel * RING_DAMP) * h;
+          ringScale += ringVel * h;
+          left -= h;
+        }
+        // Rest on the exact size once it is close, so the ring does not sit a
+        // hair under 1.8 for the rest of the session and does not carry a
+        // leftover speed into the next hover.
+        if (Math.abs(want - ringScale) < RING_EPS && Math.abs(ringVel) < RING_EPS) {
+          ringScale = want;
+          ringVel = 0;
+        }
         ring.style.transform = 'translate3d(' + rx.toFixed(2) + 'px,' + ry.toFixed(2) + 'px,0) scale(' + ringScale.toFixed(3) + ')';
 
         var y = window.pageYOffset || document.documentElement.scrollTop || 0;
