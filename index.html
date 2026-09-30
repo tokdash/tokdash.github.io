@@ -1829,7 +1829,7 @@
             </span>
             <span class="proof-item">
               <span class="tick" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="m5 13 4 4L19 7" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-              <span data-i18n="hero.proof3"><b>1</b> command to install</span>
+              <span data-i18n="hero.proof3"><b>17</b> themes</span>
             </span>
           </div>
 
@@ -1847,8 +1847,8 @@
               <span class="dot-r" style="background:#F87171;"></span>
               <span class="dot-r" style="background:#FBBF24;"></span>
               <span class="dot-r" style="background:#34D399;"></span>
-              <span class="mono text-xs text-muted ml-2">tokdash · localhost:55423</span>
-              <span class="ml-auto text-[11px] font-bold px-2.5 py-1 rounded-md" style="background:color-mix(in srgb, var(--color-primary) 12%, transparent); color:var(--color-primary);">Last 4 Weeks</span>
+              <span class="mono text-xs text-muted ml-2 pv-text">tokdash · localhost:55423</span>
+              <span class="ml-auto text-[11px] font-bold px-2.5 py-1 rounded-md pv-text" style="background:color-mix(in srgb, var(--color-primary) 12%, transparent); color:var(--color-primary);">Last 4 Weeks</span>
             </div>
 
             <div class="p-4 sm:p-5">
@@ -1857,22 +1857,22 @@
                 <div class="kpi kpi-in">
                   <div class="kpi-label">Total Tokens</div>
                   <div class="kpi-val" style="color:var(--color-primary);">48.2M</div>
-                  <div class="text-[11px] font-semibold mt-1" style="color:var(--color-cost);">▲ 12.4% vs prev</div>
+                  <div class="text-[11px] font-semibold mt-1 pv-text" style="color:var(--color-cost);">▲ 12.4% vs prev</div>
                 </div>
                 <div class="kpi kpi-in">
                   <div class="kpi-label">Total Cost</div>
                   <div class="kpi-val" style="color:var(--color-cost);">$312.40</div>
-                  <div class="text-[11px] font-semibold mt-1 text-muted">$11.16 / day avg</div>
+                  <div class="text-[11px] font-semibold mt-1 text-muted pv-text">$11.16 / day avg</div>
                 </div>
                 <div class="kpi kpi-in">
                   <div class="kpi-label">Messages</div>
                   <div class="kpi-val">5,847</div>
-                  <div class="text-[11px] font-semibold mt-1 text-muted">212 sessions</div>
+                  <div class="text-[11px] font-semibold mt-1 text-muted pv-text">212 sessions</div>
                 </div>
                 <div class="kpi kpi-in">
                   <div class="kpi-label">Cache Hit</div>
                   <div class="kpi-val" style="color:var(--color-cta);">73%</div>
-                  <div class="text-[11px] font-semibold mt-1 text-muted">34.1M cached</div>
+                  <div class="text-[11px] font-semibold mt-1 text-muted pv-text">34.1M cached</div>
                 </div>
               </div>
 
@@ -1880,7 +1880,7 @@
               <div class="kpi mt-3" style="padding:16px;">
                 <div class="flex items-center justify-between mb-3">
                   <div class="kpi-label">Daily Activity</div>
-                  <div class="text-[11px] text-muted mono">Less <span id="legend"></span> More</div>
+                  <div class="text-[11px] text-muted mono"><span class="pv-text">Less</span> <span id="legend"></span> <span class="pv-text">More</span></div>
                 </div>
                 <div id="miniHeat" class="mini-heat"></div>
               </div>
@@ -2531,7 +2531,10 @@
 
     <!-- ============ RELATED PROJECT ============ -->
     <section id="related" class="max-w-[1180px] mx-auto px-4 sm:px-6 py-14 lg:py-20">
-      <div class="surface p-8 sm:p-10 text-center max-w-3xl mx-auto reveal">
+      <!-- The built Tailwind bundle has no pb-* utility, so p-8/p-10 was
+           leaving this panel with no bottom padding at all and the two buttons
+           sat on its edge. pb-10 is the one that survived the purge. -->
+      <div class="surface p-8 sm:p-10 pb-10 text-center max-w-3xl mx-auto reveal">
         <span class="chip" data-i18n="related.eyebrow"><span class="dot"></span> Related project</span>
         <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight mt-4" data-i18n="related.h">Synchronize and control your agents</h2>
         <p class="text-muted mt-3 max-w-2xl mx-auto" data-i18n="related.sub">From CLI to GUI, from desktop to phone. Pick up right where you left off, anywhere. Cosyncing keeps your coding agents in sync across your own network, as a sister project from the same author.</p>
@@ -2860,13 +2863,51 @@
 
       var kpis = Array.prototype.slice.call(dash.querySelectorAll('.kpi-in'));
       var cells = Array.prototype.slice.call(dash.querySelectorAll('#miniHeat .hcell'));
+      // The dashboard's own labels get the same per-character reveal the
+      // section headings use, so the preview reads as the same object as the
+      // rest of the page rather than as a static screenshot.
+      var texts = Array.prototype.slice.call(dash.querySelectorAll('.kpi-label, .pv-text'));
       var played = false;
       if (!kpis.length) return;
 
       function rnd(min, max) { return min + Math.random() * (max - min); }
 
+      // Split into .heading-char spans and reveal them left to right, exactly
+      // as the section headings do. This reuses their class rather than
+      // animating opacity directly: the class carries the transition, the
+      // reduced-motion override, and the settled-state check in
+      // verify_landing.py, all of which key off .heading-char.in.
+      // Spaces stay plain text nodes: wrapping one in a span would remove the
+      // line-break opportunity, which is the bug the heading splitter already
+      // had to fix for the same reason.
+      function staggerChars(el, offset) {
+        var text = el.textContent;
+        if (!text) return;
+        el.textContent = '';
+        var chars = text.split('');
+        var frag = document.createDocumentFragment();
+        var spans = [];
+        for (var i = 0; i < chars.length; i++) {
+          if (chars[i] === ' ') { frag.appendChild(document.createTextNode(' ')); continue; }
+          var s = document.createElement('span');
+          s.className = 'heading-char';
+          s.textContent = chars[i];
+          frag.appendChild(s);
+          spans.push(s);
+        }
+        el.appendChild(frag);
+        for (var j = 0; j < spans.length; j++) {
+          (function (span, at) {
+            setTimeout(function () { span.classList.add('in'); }, at);
+          })(spans[j], offset + j * 14);
+        }
+      }
+
       // Tween a headline figure while keeping its affixes and precision, so
       // "$312.40" never lands as "$312.2" and "5,847" keeps its separator.
+      // The figures deliberately keep this instead of the character reveal:
+      // the counter rewrites textContent on every frame, which would destroy
+      // the character spans the reveal needs. Labels shimmer, numbers roll.
       function countUp(el) {
         if (!el) return;
         var text = el.textContent.trim();
@@ -2908,7 +2949,27 @@
             easing: 'cubicBezier(0.16, 1, 0.3, 1)'
           }, i === 0 ? 0 : i * rnd(74, 150));
           countUp(kpi.querySelector('.kpi-val'));
+          // Each card's label and figure caption read a beat after the card
+          // itself lands, so the numbers arrive after the box they belong to.
+          var cardStart = i === 0 ? 0 : i * rnd(74, 150);
+          staggerChars(kpi.querySelector('.kpi-label'), cardStart + 260);
+          var cap = kpi.querySelector('.pv-text');
+          if (cap) staggerChars(cap, cardStart + 340);
         });
+
+        // The window chrome reads first, before anything inside it.
+        Array.prototype.slice.call(dash.querySelectorAll('.preview-topbar .pv-text'))
+          .forEach(function (el, i) { staggerChars(el, i * 90); });
+
+        var heat = dash.querySelector('#miniHeat');
+        var heatCard = heat && heat.parentNode;
+        if (heatCard) {
+          var actLabel = heatCard.querySelector('.kpi-label');
+          if (actLabel) staggerChars(actLabel, tl.duration * 0.45);
+          Array.prototype.slice.call(heatCard.querySelectorAll('.pv-text')).forEach(function (w, i) {
+            staggerChars(w, tl.duration * 0.55 + i * 120);
+          });
+        }
 
         // The heat wave opens a beat before the cards have finished landing, so
         // the two overlap instead of queueing up.
@@ -3236,7 +3297,7 @@
           'hero.cta_demo': `View live demo`,
           'hero.proof1': `<b>24</b> coding agents`,
           'hero.proof2': `<b>6</b> UI languages`,
-          'hero.proof3': `<b>1</b> command to install`,
+          'hero.proof3': `<b>17</b> themes`,
           'hero.scroll': `Scroll`,
           'trust.local.h': `100% local`,
           'trust.local.p': `Reads logs already on your disk. Nothing is ever uploaded.`,
@@ -3358,7 +3419,7 @@
           'hero.cta_demo': `查看在线演示`,
           'hero.proof1': `<b>24</b> 款 AI 编码工具`,
           'hero.proof2': `<b>6</b> 种界面语言`,
-          'hero.proof3': `<b>1</b> 条命令即可安装`,
+          'hero.proof3': `<b>17</b> 款主题`,
           'hero.scroll': `向下滚动`,
           'trust.local.h': `100% 本地`,
           'trust.local.p': `直接读取你磁盘上已有的日志，任何数据都不会上传。`,
@@ -3480,7 +3541,7 @@
           'hero.cta_demo': `ライブデモを見る`,
           'hero.proof1': `<b>24</b> 種のコーディングツール`,
           'hero.proof2': `<b>6</b> 言語の UI`,
-          'hero.proof3': `<b>1</b> コマンドでインストール`,
+          'hero.proof3': `<b>17</b> のテーマ`,
           'hero.scroll': `スクロール`,
           'trust.local.h': `100% ローカル`,
           'trust.local.p': `ディスク上にあるログを読み取るだけ。何もアップロードされません。`,
@@ -3602,7 +3663,7 @@
           'hero.cta_demo': `라이브 데모 보기`,
           'hero.proof1': `<b>24</b>개의 코딩 도구`,
           'hero.proof2': `<b>6</b>개 UI 언어`,
-          'hero.proof3': `<b>1</b>개의 명령어로 설치`,
+          'hero.proof3': `<b>17</b>개의 테마`,
           'hero.scroll': `스크롤`,
           'trust.local.h': `100% 로컬`,
           'trust.local.p': `이미 디스크에 있는 로그를 읽어옵니다. 어떤 데이터도 업로드되지 않습니다.`,
@@ -3724,7 +3785,7 @@
           'hero.cta_demo': `Ver demo en vivo`,
           'hero.proof1': `<b>24</b> agentes de codificación`,
           'hero.proof2': `<b>6</b> idiomas de interfaz`,
-          'hero.proof3': `<b>1</b> comando y listo`,
+          'hero.proof3': `<b>17</b> temas`,
           'hero.scroll': `Desplázate`,
           'trust.local.h': `100% local`,
           'trust.local.p': `Lee los logs que ya están en tu disco. Nunca se sube nada.`,
@@ -3846,7 +3907,7 @@
           'hero.cta_demo': `Ver demo ao vivo`,
           'hero.proof1': `<b>24</b> agentes de codificação`,
           'hero.proof2': `<b>6</b> idiomas de interface`,
-          'hero.proof3': `<b>1</b> comando e pronto`,
+          'hero.proof3': `<b>17</b> temas`,
           'hero.scroll': `Role para baixo`,
           'trust.local.h': `100% local`,
           'trust.local.p': `Lê logs que já estão no seu disco. Nada é enviado para fora.`,
