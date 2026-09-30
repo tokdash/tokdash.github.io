@@ -595,22 +595,23 @@
     html.js .minimap.ready { opacity: 1; }
     .minimap-rail {
       list-style: none; margin: 0; padding: 0;
-      display: flex; flex-direction: column; gap: 3px; align-items: flex-end;
+      display: flex; flex-direction: column; gap: 5px; align-items: flex-end;
     }
-    /* The bar owns the whole 46px and the label floats beside it, out of flow.
+    /* The bar owns the whole 64px and the label floats beside it, out of flow.
        In flow, an invisible-but-space-taking label would push the bar off its
        anchor by whatever that language happens to be long. */
     .minimap-node {
       position: relative;
       display: flex; align-items: center;
-      height: 5px; width: 46px;
+      height: 7px; width: 64px;
       pointer-events: auto;
     }
-    /* Bars grow rightwards from a fixed left edge, so the rail has a spine the
-       eye can follow instead of a ragged outer edge. */
+    /* Bars grow leftwards from a spine on the right, so the rail has one edge
+       the eye can follow instead of a ragged one, and length reads as distance
+       travelled into the content rather than away from it. */
     .minimap-bar {
-      display: block; height: 3px; width: 46px; border-radius: 999px;
-      transform: scaleX(0.2); transform-origin: 0% 50%;
+      display: block; height: 4px; width: 64px; border-radius: 999px;
+      transform: scaleX(0.2); transform-origin: 100% 50%;
       background: color-mix(in srgb, var(--color-text) 26%, transparent);
       will-change: transform;
       transition: background 0.35s ease;
@@ -618,12 +619,12 @@
     .minimap-node.on .minimap-bar { background: color-mix(in srgb, var(--color-text) 62%, transparent); }
     .minimap-node.active .minimap-bar { background: var(--color-text); }
     .minimap-tip {
-      position: absolute; right: calc(100% + 10px); top: 50%;
+      position: absolute; right: calc(100% + 12px); top: 50%;
       font-family: "Rubik", ui-sans-serif, system-ui, sans-serif;
-      font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
       color: var(--color-text); white-space: nowrap;
-      max-width: 200px; overflow: hidden; text-overflow: ellipsis;
-      padding: 3px 8px; border-radius: 999px;
+      max-width: 240px; overflow: hidden; text-overflow: ellipsis;
+      padding: 4px 10px; border-radius: 999px;
       background: color-mix(in srgb, var(--color-bg) 88%, transparent);
       border: 1px solid var(--glass-line);
       opacity: 0; transform: translate(6px, -50%);
