@@ -3111,6 +3111,7 @@
       // line-break opportunity, which is the bug the heading splitter already
       // had to fix for the same reason.
       function staggerChars(el, offset) {
+        if (!el) return;
         var text = el.textContent;
         if (!text) return;
         el.textContent = '';
@@ -3138,7 +3139,13 @@
       // The figures deliberately keep this instead of the character reveal:
       // the counter rewrites textContent on every frame, which would destroy
       // the character spans the reveal needs. Labels shimmer, numbers roll.
-      function countUp(el) {
+      //
+      // The roll waits for the card to have most of the way home. A figure
+      // that starts counting the moment its card starts moving reads the
+      // number as arriving somewhere else, and the zero is written straight
+      // away so the wait is a held zero rather than the finished value sitting
+      // there for a beat and then rolling backwards to it.
+      function countUp(el, delay) {
         if (!el) return;
         var text = el.textContent.trim();
         var m = text.match(/^([^\d.-]*)(-?[\d.,]+)([\s\S]*)$/);
@@ -3149,8 +3156,9 @@
         var end = parseFloat(raw.replace(/,/g, ''));
         if (!isFinite(end)) return;
         var o = { v: 0 };
+        el.textContent = pre + (grouped ? (0).toLocaleString('en-US') : (0).toFixed(decimals)) + post;
         anime({
-          targets: o, v: end, duration: 950, easing: 'easeOutExpo',
+          targets: o, v: end, duration: 950, delay: delay || 0, easing: 'easeOutExpo',
           update: function () {
             var n = grouped ? Math.round(o.v).toLocaleString('en-US') : o.v.toFixed(decimals);
             el.textContent = pre + n + post;
@@ -3177,6 +3185,11 @@
         });
 
         kpis.forEach(function (kpi, i) {
+          // One draw of the gap per card. This used to ask for a random gap
+          // twice, once for the card and once for its label, so the label was
+          // timed off a different number and could drift a few hundred
+          // milliseconds away from the box it belongs to.
+          var cardStart = i === 0 ? 0 : i * rnd(74, 150);
           tl.add({
             targets: kpi,
             translateX: [rnd(-52, 52), 0],
@@ -3185,18 +3198,25 @@
             rotateX: [rnd(-28, 28), 0],
             rotateZ: [rnd(-6, 6), 0],
             scale: [rnd(0.84, 0.95), 1],
-            opacity: [0, 1],
+            // Same per-property timing the reveals use: the card is at full
+            // strength a third of the way in, so it is readable while it is
+            // still turning, and the fade is over long before it lands.
+            opacity: { value: [0, 1], duration: 300, easing: 'linear' },
             duration: 560,
             easing: 'cubicBezier(0.16, 1, 0.3, 1)'
-          }, i === 0 ? 0 : i * rnd(74, 150));
-          countUp(kpi.querySelector('.kpi-val'));
+          }, cardStart);
           // Each card's label and figure caption read a beat after the card
           // itself lands, so the numbers arrive after the box they belong to.
-          var cardStart = i === 0 ? 0 : i * rnd(74, 150);
+          countUp(kpi.querySelector('.kpi-val'), cardStart + 260);
           staggerChars(kpi.querySelector('.kpi-label'), cardStart + 260);
           var cap = kpi.querySelector('.pv-text');
           if (cap) staggerChars(cap, cardStart + 340);
         });
+
+        // When the cards are done, read once and named. The heatmap's own
+        // labels are timed off this rather than off a magic number, so
+        // retiming the cards moves the labels with them.
+        var cardsEnd = tl.duration;
 
         // The window chrome reads first, before anything inside it.
         Array.prototype.slice.call(dash.querySelectorAll('.preview-topbar .pv-text'))
@@ -3206,9 +3226,9 @@
         var heatCard = heat && heat.parentNode;
         if (heatCard) {
           var actLabel = heatCard.querySelector('.kpi-label');
-          if (actLabel) staggerChars(actLabel, tl.duration * 0.45);
+          if (actLabel) staggerChars(actLabel, cardsEnd * 0.45);
           Array.prototype.slice.call(heatCard.querySelectorAll('.pv-text')).forEach(function (w, i) {
-            staggerChars(w, tl.duration * 0.55 + i * 120);
+            staggerChars(w, cardsEnd * 0.55 + i * 120);
           });
         }
 
@@ -3218,10 +3238,11 @@
         if (!n) return;
         var wave = 1500;   // left-to-right spread of the whole wave
         var jitter = 640;  // how far ahead of the wave any one cell may start
-        var open = Math.max(0, tl.duration - 280);
+        var open = Math.max(0, cardsEnd - 280);
 
         cells.forEach(function (cell, i) {
           var start = Math.max(0, (i / (n - 1)) * wave - rnd(0, jitter));
+          var dur = rnd(520, 780);
           tl.add({
             targets: cell,
             translateZ: [rnd(-880, -540), 0],
@@ -3229,8 +3250,11 @@
             rotateX: [rnd(96, 142), 0],
             rotateZ: [rnd(-26, 26), 0],
             scale: [0.55, 1],
-            opacity: [0, 1],
-            duration: rnd(520, 780),
+            // The colour lands first and the tile finishes tumbling in under
+            // it, so the wave reads as a shape arriving rather than as a row
+            // of grey squares turning into colour.
+            opacity: { value: [0, 1], duration: dur * 0.45, easing: 'linear' },
+            duration: dur,
             easing: 'cubicBezier(0.22, 1, 0.36, 1)'
           }, open + start);
         });
