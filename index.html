@@ -80,20 +80,23 @@
       --color-primary: #1E40AF;
       --color-secondary: #3B82F6;
       --color-cta: #F59E0B;
-      --color-bg: #E9EDF3;
-      --color-text: #0B1020;
-      --color-muted: #4A5468;
-      --color-border: #D3DAE5;
+      /* Warm, not cool: a sand-toned canvas leaves the blue to the accent,
+         and warm-on-white is where a panel actually reads as a raised object
+         rather than as a slightly different patch of white. */
+      --color-bg: #EDE7DB;
+      --color-text: #17130C;
+      --color-muted: #55503F;
+      --color-border: #D5CDBD;
       --color-cost: #0F766E;
 
       /* Glass over a light canvas only reads if the canvas is itself tinted:
          a white veil on a white page is invisible, which is why the light
-         theme carries its blue as a background cast rather than as a glow
-         on top of white. Panels then sit brighter than what is behind them,
-         the inverse of the dark theme, and both end up with one rule. */
-      --glass: rgba(255, 255, 255, 0.82);
-      --glass-strong: rgba(255, 255, 255, 0.94);
-      --glass-line: rgba(11, 16, 32, 0.13);
+         theme carries its tint in the background rather than as a glow on top
+         of white. Panels then sit brighter than what is behind them, the
+         inverse of the dark theme, and both end up with one rule. */
+      --glass: rgba(255, 255, 255, 0.90);
+      --glass-strong: rgba(255, 255, 255, 0.97);
+      --glass-line: rgba(58, 42, 20, 0.28);
       --glass-blur: saturate(160%) blur(20px);
 
       --radius-md: 12px;
@@ -101,15 +104,19 @@
       --t-fast: 180ms;
       --t-med: 240ms;
 
-      /* Layered, low-alpha elevation: a tight contact shadow plus a wide,
-         diffuse one reads as real depth, where a single flat shadow reads flat. */
-      --shadow-sm: 0 1px 2px rgba(11, 16, 32, 0.06), 0 1px 1px rgba(11, 16, 32, 0.04);
-      --shadow-md: 0 1px 2px rgba(11, 16, 32, 0.05), 0 8px 20px -6px rgba(11, 16, 32, 0.10);
-      --shadow-lg: 0 2px 4px rgba(11, 16, 32, 0.04), 0 18px 40px -12px rgba(11, 16, 32, 0.16);
-      /* A white top highlight only works on a panel darker than the page.
-         On a light panel the separating edge is a faint dark one instead. */
-      --hairline: inset 0 1px 0 rgba(11, 16, 32, 0.055);
-      --ring: 0 0 0 1px rgba(11, 16, 32, 0.05);
+      /* Three layers, not one: a tight contact shadow that grounds the panel,
+         a near one that gives it a lip, and a wide diffuse one that reads as
+         the panel sitting above the page. A single shadow reads flat, which is
+         exactly what made the boxes disappear into the background. Shadows are
+         warm because the canvas is warm; a cool shadow on sand looks dirty. */
+      --shadow-sm: 0 1px 2px rgba(52, 40, 22, 0.11), 0 1px 1px rgba(52, 40, 22, 0.07);
+      --shadow-md: 0 1px 2px rgba(52, 40, 22, 0.09), 0 5px 12px -4px rgba(52, 40, 22, 0.15), 0 14px 30px -12px rgba(52, 40, 22, 0.18);
+      --shadow-lg: 0 2px 4px rgba(52, 40, 22, 0.09), 0 12px 26px -8px rgba(52, 40, 22, 0.22), 0 30px 62px -26px rgba(52, 40, 22, 0.28);
+      /* A white top highlight only reads on a panel darker than the page.
+         A light panel is already near-white, so its top edge has to be a
+         faint dark one instead, reinforcing the 1px border it sits under. */
+      --hairline: inset 0 1px 0 rgba(58, 42, 20, 0.07);
+      --ring: 0 0 0 1px rgba(58, 42, 20, 0.06);
     }
 
     html.dark {
@@ -126,14 +133,16 @@
       --color-cost: #34D399;
 
       /* Glass over near-black needs a lighter, cooler fill than the light
-         theme's, or the panels disappear into the canvas entirely. */
-      --glass: rgba(148, 176, 232, 0.045);
-      --glass-strong: rgba(148, 176, 232, 0.075);
-      --glass-line: rgba(160, 190, 245, 0.11);
+         theme's, or the panels disappear into the canvas entirely. Shadows
+         barely register on a near-black page, so separation here comes from
+         the fill lift and the hairline doing the work instead. */
+      --glass: rgba(152, 180, 238, 0.068);
+      --glass-strong: rgba(152, 180, 238, 0.105);
+      --glass-line: rgba(190, 212, 252, 0.24);
 
-      --shadow-sm: 0 1px 2px rgba(0,0,0,0.5);
-      --shadow-md: 0 1px 2px rgba(0,0,0,0.45), 0 8px 20px -6px rgba(0,0,0,0.6);
-      --shadow-lg: 0 2px 4px rgba(0,0,0,0.4), 0 18px 40px -12px rgba(0,0,0,0.7);
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.6), 0 1px 1px rgba(0,0,0,0.4);
+      --shadow-md: 0 1px 2px rgba(0,0,0,0.55), 0 6px 16px -6px rgba(0,0,0,0.75), 0 16px 36px -14px rgba(0,0,0,0.85);
+      --shadow-lg: 0 2px 6px rgba(0,0,0,0.6), 0 16px 40px -12px rgba(0,0,0,0.9), 0 34px 72px -28px rgba(0,0,0,0.95);
       --hairline: inset 0 1px 0 rgba(190, 214, 255, 0.07);
       --ring: 0 0 0 1px rgba(190, 214, 255, 0.04);
     }
@@ -167,10 +176,10 @@
 
     body {
       font-family: "Fira Sans", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans";
-      /* Cool and wide rather than saturated and local: the canvas carries the
-         blue, so the panels on top of it can stay neutral. */
-      background: radial-gradient(1200px 700px at 10% -16%, rgba(59,130,246,0.10), transparent 66%),
-                  radial-gradient(900px 560px at 92% 2%, rgba(99,102,241,0.06), transparent 60%),
+      /* Warm and wide rather than saturated and local: the canvas carries the
+         colour, so the panels on top of it can stay neutral. */
+      background: radial-gradient(1200px 700px at 10% -16%, rgba(196, 138, 74, 0.13), transparent 66%),
+                  radial-gradient(900px 560px at 92% 2%, rgba(214, 168, 108, 0.10), transparent 60%),
                   var(--color-bg);
       background-attachment: fixed;
       color: var(--color-text);
@@ -196,7 +205,7 @@
       background: var(--glass);
       border: 1px solid var(--glass-line);
       border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-sm), var(--shadow-md), var(--hairline);
+      box-shadow: var(--shadow-sm), var(--shadow-md), var(--shadow-lg), var(--hairline);
       backdrop-filter: var(--glass-blur);
       -webkit-backdrop-filter: var(--glass-blur);
       transition: transform var(--t-med) ease, box-shadow var(--t-med) ease, border-color var(--t-med) ease, background var(--t-med) ease;
@@ -209,11 +218,11 @@
     html.dark .surface {
       background: var(--glass);
       border-color: var(--glass-line);
-      box-shadow: var(--shadow-sm), var(--hairline);
+      box-shadow: var(--shadow-sm), var(--shadow-md), var(--hairline);
     }
     html.dark .surface:hover {
-      border-color: color-mix(in srgb, var(--color-primary) 40%, #334155);
-      box-shadow: var(--shadow-md), var(--hairline);
+      border-color: color-mix(in srgb, var(--color-primary) 40%, var(--glass-line));
+      box-shadow: var(--shadow-md), var(--shadow-lg), var(--hairline);
     }
     /* Static surface, no lift on hover (used for the hero preview & terminal) */
     .surface-static:hover { transform: none; }
@@ -231,7 +240,7 @@
        pointer actually lands on the action. */
     .btn-primary {
       background: rgba(37, 99, 235, 0.07);
-      color: #1D4ED8;
+      color: var(--color-primary);
       border: 1px solid rgba(59, 130, 246, 0.45);
       box-shadow: 0 2px 8px rgba(37, 99, 235, 0.08);
       backdrop-filter: blur(8px);
@@ -284,8 +293,8 @@
       border: 1px solid rgba(226,232,240,0.9);
     }
     .btn-ghost:hover { background: rgba(15, 23, 42, 0.08); transform: translateY(-1px); border-color: rgba(30,64,175,0.3); }
-    html.dark .btn-ghost { background: rgba(148,163,184,0.08); border-color: #475569; }
-    html.dark .btn-ghost:hover { background: rgba(148,163,184,0.15); border-color: rgba(96,165,250,0.4); }
+    html.dark .btn-ghost { background: var(--glass); border-color: var(--glass-line); }
+    html.dark .btn-ghost:hover { background: var(--wash, rgba(255,255,255,0.06)); border-color: color-mix(in srgb, var(--color-primary) 40%, var(--glass-line)); }
 
     /* Microsoft Store badge: Microsoft ships a dark badge for light backgrounds and a
        light badge for dark ones. Keyed off html.dark so it follows the site toggle. */
@@ -467,7 +476,7 @@
       box-shadow: var(--shadow-md); cursor: pointer; border: none;
       transition: transform var(--t-fast) ease, box-shadow var(--t-fast) ease;
     }
-    html.dark .cmd { background: #020617; border: 1px solid #334155; }
+    html.dark .cmd { background: #0D1322; border: 1px solid rgba(255,255,255,0.16); }
     .cmd:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
     .cmd .prompt { color: var(--color-cta); }
     .cmd .copy-ic {
@@ -514,7 +523,7 @@
     .tool-dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
 
     /* ---- Hero preview mini-dashboard ---- */
-    .preview-topbar { display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-bottom: 1px solid color-mix(in srgb, var(--color-border) 80%, transparent); background: rgba(255,255,255,0.45); }
+    .preview-topbar { display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-bottom: 1px solid var(--color-border); background: rgba(255,255,255,0.45); }
     html.dark .preview-topbar { background: rgba(255,255,255,0.025); }
     .dot-r { width: 11px; height: 11px; border-radius: 50%; }
     /* The KPI cards are a layer inside the dashboard, not panels on the page,
@@ -843,7 +852,7 @@
       background: rgba(242, 242, 245, 0.74);
       backdrop-filter: blur(30px) saturate(1.7);
       -webkit-backdrop-filter: blur(30px) saturate(1.7);
-      border: 0.5px solid rgba(0,0,0,0.12);
+      border: 0.5px solid rgba(0,0,0,0.22);
       border-radius: 14px;
       box-shadow: 0 12px 40px rgba(0,0,0,0.28), 0 1px 4px rgba(0,0,0,0.12);
       z-index: 20;
@@ -1060,7 +1069,7 @@
         rgba(242, 244, 247, 0.80);
       backdrop-filter: blur(32px) saturate(1.25);
       -webkit-backdrop-filter: blur(32px) saturate(1.25);
-      border: 1px solid rgba(0,0,0,0.10);
+      border: 1px solid rgba(0,0,0,0.22);
       border-radius: 8px;
       box-shadow: 0 16px 48px rgba(0,0,0,0.35), 0 2px 8px rgba(0,0,0,0.18);
       z-index: 40;
