@@ -198,10 +198,11 @@ with sync_playwright() as p:
         "server partitions do not cover the dataset exactly once"
     assert len({f["sessions"] for f in fleet}) == len(fleet), "server partitions are indistinguishable"
 
-    # Servers tab: hidden until a second server exists, then one card per server
-    # plus the comparison table with its Combined column.
-    tab = page.locator("#serversTabBtn")
-    assert tab.count() == 1 and tab.is_visible(), "Servers tab hidden despite a seeded fleet"
+    # Servers tab (sidebar-era shell): the nav lives in the sidebar, the legacy
+    # top tab strip is display:none at desktop widths. One card per server plus
+    # the comparison table with its Combined column.
+    tab = page.locator('.sidebar-nav-item[data-tab-target="servers"]')
+    assert tab.count() == 1 and tab.is_visible(), "Servers nav item missing from the sidebar"
     assert page.evaluate("() => JSON.parse(localStorage.getItem('tokdash-servers') || '[]').length") == 2, \
         "demo fleet did not seed the two remote servers"
     tab.click()
@@ -268,7 +269,7 @@ with sync_playwright() as p:
     # the demo dataset becomes something a visitor sees, because the table prints every
     # month of the year on display. January to June used to be rows of nothing. The tab
     # opens on the month view, so the year view has to be asked for.
-    page.locator('button[data-tab="stats"]').click()
+    page.locator('.sidebar-nav-item[data-tab-target="stats"]').click()
     page.wait_for_timeout(1500)
     page.locator("#viewYear").click()
     page.wait_for_timeout(1500)
@@ -328,7 +329,7 @@ with sync_playwright() as p:
     # and weekday rhythm, the agent table and both share cards. A facet or endpoint
     # the demo did not answer would surface as a banner or an em dash, so the check
     # is that nothing is missing rather than that some number is big.
-    page.locator('button[data-tab="report"]').click()
+    page.locator('.sidebar-nav-item[data-tab-target="report"]').click()
     page.wait_for_function(
         """() => {
           const el = document.getElementById('usageReportKTokens');
