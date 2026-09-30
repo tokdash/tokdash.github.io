@@ -3527,33 +3527,61 @@
         var near = 1 - Math.min(1, d);
         return base[i] + (1 - base[i]) * near;
       }
-      function paint(i, p) {
-        bars[i].style.transform = 'scaleX(' + lengthFor(i, p).toFixed(3) + ')';
+
+      // Bars move to a target rather than jumping to it. Following the scroll
+      // directly is smooth enough, but the section you are reading changing
+      // hands is a step change: the bar you are leaving snapped from full
+      // straight back to two thirds in a single frame, which read as a glitch
+      // rather than as the wave moving. Easing the value fixes that and takes
+      // the last of the chatter off the scroll tracking as well.
+      //
+      // The loop only exists while something is still moving. Once every bar
+      // has arrived it stops, so a page sitting still costs nothing.
+      var shown = new Array(nodes.length);
+      var want = new Array(nodes.length);
+      var easingId = 0;
+      var SETTLED = 0.0015;   // close enough to stop, in fractions of a bar
+
+      function ease() {
+        easingId = 0;
+        var moving = false;
+        for (var i = 0; i < bars.length; i++) {
+          var d = want[i] - shown[i];
+          if (Math.abs(d) < SETTLED) shown[i] = want[i];
+          else { shown[i] += d * 0.22; moving = true; }
+          bars[i].style.transform = 'scaleX(' + shown[i].toFixed(3) + ')';
+        }
+        if (moving) easingId = requestAnimationFrame(ease);
       }
+      function nudge() { if (!easingId) easingId = requestAnimationFrame(ease); }
+
+      // First pass has to land the bars where they belong rather than easing
+      // them in from nothing, or the rail grows out of the floor on every load.
+      var primed = false;
 
       onScroll.add(function (p) {
         // The active section is the one whose mark you have just passed, so
-        // it can only be known after the pass. Two passes: the first finds it
-        // and lays the bars out, the second gives the new active bar its full
-        // length and the old one its ordinary one.
+        // it can only be known after the pass that finds it.
         for (var i = 0; i < nodes.length; i++) {
           var reached = p >= marks[i] - 0.02;
           nodes[i].classList.toggle('on', reached);
           if (reached) active = i;
         }
-        var changed = active !== lastActive;
-        var wasActive = lastActive;
-        for (var j = 0; j < nodes.length; j++) {
-          if (changed && (j === wasActive || j === active)) continue;
-          paint(j, p);
-        }
-        if (changed) {
-          if (wasActive >= 0) nodes[wasActive].classList.remove('active');
+        for (var j = 0; j < nodes.length; j++) want[j] = lengthFor(j, p);
+        if (active !== lastActive) {
+          if (lastActive >= 0) nodes[lastActive].classList.remove('active');
           if (active >= 0) nodes[active].classList.add('active');
-          if (wasActive >= 0) paint(wasActive, p);
-          if (active >= 0) paint(active, p);
           lastActive = active;
         }
+        if (!primed) {
+          primed = true;
+          for (var k = 0; k < bars.length; k++) {
+            shown[k] = want[k];
+            bars[k].style.transform = 'scaleX(' + shown[k].toFixed(3) + ')';
+          }
+          return;
+        }
+        nudge();
       });
 
       // Each bar is a real link, so it has to land where it says it does.
