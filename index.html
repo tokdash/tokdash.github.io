@@ -4922,19 +4922,32 @@
       var REVEAL_DELAY = 50; // ms
       var SETTLE_RATE = 50;  // ms settle window
 
-      function easeOutExpo(x) {
-        return x === 1 ? 1 : 1 - Math.pow(2, -10 * x);
+      // The scramble needs one named curve, and this used to ask the library
+      // for it on every frame of every character, which meant building and
+      // parsing the easing again each time. Ask once, keep the function.
+      //
+      // The hand-written copy below is the same curve, checked against the
+      // library's own values at a dozen points, so a page where the library
+      // did not load reads the same rather than differently. The old fallback
+      // was easeOutExpo while the primary was easeInOutExpo, which meant the
+      // failure path quietly changed the feel of the text.
+      function easeInOutExpo(x) {
+        if (x === 0 || x === 1) return x;
+        return x < 0.5
+          ? 0.5 * Math.pow(2, 20 * x - 10)
+          : 1 - 0.5 * Math.pow(2, -20 * x + 10);
       }
+      var SCRAMBLE_EASE = (function () {
+        if (typeof anime === 'undefined' || !anime.easing) return null;
+        try {
+          // anime.js v3 names: 'easeInOutExpo', not v4's 'inOutExpo'.
+          var fn = anime.easing('easeInOutExpo');
+          return typeof fn === 'function' ? fn : null;
+        } catch (e) { return null; }
+      })();
 
       function getEase(p) {
-        if (typeof anime !== 'undefined' && anime.easing) {
-          try {
-            // anime.js v3 names: 'easeInOutExpo', not v4's 'inOutExpo'.
-            var fn = anime.easing('easeInOutExpo');
-            if (typeof fn === 'function') return fn(p);
-          } catch (e) {}
-        }
-        return easeOutExpo(p);
+        return SCRAMBLE_EASE ? SCRAMBLE_EASE(p) : easeInOutExpo(p);
       }
 
       // --- Headings: Fast Char-by-Char Fade-in (No cursor, no scramble) ---
