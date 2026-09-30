@@ -95,9 +95,19 @@
          of white. Panels then sit brighter than what is behind them, the
          inverse of the dark theme, and both end up with one rule. */
       --glass: rgba(255, 255, 255, 0.90);
+      /* Small chips and pills, which carry no backdrop filter. Opaque enough to
+         sit on the card behind them without the card showing through as a
+         rectangle, which is the only thing the blur was ever doing here. */
+      --pill-fill: rgba(255, 255, 255, 0.90);
       --glass-strong: rgba(255, 255, 255, 0.97);
       --glass-line: rgba(40, 38, 34, 0.26);
-      --glass-blur: saturate(160%) blur(20px);
+      /* backdrop-filter has to re-sample and re-blur the backdrop behind an
+         element every time anything behind it moves, which during a scroll is
+         every frame. saturate() is a colour-matrix pass on top of that, and
+         24 tool pills do not need a 20px kernel. Two tiers: the wide blur for
+         the few large surfaces where the glass actually reads, and a narrow one
+         for everything small and repeated. */
+      --glass-blur: blur(14px);
 
       --radius-md: 12px;
       --radius-lg: 16px;
@@ -115,7 +125,6 @@
          A light panel is already near-white, so its top edge has to be a
          faint dark one instead, reinforcing the 1px border it sits under. */
       --hairline: inset 0 1px 0 rgba(40, 38, 34, 0.07);
-      --ring: 0 0 0 1px rgba(40, 38, 34, 0.06);
     }
 
     html.dark {
@@ -136,6 +145,7 @@
          barely register on a near-black page, so separation here comes from
          the fill lift and the hairline doing the work instead. */
       --glass: rgba(152, 180, 238, 0.068);
+      --pill-fill: rgba(255, 255, 255, 0.055);
       --glass-strong: rgba(152, 180, 238, 0.105);
       --glass-line: rgba(190, 212, 252, 0.24);
 
@@ -143,7 +153,6 @@
       --shadow-md: 0 1px 2px rgba(0,0,0,0.55), 0 6px 16px -6px rgba(0,0,0,0.75), 0 16px 36px -14px rgba(0,0,0,0.85);
       --shadow-lg: 0 2px 6px rgba(0,0,0,0.6), 0 16px 40px -12px rgba(0,0,0,0.9), 0 34px 72px -28px rgba(0,0,0,0.95);
       --hairline: inset 0 1px 0 rgba(190, 214, 255, 0.07);
-      --ring: 0 0 0 1px rgba(190, 214, 255, 0.04);
     }
 
     /* ---- Lenis smooth scroll ---- */
@@ -235,6 +244,10 @@
       transition: transform var(--t-fast) ease, box-shadow var(--t-fast) ease, background var(--t-fast) ease, border-color var(--t-fast) ease, color var(--t-fast) ease;
     }
     .btn:focus-visible { outline: none; box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.28); }
+    /* Magnetic offset, rewritten every frame by the cursor loop. It lives in
+       its own custom property and is folded into each element's own transform
+       so the pull composes with the hover lift instead of fighting it. */
+    .btn, .tool-pill { --mx: 0px; --my: 0px; transform: translate3d(var(--mx, 0px), var(--my, 0px), 0); }
     /* Pale at rest, solid on hover: the tint keeps the page calm until a
        pointer actually lands on the action. */
     .btn-primary {
@@ -272,6 +285,13 @@
       border-color: rgba(96, 165, 250, 0.75);
       box-shadow: 0 8px 22px rgba(37, 99, 235, 0.38), 0 3px 6px rgba(37, 99, 235, 0.2);
     }
+    /* The lifts above are the repo's own and are left exactly as they were.
+       These two re-state the same selectors with the offset folded in, purely
+       so the magnetic pull survives a hover instead of being replaced by it.
+       At (0,2,0) they win over the plain .btn rule, without editing the rules
+       they compose with. Same values, same order of effects. */
+    .btn-primary:hover { transform: translate3d(var(--mx, 0px), calc(var(--my, 0px) - 2px), 0); }
+    .btn-primary:active { transform: translate3d(var(--mx, 0px), var(--my, 0px), 0); }
 
     /* The arrow leans into the direction of travel, and a sheen rides across
        the primary button as it fills. The sheen is white on purpose: it only
@@ -291,7 +311,7 @@
       background: rgba(15, 23, 42, 0.04); color: var(--color-text);
       border: 1px solid rgba(226,232,240,0.9);
     }
-    .btn-ghost:hover { background: rgba(15, 23, 42, 0.08); transform: translateY(-1px); border-color: rgba(30,64,175,0.3); }
+    .btn-ghost:hover { background: rgba(15, 23, 42, 0.08); transform: translate3d(var(--mx, 0px), calc(var(--my, 0px) - 1px), 0); border-color: rgba(30,64,175,0.3); }
     html.dark .btn-ghost { background: var(--glass); border-color: var(--glass-line); }
     html.dark .btn-ghost:hover { background: var(--wash, rgba(255,255,255,0.06)); border-color: color-mix(in srgb, var(--color-primary) 40%, var(--glass-line)); }
 
@@ -315,25 +335,39 @@
       color: color-mix(in srgb, var(--color-cta) 86%, var(--color-text));
     }
 
-    /* ---- Nav ---- */
+    /* ---- Nav ----
+       Frosted glass, but the blur is only switched on once the bar is actually
+       sitting over content. At the top of the hero there is nothing behind it
+       to blur, so paying for a full-width backdrop filter there would be cost
+       with no visible return — and a backdrop filter on a fixed-width element
+       has to re-blur on every frame the page moves under it. */
     .site-nav {
       position: sticky; top: 0; z-index: 50;
-      backdrop-filter: blur(14px);
-      background: color-mix(in srgb, var(--color-bg) 78%, transparent);
-      border-bottom: 1px solid color-mix(in srgb, var(--color-border) 70%, transparent);
-      transition: background var(--t-med) ease, box-shadow var(--t-med) ease, border-color var(--t-med) ease;
+      background: color-mix(in srgb, var(--color-bg) 62%, transparent);
+      border-bottom: 1px solid transparent;
+      transition: background var(--t-med) ease, box-shadow var(--t-med) ease,
+                  border-color var(--t-med) ease, backdrop-filter var(--t-med) ease;
     }
-    /* Once the hero starts leaving, the bar earns a real edge instead of
-       floating as a translucent band over moving content. */
+    /* Once the hero starts leaving, the bar earns a real edge and the glass
+       switches on. */
     .site-nav.scrolled {
-      background: color-mix(in srgb, var(--color-bg) 90%, transparent);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      background: color-mix(in srgb, var(--color-bg) 80%, transparent);
       border-bottom-color: var(--color-border);
       box-shadow: 0 10px 30px -14px rgba(15, 23, 42, 0.28);
     }
-    html.dark .site-nav.scrolled { box-shadow: 0 10px 30px -14px rgba(0, 0, 0, 0.7); }
+    html.dark .site-nav.scrolled {
+      background: color-mix(in srgb, var(--color-bg) 72%, transparent);
+      box-shadow: 0 10px 30px -14px rgba(0, 0, 0, 0.7);
+    }
+    @media (prefers-reduced-transparency: reduce) {
+      .site-nav, .site-nav.scrolled { background: var(--color-bg); backdrop-filter: none; -webkit-backdrop-filter: none; }
+    }
     .nav-progress { position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; pointer-events: none; }
     .nav-progress > i {
-      display: block; height: 100%; width: 0;
+      display: block; height: 100%; width: 100%;
+      transform: scaleX(0); transform-origin: 0 50%; will-change: transform;
       background: linear-gradient(90deg, var(--color-primary), var(--color-secondary) 55%, var(--color-cta));
       box-shadow: 0 0 10px color-mix(in srgb, var(--color-primary) 55%, transparent);
     }
@@ -361,10 +395,8 @@
       display: inline-flex; align-items: center; gap: 8px;
       padding: 6px 14px; border-radius: 999px; font-size: 12.5px; font-weight: 600;
       letter-spacing: 0.02em; color: var(--color-primary);
-      background: var(--glass);
+      background: var(--pill-fill);
       border: 1px solid var(--glass-line);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
     }
     .chip .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--color-cta); box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-cta) 22%, transparent); }
 
@@ -495,26 +527,29 @@
     .tool-pill {
       display: flex; align-items: center; gap: 11px; padding: 12px 16px;
       border-radius: 12px; border: 1px solid var(--glass-line);
-      background: var(--glass);
-      backdrop-filter: var(--glass-blur);
-      -webkit-backdrop-filter: var(--glass-blur);
+      background: var(--pill-fill);
       font-weight: 600; font-size: 14.5px; color: var(--color-text); text-decoration: none;
       transition: transform var(--t-fast) ease, border-color var(--t-fast) ease, box-shadow var(--t-fast) ease, background var(--t-fast) ease;
     }
-    html.dark .tool-pill { background: rgba(148, 176, 232, 0.04); }
-    .tool-pill:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--color-primary) 45%, var(--color-border)); box-shadow: var(--shadow-md); }
+    /* Deliberately no backdrop-filter here, and the same goes for .chip below.
+       Both sit on an already-opaque card, behind a veil of 4-7% in dark and 90%
+       in light -- at which strength there is nothing behind them left to blur.
+       All 34 of them did have one, and a backdrop filter has to re-sample what
+       is behind the element on every frame the page scrolls. Twenty-five tool
+       pills and nine chips re-sampling a flat card sixty times a second is
+       what turned a smooth scroll into a stutter, in exchange for an effect
+       that was not visible to begin with. The fill stands in for it. */
+    .tool-pill:hover { transform: translate3d(var(--mx, 0px), calc(var(--my, 0px) - 2px), 0); border-color: color-mix(in srgb, var(--color-primary) 45%, var(--color-border)); box-shadow: var(--shadow-md); }
     .tool-logo { transition: transform var(--t-med) cubic-bezier(0.22, 1, 0.36, 1), box-shadow var(--t-med) ease; }
     .tool-pill:hover .tool-logo { transform: scale(1.12) rotate(-3deg); }
     /* Card icon lifts a touch as its card does — the two read as one object. */
     .feature-icon { transition: transform var(--t-med) cubic-bezier(0.22, 1, 0.36, 1), box-shadow var(--t-med) ease; }
     .surface:hover .feature-icon { transform: translateY(-2px) scale(1.06); box-shadow: 0 8px 18px -8px color-mix(in srgb, var(--color-primary) 60%, transparent); }
-    /* A slow breath under the hero preview keeps the biggest surface alive. */
-    .preview-wrap .surface-static { animation: preview-breathe 9s ease-in-out infinite; }
-    @keyframes preview-breathe {
-      0%, 100% { box-shadow: var(--shadow-md), var(--hairline); }
-      50%      { box-shadow: var(--shadow-lg), var(--hairline); }
-    }
-    @media (prefers-reduced-motion: reduce) { .preview-wrap .surface-static { animation: none; } }
+    /* The hero preview used to carry a 9s infinite box-shadow "breath".
+       box-shadow is paint-only, so that animated forever even at rest and even
+       with nothing on screen: a permanent repaint loop for a decorative hint.
+       The same life is now carried by the JS-driven figure drift further down,
+       which costs nothing while the hero is scrolled away. */
     /* White logo chip, keeping every mark (incl. dark monochrome glyphs) legible in light & dark. */
     .tool-logo { width: 30px; height: 30px; flex: none; object-fit: contain; border-radius: 7px; background: #fff; padding: 4px; box-shadow: inset 0 0 0 1px rgba(15,23,42,0.06); }
     /* Same chip for marks that are wordmarks: they carry the name, so the pill prints no label. */
@@ -545,12 +580,120 @@
     html.dark .l3 { background: #2563EB; } html.dark .l4 { background: #3B82F6; } html.dark .l5 { background: #60A5FA; }
     html.dark .l6 { background: #93C5FD; } html.dark .l7 { background: #BFDBFE; } html.dark .l8 { background: #DBEAFE; } html.dark .l9 { background: #EFF6FF; }
 
+    /* ---- Scroll mini-map ----
+       Fixed, pointer-only and desktop-only: below 1024px the header nav already
+       carries the same information and the column would sit on top of the
+       content. The blur is deliberately not used here — this is a fixed
+       full-height element, so a backdrop filter on it would re-run every frame
+       for the entire scroll. */
+    .minimap {
+      position: fixed; z-index: 40;
+      left: clamp(10px, 1.4vw, 24px); top: 50%; transform: translateY(-50%);
+      pointer-events: none; user-select: none;
+      opacity: 0; transition: opacity 0.6s ease;
+    }
+    html.js .minimap.ready { opacity: 1; }
+    .minimap-rail {
+      list-style: none; margin: 0; padding: 0;
+      display: flex; flex-direction: column; gap: 3px; align-items: flex-start;
+    }
+    /* The bar owns the whole 46px and the label floats beside it, out of flow.
+       In flow, an invisible-but-space-taking label would push the bar off its
+       anchor by whatever that language happens to be long. */
+    .minimap-node {
+      position: relative;
+      display: flex; align-items: center;
+      height: 5px; width: 46px;
+      pointer-events: auto;
+    }
+    /* Bars grow leftwards from a fixed right edge, so the rail has a spine the
+       eye can follow instead of a ragged left edge. */
+    .minimap-bar {
+      display: block; height: 3px; width: 46px; border-radius: 999px;
+      transform: scaleX(0.2); transform-origin: 100% 50%;
+      background: color-mix(in srgb, var(--color-text) 26%, transparent);
+      will-change: transform;
+      transition: background 0.35s ease;
+    }
+    .minimap-node.on .minimap-bar { background: color-mix(in srgb, var(--color-text) 62%, transparent); }
+    .minimap-node.active .minimap-bar { background: var(--color-text); }
+    .minimap-tip {
+      position: absolute; left: calc(100% + 10px); top: 50%;
+      font-family: "Rubik", ui-sans-serif, system-ui, sans-serif;
+      font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--color-text); white-space: nowrap;
+      max-width: 200px; overflow: hidden; text-overflow: ellipsis;
+      padding: 3px 8px; border-radius: 999px;
+      background: color-mix(in srgb, var(--color-bg) 88%, transparent);
+      border: 1px solid var(--glass-line);
+      opacity: 0; transform: translate(-6px, -50%);
+      transition: opacity 0.28s ease, transform 0.28s ease;
+    }
+    .minimap-node:hover .minimap-bar,
+    .minimap-node:focus-visible .minimap-bar { background: var(--color-text); transform: scaleX(1) !important; }
+    .minimap-node:hover .minimap-tip,
+    .minimap-node:focus-visible .minimap-tip { opacity: 1; transform: translate(0, -50%); }
+    @media (max-width: 1023px) { .minimap { display: none; } }
+    html:not(.js) .minimap { display: none; }
+
+    /* ---- Cursor ----
+       A dot that tracks the pointer exactly and a ring that lags behind it.
+       The lag is the whole effect: two elements at different rates read as
+       something with weight, one element just reads as a bigger dot. */
+    .cursor-dot, .cursor-ring {
+      position: fixed; top: 0; left: 0; z-index: 9000;
+      pointer-events: none; border-radius: 50%;
+      opacity: 0; will-change: transform;
+      transition: opacity 0.3s ease;
+    }
+    .cursor-dot { width: 6px; height: 6px; margin: -3px 0 0 -3px; background: var(--color-text); }
+    .cursor-ring {
+      width: 30px; height: 30px; margin: -15px 0 0 -15px;
+      border: 1px solid color-mix(in srgb, var(--color-text) 45%, transparent);
+      transition: opacity 0.3s ease, width 0.28s ease, height 0.28s ease,
+                  margin 0.28s ease, background 0.28s ease, border-color 0.28s ease;
+    }
+    html.js.cursor-on .cursor-dot, html.js.cursor-on .cursor-ring { opacity: 1; }
+    html.js.cursor-on.cursor-hot .cursor-ring {
+      width: 54px; height: 54px; margin: -27px 0 0 -27px;
+      background: color-mix(in srgb, var(--color-text) 7%, transparent);
+      border-color: color-mix(in srgb, var(--color-text) 70%, transparent);
+    }
+    /* The real cursor is only hidden once the replacement is actually on
+       screen, so a device that never gets the effect still has a cursor. */
+    html.js.cursor-on, html.js.cursor-on * { cursor: none !important; }
+    /* Hiding the pointer outright is fine over a control but not over a page
+       of body copy, where the I-beam is the only cue that a word can be
+       selected. Hand the real cursor back for the duration of a text drag
+       and inside form fields. */
+    html.js.cursor-on.cursor-selecting, html.js.cursor-on.cursor-selecting * { cursor: auto !important; }
+    @media (pointer: coarse), (prefers-reduced-motion: reduce) {
+      .cursor-dot, .cursor-ring { display: none; }
+    }
+    /* The rail is not hiding for the same reason as the cursor -- it is
+       pointer-free and legible at rest -- but under reduced motion it is
+       rewritten every frame as the bar lengths track the scroll, which is the
+       thing being asked to stop. The nav's progress hairline still reports
+       position in that case, so nothing is lost by standing this one down. */
+    @media (prefers-reduced-motion: reduce) {
+      .minimap { display: none; }
+    }
+
     /* ---- Mini-dashboard entrance stage ----
        perspective only reaches direct children, so the KPI grid and the
        heatmap each get their own 3D context rather than one on .preview-wrap. */
     .kpi-stage { perspective: 900px; }
     #miniHeat { perspective: 620px; }
-    .kpi-in, .hcell { will-change: transform, opacity; backface-visibility: hidden; }
+    /* Layer promotion for the entrance, and only for the entrance.
+       will-change is a standing instruction to the compositor, not a hint for
+       the next few frames: a promoted element holds its own texture until the
+       property is taken away again. Left on permanently, 140 heatmap cells
+       and 4 KPI cards meant 144 extra composited layers for the rest of the
+       page's life -- which is what turned a smooth scroll into a stutter, and
+       it is invisible until someone scrolls. The script adds `.will-anim`
+       before the timeline runs and drops it the moment the timeline ends. */
+    .kpi-in, .hcell { backface-visibility: hidden; }
+    .kpi-in.will-anim, .hcell.will-anim { will-change: transform, opacity; }
 
     /* floating glow behind preview */
     .preview-wrap { position: relative; }
@@ -1847,7 +1990,7 @@
               <span class="dot-r" style="background:#F87171;"></span>
               <span class="dot-r" style="background:#FBBF24;"></span>
               <span class="dot-r" style="background:#34D399;"></span>
-              <span class="mono text-xs text-muted ml-2 pv-text">tokdash · localhost:55423</span>
+              <span class="mono text-xs text-muted ml-2 pv-text" id="pvClock">tokdash · localhost:55423</span>
               <span class="ml-auto text-[11px] font-bold px-2.5 py-1 rounded-md pv-text" style="background:color-mix(in srgb, var(--color-primary) 12%, transparent); color:var(--color-primary);">Last 4 Weeks</span>
             </div>
 
@@ -2549,6 +2692,28 @@
     </section>
   </main>
 
+  <!-- ============ SCROLL MINI-MAP ============
+       A quiet map of the page down the left edge. Each bar is a section, and
+       its length is how close that section is to where you are reading now, so
+       the rail doubles as a sense of distance. The same destinations are in the
+       header nav, so it is decorative: hidden from assistive tech and out of
+       the tab order. -->
+  <nav class="minimap" aria-hidden="true">
+    <ul class="minimap-rail">
+      <li class="minimap-node"><span class="minimap-bar"></span><span class="minimap-tip"></span></li>
+      <li class="minimap-node"><span class="minimap-bar"></span><span class="minimap-tip"></span></li>
+      <li class="minimap-node"><span class="minimap-bar"></span><span class="minimap-tip"></span></li>
+      <li class="minimap-node"><span class="minimap-bar"></span><span class="minimap-tip"></span></li>
+      <li class="minimap-node"><span class="minimap-bar"></span><span class="minimap-tip"></span></li>
+      <li class="minimap-node"><span class="minimap-bar"></span><span class="minimap-tip"></span></li>
+      <li class="minimap-node"><span class="minimap-bar"></span><span class="minimap-tip"></span></li>
+    </ul>
+  </nav>
+
+  <!-- ============ CURSOR ============ -->
+  <div class="cursor-ring" aria-hidden="true"></div>
+  <div class="cursor-dot" aria-hidden="true"></div>
+
   <!-- ============ FOOTER ============ -->
   <footer class="border-t" style="border-color: color-mix(in srgb, var(--color-border) 70%, transparent);">
     <div class="max-w-[1180px] mx-auto px-4 sm:px-6 py-10 flex flex-col sm:flex-row items-center justify-between gap-6">
@@ -2758,20 +2923,65 @@
     // Lenis fires scroll at frame rate and a momentum trackpad fires faster, so
     // the layout reads are coalesced into one frame. Every subscriber gets the
     // same normalised progress: 0 at the top, 1 at the last scrollable pixel.
+    // ---- Capability gate ----
+    // Everything decorative on this page asks this first. The question is not
+    // "does the user want motion" but "can this device afford it and has the
+    // user not already said no": a coarse pointer means a finger rather than a
+    // cursor, and a device that has told the browser it is on a metered or
+    // memory-constrained connection has told us twice.
+    var canAnimate = (function () {
+      try {
+        if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return false;
+      } catch (e) {}
+      var nav = window.navigator || {};
+      if (nav.connection && (nav.connection.saveData || nav.connection.effectiveType === 'slow-2g' || nav.connection.effectiveType === '2g')) return false;
+      if (typeof nav.deviceMemory === 'number' && nav.deviceMemory <= 2) return false;
+      if (typeof nav.hardwareConcurrency === 'number' && nav.hardwareConcurrency <= 2) return false;
+      return true;
+    })();
+    // Pointer-driven flourishes additionally need a real pointer.
+    var hasFinePointer = window.matchMedia && window.matchMedia('(pointer: fine)').matches;
+
     var onScroll = (function () {
-      var subs = [], queued = false;
+      var subs = [], resizers = [], queued = false;
+      // scrollHeight is a layout read. Taking it inside the scroll frame forces
+      // a synchronous reflow every frame, which is the single most reliable way
+      // to make smooth scrolling feel like it is hitting something. Cache it and
+      // invalidate only when the document can actually have changed size.
+      var vh = window.innerHeight, range = 1;
+      function measure() {
+        vh = window.innerHeight;
+        range = Math.max(1, document.documentElement.scrollHeight - vh);
+        for (var i = 0; i < resizers.length; i++) resizers[i]();
+      }
       function frame() {
         queued = false;
         var y = window.pageYOffset || document.documentElement.scrollTop || 0;
-        var vh = window.innerHeight;
-        var range = Math.max(1, document.documentElement.scrollHeight - vh);
         var p = Math.min(1, Math.max(0, y / range));
         for (var i = 0; i < subs.length; i++) subs[i](p, y, vh, range);
       }
       function request() { if (queued) return; queued = true; requestAnimationFrame(frame); }
       window.addEventListener('scroll', request, { passive: true });
-      window.addEventListener('resize', request, { passive: true });
-      return { add: function (fn) { subs.push(fn); frame(); return fn; }, request: request };
+      window.addEventListener('resize', function () { measure(); request(); }, { passive: true });
+      window.addEventListener('orientationchange', function () { measure(); request(); }, { passive: true });
+      // A late webfont, a language switch, or the heatmap building itself all
+      // change the page height without firing resize.
+      if ('ResizeObserver' in window) {
+        var ro = new ResizeObserver(function () { measure(); request(); });
+        ro.observe(document.body);
+      }
+      measure();
+      return {
+        add: function (fn) { subs.push(fn); frame(); return fn; },
+        // Subscribers that also need to know their own geometry. Anything
+        // reading a rect belongs here rather than in the scroll frame -- a
+        // subscriber that re-measures per frame reintroduces exactly the
+        // forced reflow this driver exists to avoid, no matter how careful
+        // the driver itself is.
+        onResize: function (fn) { resizers.push(fn); fn(); return fn; },
+        request: request,
+        remeasure: measure
+      };
     })();
 
     // Sticky nav state + reading progress
@@ -2781,7 +2991,7 @@
       if (!nav && !bar) return;
       onScroll.add(function (p, y) {
         if (nav) nav.classList.toggle('scrolled', y > 8);
-        if (bar) bar.style.width = (p * 100) + '%';
+        if (bar) bar.style.transform = 'scaleX(' + p + ')';
       });
     })();
 
@@ -2933,7 +3143,18 @@
         if (played) return;
         played = true;
 
-        var tl = anime.timeline({ easing: 'cubicBezier(0.22, 1, 0.36, 1)' });
+        // Ask for the layers the entrance needs, and only for the entrance.
+        // The reveal engine already releases its own promotions when it
+        // finishes; without the same here, 140 cells sit on their own
+        // compositor layers for the rest of the session.
+        kpis.concat(cells).forEach(function (el) { el.classList.add('will-anim'); });
+
+        var tl = anime.timeline({
+          easing: 'cubicBezier(0.22, 1, 0.36, 1)',
+          complete: function () {
+            kpis.concat(cells).forEach(function (el) { el.classList.remove('will-anim'); });
+          }
+        });
 
         kpis.forEach(function (kpi, i) {
           tl.add({
@@ -3007,6 +3228,393 @@
         });
         mo.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
       }
+    })();
+
+    // ---- The hero keeps running ----
+    // A screenshot of a dashboard tells you what the product looks like. One
+    // that is quietly ticking tells you it is alive and local. Everything here
+    // is deliberately slow and small-amplitude: the reader should notice it
+    // only if they keep looking, and it has to survive being left open on a
+    // laptop all day.
+    //
+    // The whole block is gated twice over. `canAnimate` covers the device and
+    // the motion preference; the IntersectionObserver means none of it runs
+    // once the hero has scrolled away, which is where the battery cost would
+    // otherwise go.
+    (function () {
+      if (!canAnimate) return;
+      var dash = document.querySelector('.preview-dash');
+      if (!dash) return;
+      if (typeof anime === 'undefined') return;
+
+      var clock = document.getElementById('pvClock');
+      var vals = Array.prototype.slice.call(dash.querySelectorAll('.kpi-val'));
+      var cells = Array.prototype.slice.call(dash.querySelectorAll('#miniHeat .hcell'));
+      if (!clock && !vals.length && !cells.length) return;
+
+      // Parse "48.2M" / "$312.40" / "5,847" into an affix, a number and a unit,
+      // so a drifting figure keeps reading exactly like a real one.
+      function parseFigure(el) {
+        var text = el.textContent.trim();
+        var m = text.match(/^([^\d.-]*)(-?[\d.,]+)([\s\S]*)$/);
+        if (!m) return null;
+        var raw = m[2];
+        var end = parseFloat(raw.replace(/,/g, ''));
+        if (!isFinite(end)) return null;
+        return {
+          pre: m[1], post: m[3], end: end,
+          decimals: ((raw.split('.')[1] || '').match(/\d/g) || []).length,
+          grouped: raw.indexOf(',') !== -1
+        };
+      }
+      function writeFigure(f, v) {
+        var n = f.grouped ? Math.round(v).toLocaleString('en-US') : v.toFixed(f.decimals);
+        return f.pre + n + f.post;
+      }
+      var figures = vals.map(function (el) {
+        var f = parseFigure(el);
+        return f ? { el: el, f: f } : null;
+      }).filter(Boolean);
+
+      // Drift each figure on its own period and phase so they never move
+      // together — synchronised motion reads as an animation loop, and
+      // unsynchronised motion reads as data.
+      var drifts = figures.map(function (o, i) {
+        return {
+          o: o,
+          // Long periods on purpose. At five seconds the reset is visible and
+          // the number reads as bouncing; at twenty it reads as a figure that
+          // is genuinely being written to.
+          period: 17000 + i * 4200 + (i % 3) * 2600,
+          phase: (i * 5100) % 17000,
+          spread: o.f.end * 0.004 + (i % 2 ? 0.25 : 0.6)
+        };
+      });
+
+      var clockBase = 9 * 3600 + 41 * 60 + 7;   // a plausible mid-morning start
+      var clockT = 0;
+
+      var running = true, rafId = 0, last = 0;
+      function tick(now) {
+        if (!running) return;
+        var dt = last ? Math.min(64, now - last) : 16;
+        last = now;
+
+        for (var i = 0; i < drifts.length; i++) {
+          var d = drifts[i];
+          var phase = ((now + d.phase) % d.period) / d.period;
+          var wave = Math.sin(phase * Math.PI * 2);
+          // A slow ramp with a breath on top reads as a figure being written;
+          // a pure sine reads as a bouncing toy. The ramp is deliberately tiny
+          // so the reset at the top of the period is imperceptible.
+          var creep = phase * 0.012;
+          d.o.el.textContent = writeFigure(d.o.f, d.o.f.end * (1 + creep) + wave * d.spread);
+        }
+
+        if (clock) {
+          clockT += dt * 0.0035;                     // roughly 3x real time
+          var total = Math.floor(clockBase + clockT) % 86400;
+          var hh = String(Math.floor(total / 3600)).padStart(2, '0');
+          var mm = String(Math.floor((total % 3600) / 60)).padStart(2, '0');
+          var ss = String(Math.floor(total % 60)).padStart(2, '0');
+          clock.textContent = 'tokdash · localhost:55423 · ' + hh + ':' + mm + ':' + ss;
+        }
+
+        rafId = requestAnimationFrame(tick);
+      }
+
+      // The heatmap gets a single quiet sweep rather than a loop: cells fade up
+      // in a random order, hold, then the whole thing resets. Doing this
+      // forever on 140 elements is the one thing here that could cost real
+      // battery, so it runs on a long cycle and only once per visit.
+      if (cells.length) {
+        var order = cells.map(function (_, i) { return i; });
+        for (var s = order.length - 1; s > 0; s--) {
+          var j = Math.floor(Math.random() * (s + 1));
+          var tmp = order[s]; order[s] = order[j]; order[j] = tmp;
+        }
+        var sweep = anime({
+          targets: cells,
+          opacity: [0.18, 1],
+          duration: 420,
+          easing: 'linear',
+          delay: anime.stagger(6, { from: 0 }),
+          loop: true,
+          loopDelay: 3200
+        });
+        cells.forEach(function (c, i) { c.style.opacity = '0.18'; });
+        sweep.play();
+      }
+
+      rafId = requestAnimationFrame(tick);
+
+      if ('IntersectionObserver' in window) {
+        var io = new IntersectionObserver(function (entries) {
+          var visible = entries.some(function (e) { return e.isIntersecting; });
+          if (visible && !running) {
+            running = true; last = 0; rafId = requestAnimationFrame(tick);
+          } else if (!visible && running) {
+            running = false; cancelAnimationFrame(rafId);
+          }
+        }, { threshold: 0.05 });
+        io.observe(dash);
+      }
+      document.addEventListener('visibilitychange', function () {
+        if (document.hidden) { running = false; cancelAnimationFrame(rafId); }
+        else if (!running) { running = true; last = 0; rafId = requestAnimationFrame(tick); }
+      });
+    })();
+
+    // ---- Scroll-linked depth ----
+    // Flat sections read as a stack of cards. Giving each framed mockup a small
+    // counter-move against the scroll is what makes the page feel like it has
+    // a plane the reader is travelling across. Amplitudes are tiny on purpose:
+    // anything larger stops reading as depth and starts reading as a bug.
+    (function () {
+      if (!canAnimate) return;
+      var hero = document.querySelector('.preview-wrap');
+      var bands = Array.prototype.slice.call(document.querySelectorAll('.band .surface, #companion .surface'));
+      if (!hero && !bands.length) return;
+
+      function depth(el, strength) {
+        // Geometry is read once, on resize, and never again. The scroll frame
+        // gets viewport position by subtracting the scroll offset from a
+        // stored document position, which is arithmetic. Asking for a rect per
+        // frame instead would force a synchronous layout on every one of them,
+        // which is the single easiest way to make a scroll feel like it is
+        // dragging something behind it.
+        var docTop = 0, height = 0;
+        onScroll.onResize(function () {
+          var r = el.getBoundingClientRect();
+          docTop = r.top + (window.pageYOffset || document.documentElement.scrollTop || 0);
+          height = r.height;
+        });
+        onScroll.add(function (p, y, vh) {
+          var top = docTop - y;
+          if (top + height < -200 || top > vh + 200) return;   // off-screen: leave it
+          // -1 .. 1 as the element crosses the viewport, 0 when centred.
+          var through = (top + height / 2 - vh / 2) / (vh / 2 + height / 2);
+          through = Math.max(-1, Math.min(1, through));
+          el.style.transform = 'translate3d(0,' + (through * strength).toFixed(2) + 'px,0)';
+        });
+      }
+      if (hero) depth(hero, 46);
+      bands.forEach(function (el) { depth(el, 18); });
+    })();
+
+    // ---- Scroll mini-map ----
+    (function () {
+      var map = document.querySelector('.minimap');
+      if (!map) return;
+      var nodes = Array.prototype.slice.call(map.querySelectorAll('.minimap-node'));
+      if (!nodes.length) return;
+      var ids = ['top', 'tools', 'features', 'servers', 'optimize', 'companion', 'install'];
+
+      var sections = ids.map(function (id) {
+        return id === 'top' ? document.body : document.getElementById(id);
+      });
+      if (sections.some(function (s) { return !s; })) return;
+
+      var marks = [];
+      var tips = nodes.map(function (n) { return n.querySelector('.minimap-tip'); });
+      var bars = nodes.map(function (n) { return n.querySelector('.minimap-bar'); });
+
+      // Tip labels are borrowed from copy the page already carries rather than
+      // spelled out in English here. A rail that reads "Companion app" on a
+      // Japanese page is worse than no rail at all, and adding seven more keys
+      // in six languages would be a second dictionary to keep in step with the
+      // first. Each section's eyebrow chip is the shortest label it already
+      // has; the nav link covers the sections with no chip; the heading is the
+      // last resort. The wordmark stands in for the hero, which is a product
+      // name in every language anyway.
+      function eyebrowText(sec) {
+        var chip = sec.querySelector('[data-i18n$="eyebrow"]');
+        return chip ? chip.textContent.trim() : '';
+      }
+      function navText(id) {
+        var a = document.querySelector('.site-nav a[href="#' + id + '"]');
+        return a ? a.textContent.trim() : '';
+      }
+      function headingText(sec) {
+        var h = sec.querySelector('h1, h2');
+        return h ? h.textContent.trim() : '';
+      }
+      function labelFor(sec, id) {
+        if (id === 'top') return 'Tokdash';
+        return eyebrowText(sec) || navText(id) || headingText(sec);
+      }
+      function refreshTips() {
+        sections.forEach(function (sec, i) {
+          if (tips[i]) tips[i].textContent = labelFor(sec, ids[i]);
+        });
+      }
+      refreshTips();
+      document.addEventListener('tokdash:lang', refreshTips);
+
+      function measure() {
+        var vh = window.innerHeight;
+        var range = Math.max(1, document.documentElement.scrollHeight - vh);
+        marks = sections.map(function (sec) {
+          var r = sec.getBoundingClientRect();
+          var top = r.top + window.pageYOffset;
+          // Where the section is "reached" is a third of the way down it: by
+          // then its heading is on screen and its content is what you read.
+          return Math.min(1, Math.max(0, ((top + r.height * 0.34) - vh * 0.5) / range));
+        });
+      }
+      // The driver's own ResizeObserver covers everything this used to poll
+      // for: a late webfont, a language switch, the heatmap filling in, a
+      // rotate. Re-reading scrollHeight every frame instead was a forced
+      // layout on every frame of every scroll.
+      onScroll.onResize(measure);
+
+      var active = -1, lastActive = -1;
+      onScroll.add(function (p) {
+        for (var i = 0; i < nodes.length; i++) {
+          // Length is proximity, not progress: the section you are reading or
+          // about to read is the longest bar, so the rail doubles as a sense
+          // of how far away everything else is.
+          var d = Math.abs(p - marks[i]) / Math.max(0.08, Math.min(p, 1 - p) + 0.08);
+          var near = Math.max(0.16, 1 - Math.min(1, d));
+          bars[i].style.transform = 'scaleX(' + near.toFixed(3) + ')';
+
+          var reached = p >= marks[i] - 0.02;
+          nodes[i].classList.toggle('on', reached);
+          if (reached) active = i;
+        }
+        if (active !== lastActive) {
+          if (lastActive >= 0) nodes[lastActive].classList.remove('active');
+          if (active >= 0) nodes[active].classList.add('active');
+          lastActive = active;
+        }
+      });
+
+      map.classList.add('ready');
+      // Late-arriving content (fonts, the heatmap) changes where the sections
+      // start, so take one more reading once the page has settled. Everything
+      // after this is the driver's ResizeObserver.
+      window.addEventListener('load', function () { onScroll.remeasure(); });
+    })();
+
+    // ---- Cursor and magnetic controls ----
+    (function () {
+      if (!canAnimate || !hasFinePointer) return;
+      var dot = document.querySelector('.cursor-dot');
+      var ring = document.querySelector('.cursor-ring');
+      if (!dot || !ring) return;
+
+      var dx = window.innerWidth / 2, dy = window.innerHeight / 2;
+      var rx = dx, ry = dy, shown = false;
+
+      window.addEventListener('mousemove', function (e) {
+        if (!shown) { shown = true; rx = e.clientX; ry = e.clientY; document.documentElement.classList.add('cursor-on'); }
+        dx = e.clientX; dy = e.clientY;
+      }, { passive: true });
+
+      document.addEventListener('mouseleave', function () { document.documentElement.classList.remove('cursor-on'); shown = false; });
+      document.addEventListener('mouseenter', function () { if (shown) document.documentElement.classList.add('cursor-on'); });
+
+      var HOT = 'a, button, select, [data-cmd], .tool-pill, .surface, .minimap-node, .chip, .cmd';
+      document.addEventListener('mouseover', function (e) {
+        var t = e.target.closest ? e.target.closest(HOT) : null;
+        document.documentElement.classList.toggle('cursor-hot', !!t);
+      }, { passive: true });
+
+      // Magnetic pull: interactive elements drift toward the pointer while it
+      // is within reach, and spring back to rest once it leaves. Capped at 7px
+      // so the pull reads as responsiveness rather than as broken layout.
+      //
+      // Geometry is cached in document space and re-read only on resize. Asking
+      // each button for a rect every frame meant thirty-two forced layouts,
+      // sixty times a second, for the entire time the page was open -- not just
+      // while scrolling, but while someone sat and read. Subtracting the scroll
+      // offset from a stored position is arithmetic, and the pointer and the
+      // scroll offset are both already on hand.
+      var magnets = [], magnetTheme = null;
+      function syncMagnets() {
+        magnets = Array.prototype.slice.call(document.querySelectorAll('.btn, .tool-pill')).map(function (el) {
+          var r = el.getBoundingClientRect();
+          var y0 = window.pageYOffset || document.documentElement.scrollTop || 0;
+          return { el: el, cx: r.left + r.width / 2, cy: r.top + y0 + r.height / 2, hw: r.width / 2, hh: r.height / 2 };
+        });
+      }
+      function refreshMagnets() {
+        var themed = document.documentElement.classList.contains('dark');
+        if (themed === magnetTheme) { syncMagnets(); return; }
+        magnetTheme = themed;
+        syncMagnets();
+      }
+      onScroll.onResize(refreshMagnets);
+
+      // Radius within which an element starts to be drawn, measured from its
+      // edge. Wider than the 7px pull so the button starts moving before the
+      // pointer is on it -- that lead time is the whole effect.
+      var REACH = 46;
+      var PULL = 7;
+      var lastMX = -1, lastMY = -1, lastY = -1, still = 0;
+
+      function loop() {
+        rx += (dx - rx) * 0.16;
+        ry += (dy - ry) * 0.16;
+        dot.style.transform = 'translate3d(' + dx + 'px,' + dy + 'px,0)';
+        ring.style.transform = 'translate3d(' + rx.toFixed(2) + 'px,' + ry.toFixed(2) + 'px,0)';
+
+        var y = window.pageYOffset || document.documentElement.scrollTop || 0;
+        // Neither the pointer nor the page has moved, so no button can be in a
+        // new place relative to either. A pointer sitting still should not cost
+        // thirty style writes a frame -- but a scroll with a still pointer does
+        // move the buttons, so it counts as motion.
+        if (dx === lastMX && dy === lastMY && y === lastY) {
+          if (++still > 3) { requestAnimationFrame(loop); return; }
+        } else { still = 0; }
+        lastMX = dx; lastMY = dy; lastY = y;
+
+        var vh = window.innerHeight;
+        for (var i = 0; i < magnets.length; i++) {
+          var m = magnets[i], ox = 0, oy = 0;
+          var cx = m.cx, cy = m.cy - y;
+          if (cy + m.hh > -REACH && cy - m.hh < vh + REACH) {
+            ox = (dx - cx) * 0.18;
+            oy = (dy - cy) * 0.22;
+            // Falloff is measured from the button's own edge, not per axis.
+            // Normalising each axis separately would mean that lining up with
+            // the button's row is enough to pull it at full strength from a
+            // hundred pixels away, which turns a whole nav into jelly. The
+            // pointer being over the button is distance zero, and the pull
+            // fades to nothing one reach-radius out from there.
+            var gapX = Math.max(0, Math.abs(dx - cx) - m.hw);
+            var gapY = Math.max(0, Math.abs(dy - cy) - m.hh);
+            var fall = 1 - Math.min(1, Math.hypot(gapX, gapY) / REACH);
+            ox *= fall; oy *= fall;
+            var mag = Math.hypot(ox, oy);
+            if (mag > PULL) { ox = ox / mag * PULL; oy = oy / mag * PULL; }
+          }
+
+          var oxs = ox.toFixed(2) + 'px', oys = oy.toFixed(2) + 'px';
+          // Written through a custom property so the pull composes with the
+          // hover lift instead of overwriting it -- the button's own
+          // transform stays in charge of where it sits.
+          if (m.el.style.getPropertyValue('--mx') !== oxs) {
+            m.el.style.setProperty('--mx', oxs);
+            m.el.style.setProperty('--my', oys);
+          }
+        }
+        requestAnimationFrame(loop);
+      }
+      requestAnimationFrame(loop);
+
+      // The custom cursor replaces the native one, which would otherwise leave
+      // a text site with no I-beam over its own body copy. Give the real cursor
+      // back for the duration of a drag-select and for form fields, where
+      // two cursors on one target is worse than either alone.
+      function selecting(on) { document.documentElement.classList.toggle('cursor-selecting', on); }
+      document.addEventListener('mousedown', function (e) {
+        selecting(!!(e.target.closest && e.target.closest('input, textarea, [contenteditable]')));
+      }, { passive: true });
+      document.addEventListener('mouseup', function () { selecting(false); }, { passive: true });
+      document.addEventListener('selectstart', function (e) {
+        if (e.target && e.target.tagName === 'INPUT') selecting(true);
+      }, { passive: true });
     })();
 
     // ---- Scroll-driven Staggered Reveal Engine ----
@@ -4042,6 +4650,12 @@
         var sel = document.getElementById('langToggle');
         if (sel && document.activeElement !== sel) sel.value = selectedLang();
         window.__lang = lang;
+        // The applier above just rewrote every translated node, so anything
+        // that reads copy out of the DOM to reuse it -- the scroll mini-map
+        // derives its labels from section headings and nav links -- has to be
+        // told to re-read. One event, rather than a second copy of the
+        // dictionary to keep in step with the first.
+        try { document.dispatchEvent(new CustomEvent('tokdash:lang', { detail: { lang: lang } })); } catch (e) {}
       }
 
       window.__syncLanderTokens = function (lang) {
@@ -4697,7 +5311,14 @@
       }
 
       function resize() {
-        dpr = Math.min(window.devicePixelRatio || 1, 2);
+        // Capped below the display's own ratio, unlike every other layer on
+        // the page. This one is redrawn in full on every frame, forever, over
+        // the whole viewport -- at 2x on a retina screen that is four times
+        // the pixels, every frame, competing with the scroll. Measured by
+        // scrolling 3000px: the canvas was costing about a third of the total
+        // frame time. The particles are soft dots and faint lines, so 1.5x is
+        // indistinguishable from 2x and gives back 44% of the fill.
+        dpr = Math.min(window.devicePixelRatio || 1, 1.5);
         width = window.innerWidth;
         height = window.innerHeight;
         canvas.width = Math.floor(width * dpr);
