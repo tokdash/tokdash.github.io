@@ -588,14 +588,14 @@
        for the entire scroll. */
     .minimap {
       position: fixed; z-index: 40;
-      left: clamp(10px, 1.4vw, 24px); top: 50%; transform: translateY(-50%);
+      right: clamp(10px, 1.4vw, 24px); top: 50%; transform: translateY(-50%);
       pointer-events: none; user-select: none;
       opacity: 0; transition: opacity 0.6s ease;
     }
     html.js .minimap.ready { opacity: 1; }
     .minimap-rail {
       list-style: none; margin: 0; padding: 0;
-      display: flex; flex-direction: column; gap: 3px; align-items: flex-start;
+      display: flex; flex-direction: column; gap: 3px; align-items: flex-end;
     }
     /* The bar owns the whole 46px and the label floats beside it, out of flow.
        In flow, an invisible-but-space-taking label would push the bar off its
@@ -606,11 +606,11 @@
       height: 5px; width: 46px;
       pointer-events: auto;
     }
-    /* Bars grow leftwards from a fixed right edge, so the rail has a spine the
-       eye can follow instead of a ragged left edge. */
+    /* Bars grow rightwards from a fixed left edge, so the rail has a spine the
+       eye can follow instead of a ragged outer edge. */
     .minimap-bar {
       display: block; height: 3px; width: 46px; border-radius: 999px;
-      transform: scaleX(0.2); transform-origin: 100% 50%;
+      transform: scaleX(0.2); transform-origin: 0% 50%;
       background: color-mix(in srgb, var(--color-text) 26%, transparent);
       will-change: transform;
       transition: background 0.35s ease;
@@ -618,7 +618,7 @@
     .minimap-node.on .minimap-bar { background: color-mix(in srgb, var(--color-text) 62%, transparent); }
     .minimap-node.active .minimap-bar { background: var(--color-text); }
     .minimap-tip {
-      position: absolute; left: calc(100% + 10px); top: 50%;
+      position: absolute; right: calc(100% + 10px); top: 50%;
       font-family: "Rubik", ui-sans-serif, system-ui, sans-serif;
       font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
       color: var(--color-text); white-space: nowrap;
@@ -626,7 +626,7 @@
       padding: 3px 8px; border-radius: 999px;
       background: color-mix(in srgb, var(--color-bg) 88%, transparent);
       border: 1px solid var(--glass-line);
-      opacity: 0; transform: translate(-6px, -50%);
+      opacity: 0; transform: translate(6px, -50%);
       transition: opacity 0.28s ease, transform 0.28s ease;
     }
     .minimap-node:hover .minimap-bar,
@@ -641,7 +641,7 @@
        The lag is the whole effect: two elements at different rates read as
        something with weight, one element just reads as a bigger dot. */
     .cursor-dot, .cursor-ring {
-      position: fixed; top: 0; left: 0; z-index: 9000;
+      position: fixed; top: 0; left: 0; z-index: 10020;
       pointer-events: none; border-radius: 50%;
       opacity: 0; will-change: transform;
       transition: opacity 0.3s ease;
@@ -3232,10 +3232,15 @@
 
     // ---- The hero keeps running ----
     // A screenshot of a dashboard tells you what the product looks like. One
-    // that is quietly ticking tells you it is alive and local. Everything here
-    // is deliberately slow and small-amplitude: the reader should notice it
-    // only if they keep looking, and it has to survive being left open on a
-    // laptop all day.
+    // that is quietly updating tells you it is alive and local.
+    //
+    // The figures hold still and then jump, the way a real one does: a new
+    // reading lands every few seconds and the digits roll to it. An earlier
+    // version drifted continuously and always upward, which was wrong twice
+    // over -- a number that never stops moving reads as a screensaver rather
+    // than as data, and one that only ever climbs reads as a lie. Here every
+    // step is signed and the gap between steps is randomised, so two visits
+    // never look the same and no figure is reliably rising.
     //
     // The whole block is gated twice over. `canAnimate` covers the device and
     // the motion preference; the IntersectionObserver means none of it runs
@@ -3253,7 +3258,7 @@
       if (!clock && !vals.length && !cells.length) return;
 
       // Parse "48.2M" / "$312.40" / "5,847" into an affix, a number and a unit,
-      // so a drifting figure keeps reading exactly like a real one.
+      // so an updating figure keeps reading exactly like a real one.
       function parseFigure(el) {
         var text = el.textContent.trim();
         var m = text.match(/^([^\d.-]*)(-?[\d.,]+)([\s\S]*)$/);
@@ -3271,97 +3276,101 @@
         var n = f.grouped ? Math.round(v).toLocaleString('en-US') : v.toFixed(f.decimals);
         return f.pre + n + f.post;
       }
-      var figures = vals.map(function (el) {
+
+      var running = true;
+
+      // Each figure keeps its own anchor, which is what it wanders around, and
+      // its own value, which is what is on screen. Separating them is what
+      // stops the drift compounding: a long run of same-signed steps decays
+      // toward the anchor instead of walking off.
+      var tickers = vals.map(function (el, i) {
         var f = parseFigure(el);
-        return f ? { el: el, f: f } : null;
+        if (!f) return null;
+        return {
+          el: el, f: f, value: f.end, anchor: f.end,
+          // Different figures land at different times, so the four never
+          // change in unison -- synchronised motion reads as a loop.
+          next: 2600 + i * 1500 + Math.random() * 3200
+        };
       }).filter(Boolean);
 
-      // Drift each figure on its own period and phase so they never move
-      // together — synchronised motion reads as an animation loop, and
-      // unsynchronised motion reads as data.
-      var drifts = figures.map(function (o, i) {
-        return {
-          o: o,
-          // Long periods on purpose. At five seconds the reset is visible and
-          // the number reads as bouncing; at twenty it reads as a figure that
-          // is genuinely being written to.
-          period: 17000 + i * 4200 + (i % 3) * 2600,
-          phase: (i * 5100) % 17000,
-          spread: o.f.end * 0.004 + (i % 2 ? 0.25 : 0.6)
-        };
-      });
-
-      var clockBase = 9 * 3600 + 41 * 60 + 7;   // a plausible mid-morning start
-      var clockT = 0;
-
-      var running = true, rafId = 0, last = 0;
-      function tick(now) {
-        if (!running) return;
-        var dt = last ? Math.min(64, now - last) : 16;
-        last = now;
-
-        for (var i = 0; i < drifts.length; i++) {
-          var d = drifts[i];
-          var phase = ((now + d.phase) % d.period) / d.period;
-          var wave = Math.sin(phase * Math.PI * 2);
-          // A slow ramp with a breath on top reads as a figure being written;
-          // a pure sine reads as a bouncing toy. The ramp is deliberately tiny
-          // so the reset at the top of the period is imperceptible.
-          var creep = phase * 0.012;
-          d.o.el.textContent = writeFigure(d.o.f, d.o.f.end * (1 + creep) + wave * d.spread);
-        }
-
-        if (clock) {
-          clockT += dt * 0.0035;                     // roughly 3x real time
-          var total = Math.floor(clockBase + clockT) % 86400;
-          var hh = String(Math.floor(total / 3600)).padStart(2, '0');
-          var mm = String(Math.floor((total % 3600) / 60)).padStart(2, '0');
-          var ss = String(Math.floor(total % 60)).padStart(2, '0');
-          clock.textContent = 'tokdash · localhost:55423 · ' + hh + ':' + mm + ':' + ss;
-        }
-
-        rafId = requestAnimationFrame(tick);
+      function step(t) {
+        // Signed, so the figure is as likely to fall as to rise.
+        var pct = (Math.random() * 2 - 1) * 0.028;
+        var target = t.anchor * (1 + pct);
+        var box = { v: t.value };
+        anime({
+          targets: box,
+          v: target,
+          duration: 620,
+          easing: 'cubicBezier(0.22, 1, 0.36, 1)',
+          update: function () {
+            if (!running) return;
+            t.el.textContent = writeFigure(t.f, box.v);
+          },
+          complete: function () {
+            t.value = target;
+            t.anchor += (t.anchor - target) * 0.35;   // decay toward the anchor
+            if (running) t.el.textContent = writeFigure(t.f, target);
+          }
+        });
       }
 
-      // The heatmap gets a single quiet sweep rather than a loop: cells fade up
-      // in a random order, hold, then the whole thing resets. Doing this
-      // forever on 140 elements is the one thing here that could cost real
-      // battery, so it runs on a long cycle and only once per visit.
+      function schedule(t) {
+        setTimeout(function () {
+          if (running) step(t);
+          // Re-randomised every time, so the gaps between readings are not
+          // themselves a pattern the eye can lock onto.
+          t.next = 2400 + Math.random() * 5200;
+          schedule(t);
+        }, t.next);
+      }
+      tickers.forEach(schedule);
+
+      // The clock runs in real time. It was previously scaled up about
+      // threefold, which meant five seconds of the page passing cost fifteen
+      // seconds of the clock -- the giveaway that the panel was not real.
+      var clockBase = 9 * 3600 + 41 * 60 + 7;   // a plausible mid-morning start
+      var clockFrom = performance.now();
+      function paintClock() {
+        if (!running) return;
+        var total = Math.floor(clockBase + (performance.now() - clockFrom) / 1000) % 86400;
+        var hh = String(Math.floor(total / 3600)).padStart(2, '0');
+        var mm = String(Math.floor((total % 3600) / 60)).padStart(2, '0');
+        var ss = String(Math.floor(total % 60)).padStart(2, '0');
+        clock.textContent = 'tokdash · localhost:55423 · ' + hh + ':' + mm + ':' + ss;
+      }
+      paintClock();
+      setInterval(paintClock, 1000);
+
+      // The heatmap gets one settle and then stops. It was looping every three
+      // seconds, which meant a hundred and forty cells were perpetually
+      // re-fading -- the single most attention-grabbing thing on the page, and
+      // the least like a dashboard that has just finished loading.
       if (cells.length) {
         var order = cells.map(function (_, i) { return i; });
         for (var s = order.length - 1; s > 0; s--) {
           var j = Math.floor(Math.random() * (s + 1));
           var tmp = order[s]; order[s] = order[j]; order[j] = tmp;
         }
-        var sweep = anime({
+        cells.forEach(function (c) { c.style.opacity = '0.22'; });
+        anime({
           targets: cells,
-          opacity: [0.18, 1],
+          opacity: 1,
           duration: 420,
           easing: 'linear',
-          delay: anime.stagger(6, { from: 0 }),
-          loop: true,
-          loopDelay: 3200
+          delay: anime.stagger(6, { from: 0 })
         });
-        cells.forEach(function (c, i) { c.style.opacity = '0.18'; });
-        sweep.play();
       }
-
-      rafId = requestAnimationFrame(tick);
 
       if ('IntersectionObserver' in window) {
         var io = new IntersectionObserver(function (entries) {
-          var visible = entries.some(function (e) { return e.isIntersecting; });
-          if (visible && !running) {
-            running = true; last = 0; rafId = requestAnimationFrame(tick);
-          } else if (!visible && running) {
-            running = false; cancelAnimationFrame(rafId);
-          }
+          running = entries.some(function (e) { return e.isIntersecting; });
         }, { threshold: 0.05 });
         io.observe(dash);
       }
       document.addEventListener('visibilitychange', function () {
-        if (document.hidden) { running = false; cancelAnimationFrame(rafId); }
-        else if (!running) { running = true; last = 0; rafId = requestAnimationFrame(tick); }
+        running = !document.hidden && dash.getBoundingClientRect().bottom > 0;
       });
     })();
 
@@ -3506,6 +3515,11 @@
       var dx = window.innerWidth / 2, dy = window.innerHeight / 2;
       var rx = dx, ry = dy, shown = false;
 
+      // The ring closes the gap quickly and then coasts. Chasing the pointer
+      // at a constant lag reads as a broken cursor, because it is always
+      // behind; easing in hard and settling out slowly reads as weight.
+      var RING_EASE = 0.38;
+
       window.addEventListener('mousemove', function (e) {
         if (!shown) { shown = true; rx = e.clientX; ry = e.clientY; document.documentElement.classList.add('cursor-on'); }
         dx = e.clientX; dy = e.clientY;
@@ -3513,6 +3527,14 @@
 
       document.addEventListener('mouseleave', function () { document.documentElement.classList.remove('cursor-on'); shown = false; });
       document.addEventListener('mouseenter', function () { if (shown) document.documentElement.classList.add('cursor-on'); });
+
+      // The intro lander is the first thing a returning visitor sees, and it
+      // paints at z-index 10010. The cursor used to sit at 9000, which put it
+      // underneath the one screen where a first impression is being made.
+      document.addEventListener('pointerdown', function () {
+        if (!shown) return;
+        document.documentElement.classList.add('cursor-on');
+      }, { passive: true });
 
       var HOT = 'a, button, select, [data-cmd], .tool-pill, .surface, .minimap-node, .chip, .cmd';
       document.addEventListener('mouseover', function (e) {
@@ -3554,8 +3576,8 @@
       var lastMX = -1, lastMY = -1, lastY = -1, still = 0;
 
       function loop() {
-        rx += (dx - rx) * 0.16;
-        ry += (dy - ry) * 0.16;
+        rx += (dx - rx) * RING_EASE;
+        ry += (dy - ry) * RING_EASE;
         dot.style.transform = 'translate3d(' + dx + 'px,' + dy + 'px,0)';
         ring.style.transform = 'translate3d(' + rx.toFixed(2) + 'px,' + ry.toFixed(2) + 'px,0)';
 
@@ -5256,8 +5278,8 @@
       if (typeof Lenis === 'undefined') return;
 
       var lenis = new Lenis({
-        lerp: 0.0821,
-        wheelMultiplier: 0.95,
+        lerp: 0.062,
+        wheelMultiplier: 0.88,
         touchMultiplier: 1.2,
         smoothWheel: true,
         gestureOrientation: 'vertical',
