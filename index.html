@@ -2785,9 +2785,13 @@
               duration: 550,
               easing: 'easeInOutExpo'
             });
+            // The rays are visible while they open rather than appearing at
+            // the same moment they finish opening. Fading in on its own
+            // shorter timing, the way the reveals do, is the difference
+            // between watching a sun come up and watching a shape materialise.
             anime({
               targets: themeRays,
-              opacity: [0, 1],
+              opacity: { value: [0, 1], duration: 240, easing: 'linear' },
               scale: [0.2, 1],
               rotate: [-45, 0],
               duration: 500,
@@ -2802,9 +2806,12 @@
               duration: 550,
               easing: 'easeInOutExpo'
             });
+            // Going the other way the fade is late rather than early, so the
+            // rays are still there while they fold away instead of vanishing
+            // and then shrinking into nothing.
             anime({
               targets: themeRays,
-              opacity: [1, 0],
+              opacity: { value: [1, 0], duration: 320, easing: 'linear' },
               scale: [1, 0.2],
               rotate: [0, -45],
               duration: 450,
@@ -4007,12 +4014,18 @@
         }
 
         if (fills.length > 0) {
+          // Filled shapes used an ease-in curve, so they were invisible for
+          // the first two hundred and forty milliseconds of their six hundred
+          // and then arrived all at once, just as the outline finished. A
+          // fill that is there early and an outline drawn on top of it read
+          // as one object being assembled; a fill that arrives last read as a
+          // second object turning up.
           anime({
             targets: fills,
             opacity: [0, 1],
             duration: 600,
             delay: anime.stagger(80, { start: 400 }),
-            easing: 'easeInOutExpo'
+            easing: 'easeOutQuad'
           });
         }
       }
@@ -5254,7 +5267,11 @@
             // 1. Container badge shape morph: circle -> squircle, scale, rotate, glowing pulse
             anime({
               targets: icon,
-              opacity: [0, 1],
+              // The badge is readable while it is still turning into a
+              // squircle. On the full 850ms curve it spent the first third
+              // of a second at almost no strength and the reader waited for
+              // the shape to arrive before they could read the line beside it.
+              opacity: { value: [0, 1], duration: 300, easing: 'linear' },
               scale: [0.35, 1],
               rotate: [-35, 0],
               borderRadius: ['50%', '9px'],
