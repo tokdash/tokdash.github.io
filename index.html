@@ -3759,17 +3759,36 @@
       root.classList.add('anim-active');
       var handledSet = new WeakSet();
 
+      // Per-property timing, which is the one thing here worth taking from the
+      // library's own notes. Travelling and fading on one curve means the text
+      // is still arriving at the same moment the card is, so the eye follows
+      // the movement and reads nothing until it stops. Letting the opacity
+      // finish early and the position settle on a spring means the words are
+      // already legible while the card is still finding its place, and the
+      // spring leaves it with about a pixel of overshoot on the way, which is
+      // what separates an arrival from a slide.
+      //
+      // Under reduced motion both collapse to one plain fade, and the spring
+      // is not used at all.
+      function lift(el, travel, duration, delay) {
+        var p = { targets: el, duration: isReduced ? 550 : duration };
+        if (isReduced) {
+          p.opacity = [0, 1];
+          p.easing = 'linear';
+        } else {
+          p.opacity = { value: [0, 1], duration: duration * 0.5, easing: 'linear' };
+          p.translateY = { value: [travel, 0], easing: 'spring(1, 120, 14, 0)' };
+        }
+        if (delay != null) p.delay = delay;
+        return p;
+      }
+
       // Spring-lift animation for a single element
       function animateSingle(el) {
         if (!el || handledSet.has(el) || el.classList.contains('in')) return;
         handledSet.add(el);
 
-        anime({
-          targets: el,
-          opacity: [0, 1],
-          translateY: isReduced ? [0, 0] : [26, 0],
-          duration: isReduced ? 550 : 750,
-          easing: isReduced ? 'linear' : 'cubicBezier(0.22, 1, 0.36, 1)',
+        anime(Object.assign(lift(el, 26, 750), {
           begin: function () {
             el.style.willChange = 'transform, opacity';
           },
@@ -3778,7 +3797,7 @@
             el.style.willChange = '';
             el.style.transform = '';
           }
-        });
+        }));
       }
 
       // Cascading stagger animation for a group/grid of cards
@@ -3790,13 +3809,8 @@
 
         unhandled.forEach(function (el) { handledSet.add(el); });
 
-        anime({
-          targets: unhandled,
-          opacity: [0, 1],
-          translateY: isReduced ? [0, 0] : [28, 0],
-          duration: isReduced ? 550 : 750,
-          delay: anime.stagger(isReduced ? 25 : (staggerMs || 55), { start: 40 }),
-          easing: isReduced ? 'linear' : 'cubicBezier(0.22, 1, 0.36, 1)',
+        var params = lift(unhandled, 28, 750, anime.stagger(isReduced ? 25 : (staggerMs || 55), { start: 40 }));
+        Object.assign(params, {
           begin: function (anim) {
             anim.animatables.forEach(function (a) {
               a.target.style.willChange = 'transform, opacity';
