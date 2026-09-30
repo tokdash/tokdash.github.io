@@ -5413,6 +5413,12 @@
           if (ic && ic.classList.contains('morphed') && typeof anime !== 'undefined') {
             var strokables = getStrokables(ic.querySelector('svg'));
             if (strokables.length > 0) {
+              // Leaving a row while its lines are still drawing and coming
+              // back used to start a second draw on top of the first, so the
+              // line jumped backwards to wherever the old tween had got to
+              // and then drew again. Stopping what is already running first
+              // is what the logo morph above already does.
+              anime.remove(strokables);
               anime({
                 targets: strokables,
                 strokeDashoffset: [anime.setDashoffset, 0],
