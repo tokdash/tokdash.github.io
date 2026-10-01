@@ -303,24 +303,6 @@
             total. No account, no upload, no telemetry.
           </p>
 
-          <div class="reveal flex flex-wrap items-center gap-2.5 mt-5" aria-label="Tokdash at a glance">
-            <span class="chip" data-i18n="hero.tag1" id="heroTag1"><span class="dot"></span> Twenty-seven agents, one dashboard</span>
-            <span class="chip" data-i18n="hero.tag2">WSL, macOS and Linux servers, combined</span>
-          </div>
-
-          <div class="reveal flex flex-wrap items-center gap-3 mt-8">
-            <button class="cmd" data-cmd="pipx install tokdash" aria-label="Copy: pipx install tokdash">
-              <span><span class="prompt">$</span>&nbsp;pipx install tokdash</span>
-              <span class="copy-ic" aria-hidden="true">
-                <svg id="copyGlyph" class="copy-glyph" width="14" height="14" viewBox="0 0 24 24" fill="none" style="overflow:visible;">
-                  <path class="copy-back" d="M 5 15 L 5 5 L 16 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  <path class="copy-front" d="M 9 9 L 20 9 L 20 20 L 9 20 L 9 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </span>
-            </button>
-            <a href="/demo/" class="mono text-sm" style="color:var(--color-primary);">tokdash.github.io/demo</a>
-          </div>
-
           <!-- Proof strip: only claims the product can actually back up. The
                figure lives *inside* the translated string, so word order and
                counters stay natural in all six languages. -->
@@ -339,11 +321,6 @@
             </span>
           </div>
 
-          <!-- Fades out on the first real scroll, once the reader commits. -->
-          <div class="scroll-hint reveal" aria-hidden="true">
-            <span class="scroll-hint-mouse"><i></i></span>
-            <span class="scroll-hint-text" data-i18n="hero.scroll">Scroll</span>
-          </div>
         </div>
 
         <!-- Preview mini-dashboard -->
@@ -431,7 +408,10 @@
 
           <div class="flex flex-wrap items-center gap-3 mt-8">
             <a href="https://github.com/JingbiaoMei/Tokdash" target="_blank" rel="noopener" class="btn btn-ghost" data-i18n="start.cta_docs">Read the docs</a>
-            <a href="/demo/" class="mono text-sm" style="color:var(--color-primary);">tokdash.github.io/demo</a>
+            <a href="/demo/" class="btn btn-primary">
+              <span class="mono">tokdash.github.io/demo</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
           </div>
 
           <p class="text-xs text-muted mt-4" data-i18n="start.upgrade">Already set up? Upgrade any time with <code class="mono" style="color:var(--color-primary);">tokdash update</code>.</p>
