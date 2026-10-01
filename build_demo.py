@@ -74,8 +74,8 @@ def render(upstream_html: str) -> str:
     i = once(html, "  <!-- Fonts (Design System: Fira Code / Fira Sans) -->")
     html = html[:i] + MOCK_LOADER + "\n" + html[i:]
 
-    # 3. Demo banner, at the top of the body content container.
-    anchor = '  <div class="max-w-[1200px] mx-auto">\n'
+    # 3. Demo banner, at the top of the main viewport (sidebar era shell, v2.6.6+).
+    anchor = '    <div class="w-full max-w-[1680px] p-4 sm:p-6 lg:p-8 space-y-6">\n'
     i = once(html, anchor) + len(anchor)
     html = html[:i] + DEMO_BANNER + html[i:]
 

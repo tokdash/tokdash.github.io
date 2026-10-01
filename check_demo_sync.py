@@ -100,6 +100,13 @@ def upstream_manifest(upstream: Path) -> dict:
         "release_notes": (upstream / "src/tokdash/static/release-notes.json").read_text(encoding="utf-8"),
         "themes_css": (upstream / "src/tokdash/static/themes.css").read_text(encoding="utf-8"),
         "theme_config": (upstream / "src/tokdash/static/theme-config.js").read_text(encoding="utf-8"),
+        # The animation modules: the shell lazy-imports these at runtime, so a
+        # site copy that trails the package 404s them on first paint.
+        "js_files": {
+            str(p.relative_to(upstream / "src/tokdash/static")):
+            p.read_text(encoding="utf-8")
+            for p in sorted((upstream / "src/tokdash/static/js").rglob("*.js"))
+        },
     }
 
 
@@ -157,6 +164,15 @@ def compare(report: Report, upstream: Path, mock: dict, mock_error: str) -> None
     reported = here("static/theme-config.js")
     report.check("static/theme-config.js is upstream's", reported == up["theme_config"],
                  first_difference(reported, up["theme_config"]))
+
+    # The lazy-imported animation modules, mirrored file for file.
+    for rel, want in up["js_files"].items():
+        path = ROOT / "static" / rel
+        if not path.is_file():
+            report.check(f"static/{rel} is upstream's", False, "the site does not carry this module")
+            continue
+        got = path.read_text(encoding="utf-8")
+        report.check(f"static/{rel} is upstream's", got == want, first_difference(got, want))
 
     # 3. Release notes: the same file, and its own `current` agrees with the package.
     notes_text = here("static/release-notes.json")

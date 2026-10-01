@@ -6,6 +6,10 @@
    theme as "html.dark .comp-mock ...". Mock text stays English. */
 .comp-mock { position: relative; overflow: hidden; user-select: none; container-type: inline-size; }
 .comp-mock .os-frame { position: relative; overflow: hidden; height: 580px; font-size: 14px; line-height: 1.45; }
+/* v1.1 shipped shape (hero + rank strips + glance + grouped quota + per-server):
+   both flyouts are far taller than the old two-row mock, so the desktops grow
+   with them; equal heights keep the two figures visually level. */
+.comp-mock .mac-frame, .comp-mock .win-frame { height: 1240px; }
 @media (prefers-reduced-transparency: reduce) {
   .comp-mock .mac-pop, .comp-mock .win-fly { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
 }
@@ -111,27 +115,18 @@ html.dark .comp-mock .mac-hero .kicker { color: rgba(235,235,245,0.55); }
 .comp-mock .mac-hero .big { font-size: 30px; font-weight: 650; letter-spacing: -0.01em; line-height: 1.15; margin: 0; }
 .comp-mock .mac-hero .sub { font-size: 12.5px; color: rgba(60,60,67,0.78); margin: 2px 0 0; }
 html.dark .comp-mock .mac-hero .sub { color: rgba(235,235,245,0.65); }
-.comp-mock .mac-hero .cmp { font-size: 12.5px; margin: 5px 0 0; display: flex; align-items: center; gap: 4px; }
+.comp-mock .mac-hero .cmp { font-size: 12px; margin: 5px 0 0; display: flex; align-items: center; flex-wrap: wrap; gap: 4px; row-gap: 2px; }
+.comp-mock .mac-hero .cmp span, .comp-mock .win-hero .cmp span { white-space: nowrap; flex: none; }
 .comp-mock .mac-frame .cmp.down { color: #248A3D; }
 .comp-mock .mac-frame .cmp.up { color: #D70015; }
 html.dark .comp-mock .mac-frame .cmp.down { color: #32D74B; }
 html.dark .comp-mock .mac-frame .cmp.up { color: #FF6961; }
 
-.comp-mock .mac-month { display: flex; align-items: baseline; gap: 10px; font-size: 12.5px; }
-.comp-mock .mac-month .kicker {
-  font-size: 11px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase;
-  color: rgba(60,60,67,0.62);
-}
-html.dark .comp-mock .mac-month .kicker { color: rgba(235,235,245,0.55); }
-.comp-mock .mac-month .val { font-weight: 600; }
-.comp-mock .mac-month .muted { color: rgba(60,60,67,0.72); }
-html.dark .comp-mock .mac-month .muted { color: rgba(235,235,245,0.6); }
-
-.comp-mock .mac-quota .kicker {
+.comp-mock .mac-quota .kicker, .comp-mock .mac-glance .kicker, .comp-mock .mac-srv .kicker {
   font-size: 11px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase;
   color: rgba(60,60,67,0.62); margin: 0 0 8px;
 }
-html.dark .comp-mock .mac-quota .kicker { color: rgba(235,235,245,0.55); }
+html.dark .comp-mock .mac-quota .kicker, html.dark .comp-mock .mac-glance .kicker, html.dark .comp-mock .mac-srv .kicker { color: rgba(235,235,245,0.55); }
 .comp-mock .qrow { margin: 0 0 10px; }
 .comp-mock .qrow:last-child { margin-bottom: 0; }
 .comp-mock .qrow .qtop { display: flex; align-items: baseline; gap: 8px; font-size: 12.5px; }
@@ -147,11 +142,6 @@ html.dark .comp-mock .mac-frame .qbar { background: rgba(235,235,245,0.16); }
 .comp-mock .mac-frame .qbar > i.fine { background: #30A74C; }
 .comp-mock .mac-frame .qbar > i.mid { background: #FF9F0A; }
 .comp-mock .mac-frame .qbar > i.low { background: #FF453A; }
-
-.comp-mock .mac-activity { font-size: 12px; color: rgba(60,60,67,0.68); }
-html.dark .comp-mock .mac-activity { color: rgba(235,235,245,0.55); }
-.comp-mock .mac-activity b { font-weight: 500; color: rgba(29,29,31,0.85); }
-html.dark .comp-mock .mac-activity b { color: rgba(242,242,242,0.8); }
 
 .comp-mock .mac-actions { display: flex; gap: 8px; align-items: center; }
 .comp-mock .mac-btn {
@@ -331,21 +321,14 @@ html.dark .comp-mock .win-hero .kicker { color: #B0B0B0; }
 .comp-mock .win-hero .big { font-size: 28px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.2; margin: 0; }
 .comp-mock .win-hero .sub { font-size: 12.5px; color: #4D4D4D; margin: 3px 0 0; }
 html.dark .comp-mock .win-hero .sub { color: #C2C2C2; }
-.comp-mock .win-hero .cmp { font-size: 12.5px; margin: 6px 0 0; display: flex; align-items: center; gap: 5px; }
+.comp-mock .win-hero .cmp { font-size: 12px; margin: 6px 0 0; display: flex; align-items: center; flex-wrap: wrap; row-gap: 2px; gap: 5px; }
 .comp-mock .win-frame .cmp.down { color: #0F7B0F; }
 .comp-mock .win-frame .cmp.up { color: #C42B1C; }
 html.dark .comp-mock .win-frame .cmp.down { color: #6CCB5F; }
 html.dark .comp-mock .win-frame .cmp.up { color: #FF99A4; }
 
-.comp-mock .win-month { display: flex; align-items: baseline; gap: 10px; font-size: 12.5px; }
-.comp-mock .win-month .kicker { font-size: 11px; font-weight: 600; letter-spacing: 0.03em; text-transform: uppercase; color: #5F5F5F; }
-html.dark .comp-mock .win-month .kicker { color: #B0B0B0; }
-.comp-mock .win-month .val { font-weight: 600; }
-.comp-mock .win-month .muted { color: #4D4D4D; }
-html.dark .comp-mock .win-month .muted { color: #C2C2C2; }
-
-.comp-mock .win-quota .kicker { font-size: 11px; font-weight: 600; letter-spacing: 0.03em; text-transform: uppercase; color: #5F5F5F; margin: 0 0 10px; }
-html.dark .comp-mock .win-quota .kicker { color: #B0B0B0; }
+.comp-mock .win-quota .kicker, .comp-mock .win-glance .kicker, .comp-mock .win-srv .kicker { font-size: 11px; font-weight: 600; letter-spacing: 0.03em; text-transform: uppercase; color: #5F5F5F; margin: 0 0 10px; }
+html.dark .comp-mock .win-quota .kicker, html.dark .comp-mock .win-glance .kicker, html.dark .comp-mock .win-srv .kicker { color: #B0B0B0; }
 .comp-mock .win-fly .qrow { margin: 0 0 12px; }
 .comp-mock .win-fly .qrow:last-child { margin-bottom: 0; }
 .comp-mock .win-fly .qrow .qreset { color: #5F5F5F; font-size: 12px; }
@@ -360,11 +343,6 @@ html.dark .comp-mock .win-fly .qbar { background: rgba(255,255,255,0.14); }
 html.dark .comp-mock .win-fly .qbar > i.fine { background: #6CCB5F; }
 html.dark .comp-mock .win-fly .qbar > i.mid { background: #F7630C; }
 html.dark .comp-mock .win-fly .qbar > i.low { background: #FF99A4; }
-
-.comp-mock .win-activity { font-size: 12px; color: #5F5F5F; }
-html.dark .comp-mock .win-activity { color: #B0B0B0; }
-.comp-mock .win-activity b { font-weight: 600; color: #2B2B2B; }
-html.dark .comp-mock .win-activity b { color: #E0E0E0; }
 
 .comp-mock .win-actions { display: flex; gap: 8px; align-items: center; }
 .comp-mock .win-btn {
@@ -399,6 +377,103 @@ html.dark .comp-mock .win-foot { background: rgba(255,255,255,0.04); border-top-
 .comp-mock .win-foot .fresh { font-size: 11px; color: #767676; }
 html.dark .comp-mock .win-foot .fresh { color: #9A9A9A; }
 .comp-mock .win-foot .grow { flex: 1; min-width: 4px; }
+/* ===== v1.1 companion shape (lifted from the shipped UI_DEMO.html) =====
+   Period segment in the hero row, Top tools / Top models rank strips, the
+   activity-glance histogram, quota provider groups with brand marks + the
+   Codex reset-credit note, and the per-server rows. */
+
+/* hero row: period kicker + Today/Week/Month/Year segment, right-aligned */
+.comp-mock .hero-top { display: flex; align-items: center; gap: 8px; }
+.comp-mock .hero-top .kicker { margin: 0; }
+.comp-mock .segp { display: inline-flex; border: 0.5px solid rgba(60,60,67,0.25); border-radius: 7px; overflow: hidden; margin-left: auto; flex: none; }
+html.dark .comp-mock .mac-frame .segp { border-color: rgba(235,235,245,0.28); }
+.comp-mock .segp button { appearance: none; border: 0; background: transparent; font: inherit; font-size: 11.5px; color: rgba(60,60,67,0.7); padding: 2px 8px 3px; cursor: pointer; }
+html.dark .comp-mock .mac-frame .segp button { color: rgba(235,235,245,0.6); }
+.comp-mock .mac-frame .segp button[aria-pressed="true"] { background: #fff; color: #1D1D1F; font-weight: 600; box-shadow: 0 0.5px 2px rgba(0,0,0,0.15); }
+html.dark .comp-mock .mac-frame .segp button[aria-pressed="true"] { background: rgba(255,255,255,0.22); color: #F2F2F2; }
+
+/* brand marks: rank rows + quota group headers (black marks invert on dark) */
+.comp-mock .hl-svg { width: 15px; height: 15px; border-radius: 4px; display: block; flex: none; }
+.comp-mock .qgroup .hl-svg { width: 14px; height: 14px; }
+html.dark .comp-mock .hl-invert { filter: invert(1) brightness(1.6); }
+
+/* Top tools / Top models rank strips inside the hero */
+.comp-mock .rankgrp { margin-top: 9px; }
+.comp-mock .rankkicker { font-size: 10px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: rgba(60,60,67,0.5); margin: 0 0 4px; }
+html.dark .comp-mock .mac-frame .rankkicker { color: rgba(235,235,245,0.45); }
+.comp-mock .rank { display: flex; flex-direction: column; gap: 3px; }
+.comp-mock .rank .rrow { display: flex; align-items: center; gap: 7px; font-size: 12px; }
+.comp-mock .rank .rname { min-width: 96px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.comp-mock .rank .rbar { flex: 1; height: 4px; border-radius: 2px; background: rgba(60,60,67,0.12); overflow: hidden; }
+html.dark .comp-mock .mac-frame .rank .rbar { background: rgba(235,235,245,0.14); }
+.comp-mock .rank .rbar > i { display: block; height: 100%; border-radius: 2px; background: #0A6CFF; }
+html.dark .comp-mock .mac-frame .rank .rbar > i { background: #0A84FF; }
+.comp-mock .rank .rpct { width: 32px; text-align: right; font-variant-numeric: tabular-nums; color: rgba(60,60,67,0.7); }
+html.dark .comp-mock .mac-frame .rank .rpct { color: rgba(235,235,245,0.6); }
+.comp-mock .rank .rtok { width: 52px; text-align: right; font-variant-numeric: tabular-nums; color: rgba(60,60,67,0.5); }
+html.dark .comp-mock .mac-frame .rank .rtok { color: rgba(235,235,245,0.45); }
+.comp-mock .mac-frame .cmp .down { color: #248A3D; }
+.comp-mock .mac-frame .cmp .up { color: #D70015; }
+html.dark .comp-mock .mac-frame .cmp .down { color: #32D74B; }
+html.dark .comp-mock .mac-frame .cmp .up { color: #FF6961; }
+
+/* activity glance: hour histogram */
+.comp-mock .hist { display: flex; align-items: flex-end; gap: 2px; height: 40px; margin-top: 6px; }
+.comp-mock .hist i { flex: 1; min-height: 1.5px; background: #0A6CFF; opacity: 0.85; border-radius: 1.5px 1.5px 0 0; }
+html.dark .comp-mock .mac-frame .hist i { background: #0A84FF; }
+.comp-mock .hlabel { font-size: 10.5px; color: rgba(60,60,67,0.55); margin-top: 5px; }
+html.dark .comp-mock .mac-frame .hlabel { color: rgba(235,235,245,0.45); }
+
+/* quota provider groups + Codex reset-credit note */
+.comp-mock .qgroup { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; margin: 10px 0 5px; }
+.comp-mock .credit-note {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 11.5px; color: #9A6A00;
+  border-left: 2px solid #E8A13A; padding: 2px 0 3px 8px; margin: 7px 0 2px;
+}
+html.dark .comp-mock .mac-frame .credit-note { color: #FFD60A; border-left-color: #FFD60A; }
+.comp-mock .credit-note .cn-bolt { flex: none; }
+.comp-mock .credit-note .cn-text { font-weight: 600; }
+.comp-mock .credit-note .cn-label { margin-left: auto; opacity: 0.6; font-weight: 400; }
+
+/* per-server rows */
+.comp-mock .srv-rows { display: flex; flex-direction: column; gap: 3px; font-size: 12px; }
+.comp-mock .srv-rows .srow { display: flex; gap: 8px; align-items: baseline; }
+.comp-mock .srv-rows .sname { font-weight: 500; }
+.comp-mock .srv-rows .scost { margin-left: auto; font-variant-numeric: tabular-nums; }
+.comp-mock .srv-rows .sdim { color: rgba(60,60,67,0.6); }
+html.dark .comp-mock .mac-frame .srv-rows .sdim { color: rgba(235,235,245,0.5); }
+
+/* Windows skin overrides for the v1.1 pieces */
+.comp-mock .win-fly .segp { border: 1px solid rgba(0,0,0,0.15); border-radius: 4px; }
+html.dark .comp-mock .win-fly .segp { border-color: rgba(255,255,255,0.2); }
+.comp-mock .win-fly .segp button { color: #4D4D4D; }
+html.dark .comp-mock .win-fly .segp button { color: #B0B0B0; }
+.comp-mock .win-fly .segp button[aria-pressed="true"] { background: #fff; color: #1B1B1B; font-weight: 600; box-shadow: 0 1px 3px rgba(0,0,0,0.14); }
+html.dark .comp-mock .win-fly .segp button[aria-pressed="true"] { background: rgba(255,255,255,0.18); color: #F3F3F3; }
+.comp-mock .win-fly .rankkicker { color: #5F5F5F; }
+html.dark .comp-mock .win-fly .rankkicker { color: #B0B0B0; }
+.comp-mock .win-fly .rank .rbar { background: rgba(0,0,0,0.10); }
+html.dark .comp-mock .win-fly .rank .rbar { background: rgba(255,255,255,0.14); }
+.comp-mock .win-fly .rank .rbar > i { background: #0067C0; }
+html.dark .comp-mock .win-fly .rank .rbar > i { background: #4CC2FF; }
+.comp-mock .win-fly .rank .rpct { color: #5F5F5F; }
+html.dark .comp-mock .win-fly .rank .rpct { color: #B0B0B0; }
+.comp-mock .win-fly .rank .rtok { color: #8C8C8C; }
+html.dark .comp-mock .win-fly .rank .rtok { color: #8A8A8A; }
+.comp-mock .win-frame .cmp .down { color: #0F7B0F; }
+.comp-mock .win-frame .cmp .up { color: #C42B1C; }
+html.dark .comp-mock .win-frame .cmp .down { color: #6CCB5F; }
+html.dark .comp-mock .win-frame .cmp .up { color: #FF99A4; }
+.comp-mock .win-fly .hist i { background: #0067C0; }
+html.dark .comp-mock .win-fly .hist i { background: #4CC2FF; }
+.comp-mock .win-fly .hlabel { color: #5F5F5F; }
+html.dark .comp-mock .win-fly .hlabel { color: #B0B0B0; }
+.comp-mock .win-fly .credit-note { color: #8A5A00; border-left-color: #CA5010; }
+html.dark .comp-mock .win-fly .credit-note { color: #FCE100; border-left-color: #F7630C; }
+.comp-mock .win-fly .srv-rows .sdim { color: #5F5F5F; }
+html.dark .comp-mock .win-fly .srv-rows .sdim { color: #B0B0B0; }
+
 /* ===== Claude Code statusline mock (third companion figure) =====
    Reuses the page's .terminal pattern; only scoped tweaks live here.
    (.comp-wide spans the section's sm:grid-cols-2 grid, because landing.css is
@@ -420,3 +495,27 @@ html.dark .comp-mock .win-foot .fresh { color: #9A9A9A; }
 .comp-mock .sl-red { color: #E06C75; }
 .comp-mock .sl-claude { color: #FF8700; }
 .comp-mock .sl-codex { color: #00AF87; }
+
+/* ===== TUI overview mock (#tui section) =====
+   Sits in the same .terminal slab as the statusline mock; the terminal is a
+   dark object in both themes, so these need no html.dark variants.
+   Heatmap colors ride inline on the cells; layout lives here. */
+.comp-mock .tui-kpis { display: flex; gap: 8px; }
+.comp-mock .tui-kpi {
+  flex: 1; min-width: 0;
+  border: 1px solid rgba(255,255,255,0.10); border-radius: 6px;
+  padding: 8px 10px; background: rgba(255,255,255,0.03);
+  display: flex; flex-direction: column; gap: 2px;
+}
+.comp-mock .tui-kpi-k { font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: #94A3B8; }
+.comp-mock .tui-kpi-v { font-size: 15px; font-weight: 700; color: #FFFFFF; white-space: nowrap; }
+.comp-mock .tui-cap { margin: 14px 0 6px; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: #94A3B8; }
+.comp-mock .tui-heat-row { display: flex; gap: 3px; margin-bottom: 3px; }
+.comp-mock .tui-heat-row > div { flex: 1; min-width: 6px; height: 12px; border-radius: 2px; }
+.comp-mock .tui-keys { margin-top: 14px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; flex-wrap: wrap; gap: 6px; font-size: 11px; color: #94A3B8; white-space: nowrap; }
+.comp-mock .tui-key {
+  display: inline-block; min-width: 16px; text-align: center;
+  padding: 0 4px; border: 1px solid rgba(255,255,255,0.18); border-radius: 4px;
+  background: rgba(255,255,255,0.06); color: #E2E8F0; font-size: 10.5px; line-height: 16px;
+}
+.comp-mock .tui-keys-gap { width: 10px; flex: none; }

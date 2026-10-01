@@ -170,9 +170,6 @@ with sync_playwright() as p:
     assert "Report" in text("#features .surface >> nth=1"), "feature card 2 is not the Report tab"
     assert THEME_COUNT in text("#features .surface >> nth=5"), "theme count card is stale"
 
-    # Cost section reads the data instead of inventing a savings figure.
-    assert "Cache hit" in text("#optimize .readout-box"), "cost readout did not land"
-
     # English fallback markup must match the English dictionary, so the page reads
     # the same before JavaScript runs and with it switched off.
     html = (ROOT / "index.html").read_text(encoding="utf-8")
@@ -325,7 +322,7 @@ with sync_playwright() as p:
         moving.on("pageerror", lambda e: errors.append(str(e)))
         moving.goto(f"http://127.0.0.1:{PORT}/", wait_until="domcontentloaded")
         animated = moving.locator(
-            "[data-i18n='feat.h'], [data-i18n='feat.sub'], .opt-li, [data-i18n='cta.h']"
+            "[data-i18n='feat.h'], [data-i18n='feat.sub'], .opt-li, [data-i18n='srv.1.h']"
         )
         for i in range(animated.count()):
             animated.nth(i).scroll_into_view_if_needed()
@@ -366,7 +363,7 @@ with sync_playwright() as p:
         assert not hidden, f"{width}px: {len(hidden)} blocks never revealed, page reads blank: {hidden[:4]}"
         clipped = moving.evaluate(
             """() => [...document.querySelectorAll(
-                "[data-i18n='feat.h'], [data-i18n='feat.sub'], .opt-li [data-i18n], [data-i18n='cta.h']")]
+                "[data-i18n='feat.h'], [data-i18n='feat.sub'], .opt-li [data-i18n], [data-i18n='srv.1.h']")]
               .filter((el) => el.scrollWidth > el.clientWidth + 1)
               .map((el) => el.getAttribute('data-i18n'))"""
         )

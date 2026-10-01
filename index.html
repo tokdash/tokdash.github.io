@@ -196,7 +196,7 @@
       <div id="landerChipsGrid" class="lander-chips-grid">
         <div class="lander-story-chip">
           <span class="chip-dot"></span>
-          <span>Twenty-four agents, one dashboard</span>
+          <span>Twenty-seven agents, one dashboard</span>
         </div>
         <div class="lander-story-chip">
           <span class="chip-dot"></span>
@@ -243,8 +243,7 @@
 
       <nav class="hidden md:flex items-center gap-1" aria-label="Primary">
         <a href="#features" class="nav-link" data-i18n="nav.features">Features</a>
-        <a href="#tools" class="nav-link" data-i18n="nav.tools">Tools</a>
-        <a href="#privacy" class="nav-link" data-i18n="nav.privacy">Privacy</a>
+        <a href="#tui" class="nav-link" data-i18n="nav.tui">TUI</a>
         <a href="#companion" class="nav-link" data-i18n="nav.companion">Companion</a>
         <a href="#install" class="nav-link" data-i18n="nav.install">Install</a>
         <a href="/demo/" class="nav-link" data-i18n="nav.demo">Demo</a>
@@ -300,12 +299,12 @@
 
           <p id="heroParagraph" class="reveal text-base sm:text-lg text-muted mt-5 max-w-xl" data-i18n="hero.sub">
             Tokdash reads the logs already on your machine and shows exactly how many tokens you burn, and what they
-            cost, across twenty-four coding agents. Add the rest of your machines as servers and read them as one
+            cost, across twenty-seven coding agents. Add the rest of your machines as servers and read them as one
             total. No account, no upload, no telemetry.
           </p>
 
           <div class="reveal flex flex-wrap items-center gap-2.5 mt-5" aria-label="Tokdash at a glance">
-            <span class="chip" data-i18n="hero.tag1" id="heroTag1"><span class="dot"></span> Twenty-four agents, one dashboard</span>
+            <span class="chip" data-i18n="hero.tag1" id="heroTag1"><span class="dot"></span> Twenty-seven agents, one dashboard</span>
             <span class="chip" data-i18n="hero.tag2">WSL, macOS and Linux servers, combined</span>
           </div>
 
@@ -319,10 +318,7 @@
                 </svg>
               </span>
             </button>
-            <a href="/demo/" class="btn btn-primary">
-              <span data-i18n="hero.cta_demo">View live demo</span>
-              <svg class="svg-drawable" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </a>
+            <a href="/demo/" class="mono text-sm" style="color:var(--color-primary);">tokdash.github.io/demo</a>
           </div>
 
           <!-- Proof strip: only claims the product can actually back up. The
@@ -331,7 +327,7 @@
           <div class="proof reveal" aria-label="Tokdash at a glance">
             <span class="proof-item">
               <span class="tick" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="m5 13 4 4L19 7" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-              <span data-i18n="hero.proof1"><b>24</b> coding agents</span>
+              <span data-i18n="hero.proof1"><b>27</b> coding agents</span>
             </span>
             <span class="proof-item">
               <span class="tick" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="m5 13 4 4L19 7" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
@@ -400,67 +396,65 @@
       </div>
     </section>
 
-    <!-- ============ TRUST / LOGOS ============ -->
-    <section id="privacy" class="max-w-[1180px] mx-auto px-4 sm:px-6 py-6">
-      <div class="surface surface-static p-6 sm:p-8">
-        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div class="reveal">
-            <div class="feature-icon mb-3"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 2 4 5v6c0 5 3.4 8.5 8 11 4.6-2.5 8-6 8-11V5l-8-3z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="m9 12 2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-            <h3 class="font-bold" data-i18n="trust.local.h">100% local</h3>
-            <p class="text-sm text-muted mt-1" data-i18n="trust.local.p">Reads logs already on your disk. Nothing is ever uploaded.</p>
+    <!-- ============ GET STARTED / SETUP ============ -->
+    <span id="start" style="position:relative;top:-88px;display:block;" aria-hidden="true"></span>
+    <section id="install" data-section="setup" class="max-w-[1180px] mx-auto px-4 sm:px-6 py-14 lg:py-20">
+      <div class="grid lg:grid-cols-2 gap-10 lg:gap-14 items-center">
+        <div class="reveal">
+          <span class="chip" data-i18n="start.eyebrow"><span class="dot"></span> Get started</span>
+          <h2 class="sec-title font-extrabold tracking-tight mt-5" data-i18n="start.h">Up and running in 30 seconds</h2>
+          <p class="text-muted mt-3 max-w-md" data-i18n="start.sub">Python package, one command to install, one to set up. Your data never leaves your laptop.</p>
+
+          <ol class="mt-8 space-y-5">
+            <li class="flex gap-4">
+              <span class="step-num">1</span>
+              <div>
+                <h3 class="font-bold" data-i18n="start.1.h">Install</h3>
+                <p class="text-sm text-muted mt-0.5" data-i18n="start.1.p"><code class="mono" style="color:var(--color-primary);">pipx install tokdash</code></p>
+              </div>
+            </li>
+            <li class="flex gap-4">
+              <span class="step-num">2</span>
+              <div>
+                <h3 class="font-bold" data-i18n="start.2.h">Setup</h3>
+                <p class="text-sm text-muted mt-0.5" data-i18n="start.2.p">Run <code class="mono" style="color:var(--color-primary);">tokdash setup</code>. It configures a reversible, no-sudo background service and finds your CLI logs automatically.</p>
+              </div>
+            </li>
+            <li class="flex gap-4">
+              <span class="step-num">3</span>
+              <div>
+                <h3 class="font-bold" data-i18n="start.3.h">Done</h3>
+                <p class="text-sm text-muted mt-0.5" data-i18n="start.3.p">The wizard prints your dashboard URL, defaulting to <code class="mono" style="color:var(--color-primary);">http://127.0.0.1:55423</code>.</p>
+              </div>
+            </li>
+          </ol>
+
+          <div class="flex flex-wrap items-center gap-3 mt-8">
+            <a href="https://github.com/JingbiaoMei/Tokdash" target="_blank" rel="noopener" class="btn btn-ghost" data-i18n="start.cta_docs">Read the docs</a>
+            <a href="/demo/" class="mono text-sm" style="color:var(--color-primary);">tokdash.github.io/demo</a>
           </div>
-          <div class="reveal">
-            <div class="feature-icon mb-3"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 12a9 9 0 0 1 18 0M3 12a9 9 0 0 0 18 0" stroke="currentColor" stroke-width="2"/><path d="M3 12h18" stroke="currentColor" stroke-width="2"/><path d="M4 6l16 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
-            <h3 class="font-bold" data-i18n="trust.telemetry.h">Zero telemetry</h3>
-            <p class="text-sm text-muted mt-1" data-i18n="trust.telemetry.p">No accounts, no tracking, no phone-home. Works fully offline.</p>
+
+          <p class="text-xs text-muted mt-4" data-i18n="start.upgrade">Already set up? Upgrade any time with <code class="mono" style="color:var(--color-primary);">tokdash update</code>.</p>
+        </div>
+
+        <!-- Terminal -->
+        <div class="reveal terminal">
+          <div class="terminal-bar">
+            <span class="dot-r" style="background:#F87171;"></span>
+            <span class="dot-r" style="background:#FBBF24;"></span>
+            <span class="dot-r" style="background:#34D399;"></span>
+            <span class="mono text-xs ml-2" style="color:#94A3B8;">zsh: tokdash</span>
           </div>
-          <div class="reveal">
-            <div class="feature-icon mb-3"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-            <h3 class="font-bold" data-i18n="trust.oss.h">Open source</h3>
-            <p class="text-sm text-muted mt-1" data-i18n="trust.oss.p">MIT licensed and auditable. Install in one command with pipx.</p>
-          </div>
-          <div class="reveal">
-            <div class="feature-icon mb-3"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="14" rx="2" stroke="currentColor" stroke-width="2"/><path d="M8 21h8M12 18v3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
-            <h3 class="font-bold" data-i18n="trust.pwa.h">Dashboard installs as a PWA</h3>
-            <p class="text-sm text-muted mt-1" data-i18n="trust.pwa.p">Pin the dashboard like a native app, light or dark, in 6 languages.</p>
+          <div class="terminal-body">
+            <div><span class="p">$</span> <span class="c">pipx install tokdash</span></div>
+            <div class="o">installed package tokdash ✓</div>
+            <div><span class="p">$</span> <span class="c">tokdash setup</span></div>
+            <div class="o">scanning ~/.codex, ~/.claude, ~/.opencode …</div>
+            <div class="o">configuring user-level background service …</div>
+            <div class="ok">→ dashboard ready at http://127.0.0.1:55423</div>
+            <div><span class="p">$</span> <span class="c" style="opacity:.7;">▍</span></div>
           </div>
         </div>
-      </div>
-    </section>
-
-    <!-- ============ SUPPORTED TOOLS ============ -->
-    <section id="tools" class="band max-w-[1180px] mx-auto px-4 sm:px-6 py-14 lg:py-20">
-      <div class="text-center max-w-2xl mx-auto reveal">
-        <h2 class="sec-title font-extrabold tracking-tight" data-i18n="tools.h">One dashboard for every agent</h2>
-        <p class="text-muted mt-3" data-i18n="tools.sub">Tokdash unifies usage across twenty-four AI coding tools, letting you switch agents without losing the bill.</p>
-      </div>
-
-      <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 mt-10 max-w-3xl mx-auto reveal">
-        <a href="https://openai.com/codex/" target="_blank" rel="noopener" class="tool-pill"><img class="tool-logo" src="/static/icons/agents/codex.png" alt="Codex logo" loading="lazy" onerror="this.style.display='none'">Codex</a>
-        <a href="https://www.claude.com/product/claude-code" target="_blank" rel="noopener" class="tool-pill"><img class="tool-logo" src="/static/icons/agents/claude.svg" alt="Claude Code logo" loading="lazy" onerror="this.style.display='none'">Claude Code</a>
-        <a href="https://opencode.ai/" target="_blank" rel="noopener" class="tool-pill"><img class="tool-logo" src="/static/icons/agents/opencode.png" alt="OpenCode logo" loading="lazy" onerror="this.style.display='none'">OpenCode</a>
-        <a href="https://github.com/google-gemini/gemini-cli" target="_blank" rel="noopener" class="tool-pill"><img class="tool-logo" src="/static/icons/agents/gemini.svg" alt="Gemini CLI logo" loading="lazy" onerror="this.style.display='none'">Gemini CLI</a>
-        <a href="https://antigravity.google/" target="_blank" rel="noopener" class="tool-pill"><img class="tool-logo" src="/static/icons/agents/antigravity.png" alt="Antigravity logo" loading="lazy" onerror="this.style.display='none'">Antigravity</a>
-        <a href="https://openclaw.ai/" target="_blank" rel="noopener" class="tool-pill"><img class="tool-logo" src="/static/icons/agents/openclaw.png" alt="OpenClaw logo" loading="lazy" onerror="this.style.display='none'">OpenClaw</a>
-        <a href="https://github.com/MoonshotAI/kimi-cli" target="_blank" rel="noopener" class="tool-pill"><img class="tool-logo" src="/static/icons/agents/kimi.png" alt="Kimi CLI logo" loading="lazy" onerror="this.style.display='none'">Kimi CLI</a>
-        <a href="https://mimo.xiaomi.com/coder" target="_blank" rel="noopener" class="tool-pill" title="MiMo Code"><img class="tool-logo is-wordmark" src="/static/icons/agents/mimo.svg" alt="Xiaomi MiMo Code" loading="lazy" onerror="this.style.display='none'"></a>
-        <a href="https://grok.com/build" target="_blank" rel="noopener" class="tool-pill"><img class="tool-logo" src="/static/icons/agents/grok.png" alt="Grok Build logo" loading="lazy" onerror="this.style.display='none'">Grok Build</a>
-        <a href="https://pi.dev/" target="_blank" rel="noopener" class="tool-pill"><img class="tool-logo" src="/static/icons/agents/pi.png" alt="Pi logo" loading="lazy" onerror="this.style.display='none'">Pi</a>
-        <a href="https://github.com/features/copilot" target="_blank" rel="noopener" class="tool-pill"><img class="tool-logo" src="/static/icons/agents/copilot.svg" alt="GitHub Copilot CLI logo" loading="lazy" onerror="this.style.display='none'">Copilot CLI</a>
-        <a href="https://hermes-agent.nousresearch.com/" target="_blank" rel="noopener" class="tool-pill"><img class="tool-logo" src="/static/icons/agents/hermes.png" alt="Hermes logo" loading="lazy" onerror="this.style.display='none'">Hermes</a>
-        <a href="https://github.com/deepseek-ai/deepseek-harness" target="_blank" rel="noopener" class="tool-pill"><img class="tool-logo" src="/static/icons/agents/dsh.svg" alt="DeepSeek Harness logo" loading="lazy" onerror="this.style.display='none'">DeepSeek Harness</a>
-        <a href="https://reasonix.io/" target="_blank" rel="noopener" class="tool-pill"><img class="tool-logo" src="/static/icons/agents/reasonix.svg" alt="Reasonix logo" loading="lazy" onerror="this.style.display='none'">Reasonix</a>
-        <a href="https://zcode.z.ai/" target="_blank" rel="noopener" class="tool-pill"><img class="tool-logo" src="/static/icons/agents/zcode.png" alt="ZCode logo" loading="lazy" onerror="this.style.display='none'">ZCode</a>
-        <a href="https://www.workbuddy.ai/" target="_blank" rel="noopener" class="tool-pill"><img class="tool-logo" src="/static/icons/agents/workbuddy.png" alt="WorkBuddy logo" loading="lazy" onerror="this.style.display='none'">WorkBuddy</a>
-        <a href="https://qoder.com/" target="_blank" rel="noopener" class="tool-pill"><img class="tool-logo" src="/static/icons/agents/qoder.png" alt="Qoder IDE logo" loading="lazy" onerror="this.style.display='none'">Qoder IDE</a>
-        <a href="https://qoder.com/" target="_blank" rel="noopener" class="tool-pill"><img class="tool-logo" src="/static/icons/agents/qoder.png" alt="Qoder CLI logo" loading="lazy" onerror="this.style.display='none'">Qoder CLI</a>
-        <a href="https://omp.sh/" target="_blank" rel="noopener" class="tool-pill"><img class="tool-logo" src="/static/icons/agents/omp.png" alt="omp logo" loading="lazy" onerror="this.style.display='none'">omp</a>
-        <a href="https://kilocode.ai/" target="_blank" rel="noopener" class="tool-pill"><img class="tool-logo" src="/static/icons/agents/kilocode.png" alt="Kilo Code logo" loading="lazy" onerror="this.style.display='none'">Kilo Code</a>
-        <a href="https://cline.bot/" target="_blank" rel="noopener" class="tool-pill"><img class="tool-logo" src="/static/icons/agents/cline.png" alt="Cline logo" loading="lazy" onerror="this.style.display='none'">Cline</a>
-        <a href="https://zed.dev/" target="_blank" rel="noopener" class="tool-pill"><img class="tool-logo" src="/static/icons/agents/zed.svg" alt="Zed logo" loading="lazy" onerror="this.style.display='none'">Zed</a>
-        <a href="https://github.com/QwenLM/qwen-code" target="_blank" rel="noopener" class="tool-pill"><img class="tool-logo" src="/static/icons/agents/qwen_code.svg" alt="Qwen Code logo" loading="lazy" onerror="this.style.display='none'">Qwen Code</a>
-        <a href="https://charm.land/crush" target="_blank" rel="noopener" class="tool-pill"><img class="tool-logo" src="/static/icons/agents/crush.png" alt="Crush logo" loading="lazy" onerror="this.style.display='none'">Crush</a>
-        <a href="https://dev.meta.ai/docs/muse-code" target="_blank" rel="noopener" class="tool-pill"><img class="tool-logo" src="/static/icons/agents/muse.svg" alt="Muse Code logo" loading="lazy" onerror="this.style.display='none'">Muse Code</a>
       </div>
     </section>
 
@@ -514,8 +508,8 @@
         <!-- 7 -->
         <div class="surface p-6 reveal">
           <div class="feature-icon mb-4"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 12a9 9 0 0 1 15-6.7M21 12a9 9 0 0 1-15 6.7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M18 3v4h-4M6 21v-4h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-          <h3 class="text-lg font-bold" data-i18n="feat.7.h">Managed background service</h3>
-          <p class="text-sm text-muted mt-2" data-i18n="feat.7.p"><code class="mono" style="color:var(--color-primary);">tokdash setup</code> configures a reversible, no-sudo systemd/launchd service in one step, while <code class="mono" style="color:var(--color-primary);">doctor</code>, <code class="mono" style="color:var(--color-primary);">update</code>, and <code class="mono" style="color:var(--color-primary);">uninstall</code> keep it healthy and fully removable.</p>
+          <h3 class="text-lg font-bold" data-i18n="feat.7.h">One package, four views</h3>
+          <p class="text-sm text-muted mt-2" data-i18n="feat.7.p">One install ships the WebUI, the TUI, the macOS and Windows companion, and the shell statusline. Same data, whichever surface you are at.</p>
         </div>
         <!-- 8 -->
         <div class="surface p-6 reveal">
@@ -529,6 +523,53 @@
           <h3 class="text-lg font-bold" data-i18n="feat.9.h">Multi-server views</h3>
           <p class="text-sm text-muted mt-2" data-i18n="feat.9.p">Add a Tokdash server for each machine in Settings. Any selection of them aggregates into one Overview, one Sessions list, one heatmap.</p>
         </div>
+      </div>
+    </section>
+
+    <div class="max-w-[1180px] mx-auto px-4 sm:px-6"><div class="divider-grad"></div></div>
+
+    <!-- ============ TUI ============ -->
+    <section id="tui" class="max-w-[1180px] mx-auto px-4 sm:px-6 py-14 lg:py-20">
+      <div class="grid lg:grid-cols-2 gap-10 lg:gap-14 items-center">
+        <!-- Copy -->
+        <div class="reveal">
+          <span class="chip" data-i18n="tui.eyebrow"><span class="dot"></span> TUI</span>
+          <h2 class="sec-title font-extrabold tracking-tight mt-5" data-i18n="tui.h">The whole dashboard, driven by the keyboard</h2>
+          <p class="text-muted mt-3 max-w-md" data-i18n="tui.sub">Run <code class="mono" style="color:var(--color-primary);">tokdash tui</code> and the Overview, Report and Quota tabs open inside your terminal, no browser required. Launched beside <code class="mono" style="color:var(--color-primary);">tokdash serve</code> it reads the same local index and cache, so the two views never drift apart.</p>
+        </div>
+
+        <!-- TUI mockup (decorative; terminal innards stay English like the other mocks) -->
+        <figure class="surface surface-static overflow-hidden reveal">
+          <div class="comp-mock" role="img" aria-label="Tokdash terminal dashboard Overview tab showing today's cost, tokens and active time above a twelve-week activity heatmap">
+            <div class="terminal">
+              <div class="terminal-bar">
+                <span class="dot-r" style="background:#F87171;"></span>
+                <span class="dot-r" style="background:#FBBF24;"></span>
+                <span class="dot-r" style="background:#34D399;"></span>
+                <span class="mono text-xs ml-2" style="color:#94A3B8;">tokdash tui  -  Overview</span>
+              </div>
+              <div class="terminal-body">
+                <div class="tui-kpis">
+                  <div class="tui-kpi"><span class="tui-kpi-k">Today</span><span class="tui-kpi-v">$6.92</span></div>
+                  <div class="tui-kpi"><span class="tui-kpi-k">Tokens</span><span class="tui-kpi-v">1.24M</span></div>
+                  <div class="tui-kpi"><span class="tui-kpi-k">Active</span><span class="tui-kpi-v">3 h 12 m</span></div>
+                </div>
+                <div class="tui-cap">Activity · last 12 weeks</div>
+                <div aria-hidden="true">
+                  <div class="tui-heat-row"><div style="background:rgba(52,211,153,0.28);"></div><div style="background:rgba(52,211,153,0.78);"></div><div style="background:rgba(52,211,153,0.28);"></div><div style="background:rgba(52,211,153,0.78);"></div><div style="background:rgba(52,211,153,0.52);"></div><div style="background:rgba(52,211,153,0.52);"></div><div style="background:rgba(52,211,153,0.52);"></div><div style="background:#16202F;"></div><div style="background:rgba(52,211,153,0.28);"></div><div style="background:rgba(52,211,153,0.52);"></div><div style="background:rgba(52,211,153,0.78);"></div><div style="background:rgba(52,211,153,0.52);"></div></div>
+                  <div class="tui-heat-row"><div style="background:#16202F;"></div><div style="background:#16202F;"></div><div style="background:rgba(52,211,153,0.52);"></div><div style="background:rgba(52,211,153,0.78);"></div><div style="background:rgba(52,211,153,0.78);"></div><div style="background:rgba(52,211,153,0.28);"></div><div style="background:rgba(52,211,153,0.28);"></div><div style="background:rgba(52,211,153,0.28);"></div><div style="background:rgba(52,211,153,0.78);"></div><div style="background:#34D399;"></div><div style="background:#34D399;"></div><div style="background:rgba(52,211,153,0.78);"></div></div>
+                  <div class="tui-heat-row"><div style="background:rgba(52,211,153,0.78);"></div><div style="background:rgba(52,211,153,0.28);"></div><div style="background:#16202F;"></div><div style="background:#16202F;"></div><div style="background:#34D399;"></div><div style="background:rgba(52,211,153,0.52);"></div><div style="background:#34D399;"></div><div style="background:rgba(52,211,153,0.78);"></div><div style="background:rgba(52,211,153,0.78);"></div><div style="background:#34D399;"></div><div style="background:rgba(52,211,153,0.78);"></div><div style="background:rgba(52,211,153,0.52);"></div></div>
+                  <div class="tui-heat-row"><div style="background:rgba(52,211,153,0.78);"></div><div style="background:rgba(52,211,153,0.78);"></div><div style="background:rgba(52,211,153,0.52);"></div><div style="background:#16202F;"></div><div style="background:rgba(52,211,153,0.78);"></div><div style="background:rgba(52,211,153,0.28);"></div><div style="background:#16202F;"></div><div style="background:#16202F;"></div><div style="background:rgba(52,211,153,0.28);"></div><div style="background:#34D399;"></div><div style="background:#34D399;"></div><div style="background:rgba(52,211,153,0.78);"></div></div>
+                  <div class="tui-heat-row"><div style="background:rgba(52,211,153,0.78);"></div><div style="background:rgba(52,211,153,0.28);"></div><div style="background:#16202F;"></div><div style="background:rgba(52,211,153,0.28);"></div><div style="background:rgba(52,211,153,0.52);"></div><div style="background:#16202F;"></div><div style="background:rgba(52,211,153,0.52);"></div><div style="background:rgba(52,211,153,0.78);"></div><div style="background:rgba(52,211,153,0.52);"></div><div style="background:rgba(52,211,153,0.52);"></div><div style="background:rgba(52,211,153,0.78);"></div><div style="background:#34D399;"></div></div>
+                  <div class="tui-heat-row"><div style="background:rgba(52,211,153,0.28);"></div><div style="background:rgba(52,211,153,0.28);"></div><div style="background:rgba(52,211,153,0.28);"></div><div style="background:rgba(52,211,153,0.28);"></div><div style="background:rgba(52,211,153,0.52);"></div><div style="background:rgba(52,211,153,0.52);"></div><div style="background:rgba(52,211,153,0.28);"></div><div style="background:rgba(52,211,153,0.52);"></div><div style="background:rgba(52,211,153,0.28);"></div><div style="background:rgba(52,211,153,0.78);"></div><div style="background:rgba(52,211,153,0.78);"></div><div style="background:rgba(52,211,153,0.78);"></div></div>
+                  <div class="tui-heat-row"><div style="background:#16202F;"></div><div style="background:#16202F;"></div><div style="background:rgba(52,211,153,0.28);"></div><div style="background:rgba(52,211,153,0.28);"></div><div style="background:rgba(52,211,153,0.52);"></div><div style="background:rgba(52,211,153,0.52);"></div><div style="background:rgba(52,211,153,0.28);"></div><div style="background:#16202F;"></div><div style="background:rgba(52,211,153,0.52);"></div><div style="background:rgba(52,211,153,0.28);"></div><div style="background:rgba(52,211,153,0.52);"></div><div style="background:rgba(52,211,153,0.28);"></div></div>
+                </div>
+                <div class="tui-keys"><span class="tui-key">1</span> Overview<span class="tui-keys-gap"></span><span class="tui-key">2</span> Report<span class="tui-keys-gap"></span><span class="tui-key">3</span> Quota<span class="tui-keys-gap"></span><span class="tui-key">q</span> quit</div>
+              </div>
+            </div>
+          </div>
+          <figcaption class="mono text-xs text-muted" style="padding:10px 16px;border-top:1px solid var(--color-border);" data-i18n="tui.shot">tokdash tui · Overview tab</figcaption>
+        </figure>
       </div>
     </section>
 
@@ -555,10 +596,6 @@
             <li class="opt-li">
               <span class="opt-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><path d="M12 12 16 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>
               <div><h3 class="font-bold text-[15px]" data-i18n="srv.3.h">Quota stays per machine</h3><p class="text-sm text-muted" data-i18n="srv.3.p">Subscription windows render under the server that owns them, so two machines on one Codex plan never blur into a single bar.</p></div>
-            </li>
-            <li class="opt-li">
-              <span class="opt-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 3 3 7v6c0 4.4 3.6 8 9 8s9-3.6 9-8V7l-9-4z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M12 9v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M12 16h.01" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></span>
-              <div><h3 class="font-bold text-[15px]" data-i18n="srv.4.h">A dead server says so</h3><p class="text-sm text-muted" data-i18n="srv.4.p">An unreachable server is flagged, and the combined total keeps the last good read instead of pretending to be fresh.</p></div>
             </li>
           </ul>
 
@@ -609,86 +646,6 @@
 
     <div class="max-w-[1180px] mx-auto px-4 sm:px-6"><div class="divider-grad"></div></div>
 
-    <!-- ============ COST OPTIMIZATION ============ -->
-    <section id="optimize" class="max-w-[1180px] mx-auto px-4 sm:px-6 py-14 lg:py-20">
-      <div class="grid lg:grid-cols-2 gap-10 lg:gap-14 items-center">
-        <!-- Copy -->
-        <div class="reveal">
-          <span class="chip" data-i18n="opt.eyebrow"><span class="dot"></span> Cost optimization</span>
-          <h2 class="sec-title font-extrabold tracking-tight mt-5" data-i18n="opt.h">See where every dollar goes</h2>
-          <p class="text-muted mt-3 max-w-md" data-i18n="opt.sub">Tokdash breaks spend down to the session, model, and project, so you can find waste and cut it, not just watch the number climb.</p>
-
-          <ul class="mt-7 space-y-4">
-            <li class="opt-li">
-              <span class="opt-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M4 19V5M4 19h16M8 16V9M12 16V6M16 16v-4M20 16v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>
-              <div><h3 class="font-bold text-[15px]" data-i18n="opt.1.h">Cost by model, agent &amp; project</h3><p class="text-sm text-muted" data-i18n="opt.1.p">Rank exactly what's running up the bill across every tool.</p></div>
-            </li>
-            <li class="opt-li">
-              <span class="opt-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M21 12a9 9 0 1 1-6.2-8.56" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M21 4v5h-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-              <div><h3 class="font-bold text-[15px]" data-i18n="opt.2.h">Spot low cache-hit sessions</h3><p class="text-sm text-muted" data-i18n="opt.2.p">A low hit rate means you're re-paying full price for context you could reuse.</p></div>
-            </li>
-            <li class="opt-li">
-              <span class="opt-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 12h10M4 18h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="19" cy="15" r="3" stroke="currentColor" stroke-width="2"/><path d="m21.4 17.4 1.6 1.6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>
-              <div><h3 class="font-bold text-[15px]" data-i18n="opt.3.h">Follow a session down to the turn</h3><p class="text-sm text-muted" data-i18n="opt.3.p">Turn trends, cache reads, and estimated agent time per session, rather than one blurred daily total.</p></div>
-            </li>
-            <li class="opt-li">
-              <span class="opt-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M16 3h5v5M21 3l-7 7M8 21H3v-5M3 21l7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-              <div><h3 class="font-bold text-[15px]" data-i18n="opt.4.h">Compare machines side by side</h3><p class="text-sm text-muted" data-i18n="opt.4.p">Tokens, cost and cache-hit rate per Tokdash server, with the combined column beside them.</p></div>
-            </li>
-          </ul>
-
-          <a href="/demo/" class="btn btn-primary mt-8">
-            <span data-i18n="opt.cta">Explore it in the live demo</span>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </a>
-        </div>
-
-        <!-- Cost-insights card -->
-        <div class="reveal preview-wrap">
-          <div class="surface surface-static overflow-hidden" aria-hidden="true">
-            <div class="preview-topbar">
-              <span class="dot-r" style="background:#F87171;"></span>
-              <span class="dot-r" style="background:#FBBF24;"></span>
-              <span class="dot-r" style="background:#34D399;"></span>
-              <span class="mono text-xs text-muted ml-2">cost insights · last 30 days</span>
-              <span class="ml-auto text-[11px] font-bold px-2.5 py-1 rounded-md" style="background:color-mix(in srgb, var(--color-cost) 14%, transparent); color:var(--color-cost);">$315.30</span>
-            </div>
-            <div class="p-4 sm:p-5">
-              <div class="kpi-label mb-3" data-i18n="opt.card.drivers">Top cost drivers</div>
-              <div class="space-y-3.5">
-                <div>
-                  <div class="flex justify-between items-baseline text-sm mb-1.5"><span class="mono">claude-opus-4.8</span><span class="font-bold" style="color:var(--color-cost);">$182.40</span></div>
-                  <div class="bar"><div class="bar-fill" style="width:100%;"></div></div>
-                </div>
-                <div>
-                  <div class="flex justify-between items-baseline text-sm mb-1.5"><span class="mono">claude-sonnet-4.6</span><span class="font-bold" style="color:var(--color-cost);">$73.10</span></div>
-                  <div class="bar"><div class="bar-fill" style="width:40%;"></div></div>
-                </div>
-                <div>
-                  <div class="flex justify-between items-baseline text-sm mb-1.5"><span class="mono">gpt-5.2-codex</span><span class="font-bold" style="color:var(--color-cost);">$41.20</span></div>
-                  <div class="bar"><div class="bar-fill" style="width:23%;"></div></div>
-                </div>
-                <div>
-                  <div class="flex justify-between items-baseline text-sm mb-1.5"><span class="mono">gemini-3-pro</span><span class="font-bold" style="color:var(--color-cost);">$18.60</span></div>
-                  <div class="bar"><div class="bar-fill" style="width:10%;"></div></div>
-                </div>
-              </div>
-
-              <div class="readout-box mt-5">
-                <div class="flex items-start gap-2.5">
-                  <span class="mt-0.5" style="color:var(--color-cost);" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M21 12a9 9 0 1 1-6.2-8.56" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M21 4v5h-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-                  <div>
-                    <div class="text-sm font-bold" data-i18n="opt.card.readout.h">Cache hit 67.4%</div>
-                    <div class="text-xs text-muted mt-0.5" data-i18n="opt.card.readout.p">Two thirds of prompt input came from cache; the rest was paid at full price. Hit % is a sortable Sessions column.</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
     <!-- ============ COMPANION APP ============ -->
     <section id="companion" class="band max-w-[1180px] mx-auto px-4 sm:px-6 py-14 lg:py-20">
       <div class="text-center reveal">
@@ -710,7 +667,7 @@
                 <span class="mb-right">
                   <svg width="15" height="11" viewBox="0 0 20 14" fill="currentColor" aria-hidden="true"><path d="M10 12.5a1.7 1.7 0 1 0 0 .01M10 9c-1.9 0-3.6.7-4.9 1.9l1.4 1.4A4.9 4.9 0 0 1 10 11c1.3 0 2.6.5 3.5 1.3l1.4-1.4A6.9 6.9 0 0 0 10 9zm0-4C7 5 4.2 6.1 2 8.3l1.4 1.4A9.3 9.3 0 0 1 10 7c2.5 0 4.8 1 6.6 2.7L18 8.3A11.3 11.3 0 0 0 10 5zm0-4C6.1 1 2.5 2.6-.6 5.6L.8 7A14.6 14.6 0 0 1 10 3c3.6 0 6.9 1.4 9.2 4l1.4-1.4A16.6 16.6 0 0 0 10 1z"/></svg>
                   <svg width="22" height="11" viewBox="0 0 25 12" fill="none" stroke="currentColor" aria-hidden="true"><rect x="0.5" y="0.5" width="21" height="11" rx="3"/><rect x="2" y="2" width="14" height="8" rx="1.5" fill="currentColor" stroke="none"/><path d="M23.5 4v4a2.2 2.2 0 0 0 0-4z" fill="currentColor" stroke="none"/></svg>
-                  <button type="button" class="mac-extra active" tabindex="-1" title="Tokdash: Today $3.42 · 18.7M tokens">
+                  <button type="button" class="mac-extra active" tabindex="-1" title="Tokdash — Today $6.92 · 1.24M tokens">
                     <!-- Monochrome template variant of the Tokdash logo -->
                     <svg width="16" height="17" viewBox="0 0 371 394" fill="currentColor" aria-hidden="true">
                       <rect x="24" y="24" width="323" height="296" rx="56" fill="none" stroke="currentColor" stroke-width="26"/>
@@ -721,7 +678,7 @@
                       <path d="M98 240 L160 158 L216 184 L294 84" fill="none" stroke="currentColor" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
                       <circle cx="98" cy="240" r="20"/><circle cx="160" cy="158" r="20"/><circle cx="216" cy="184" r="20"/><circle cx="294" cy="84" r="20"/>
                     </svg>
-                    <span class="mac-tip" role="tooltip">Tokdash: Today $3.42 · 18.7M tokens</span>
+                    <span class="mac-tip" role="tooltip">Tokdash — Today $6.92 · 1.24M tokens</span>
                   </button>
                   <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><circle cx="7" cy="7" r="5.2"/><path d="m11 11 3.4 3.4" stroke-linecap="round"/></svg>
                   <svg width="15" height="11" viewBox="0 0 16 12" fill="currentColor" aria-hidden="true"><rect x="0" y="0" width="16" height="3.4" rx="1.7"/><rect x="0" y="4.3" width="16" height="3.4" rx="1.7"/><rect x="0" y="8.6" width="16" height="3.4" rx="1.7"/></svg>
@@ -737,37 +694,100 @@
                     <button type="button" class="mac-icon-btn" tabindex="-1" aria-label="Tokdash menu"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-3.6 3.6-3.6 3.6z"/></svg></button>
                   </section>
                   <section class="mac-hero hairline">
-                    <p class="kicker">Today</p>
-                    <p class="big">$3.42</p>
-                    <p class="sub"><span title="18,700,000 tokens">18.7M tokens</span> · 248 messages</p>
-                    <p class="cmp down"><svg width="9" height="9" viewBox="0 0 10 10" fill="currentColor" aria-hidden="true"><path d="M5 8.5 1 3.2h8z"/></svg> 12% below yesterday</p>
+                    <div class="hero-top">
+                      <span class="kicker" data-i18n="comp.mac.hero.today">Today</span>
+                      <span class="segp" role="group" aria-label="Period">
+                        <button type="button" tabindex="-1" aria-pressed="true" data-i18n="comp.mac.seg.today">Today</button>
+                        <button type="button" tabindex="-1" aria-pressed="false" data-i18n="comp.mac.seg.week">Week</button>
+                        <button type="button" tabindex="-1" aria-pressed="false" data-i18n="comp.mac.seg.month">Month</button>
+                        <button type="button" tabindex="-1" aria-pressed="false" data-i18n="comp.mac.seg.year">Year</button>
+                      </span>
+                    </div>
+                    <p class="big">$6.92</p>
+                    <p class="sub"><span title="1,240,000 tokens">1.24M tokens</span> · 218 messages · ◔ active 3 h 12 m</p>
+                    <p class="cmp" data-i18n="comp.mac.delta"><span class="down">▼ 18% cost</span> · <span class="down">▼ 12% tokens</span> · <span class="up">▲ 6% msgs</span> vs yesterday</p>
+                    <div class="rankgrp">
+                      <p class="rankkicker" data-i18n="comp.mac.rank.tools">Top tools · Today</p>
+                      <div class="rank">
+                        <div class="rrow"><img class="hl-svg" src="/static/icons/agents/claude.svg" alt="" title="Claude"><span class="rname">Claude</span><span class="rbar"><i style="width:52%"></i></span><span class="rpct">52%</span><span class="rtok">645k</span></div>
+                        <div class="rrow"><img class="hl-svg hl-invert" src="/static/icons/agents/codex.png" alt="" title="Codex"><span class="rname">Codex</span><span class="rbar"><i style="width:26%"></i></span><span class="rpct">26%</span><span class="rtok">322k</span></div>
+                        <div class="rrow"><img class="hl-svg" src="/static/icons/agents/opencode.png" alt="" title="opencode"><span class="rname">opencode</span><span class="rbar"><i style="width:10%"></i></span><span class="rpct">10%</span><span class="rtok">124k</span></div>
+                        <div class="rrow"><img class="hl-svg" src="/static/icons/agents/gemini.svg" alt="" title="Gemini"><span class="rname">Gemini</span><span class="rbar"><i style="width:7%"></i></span><span class="rpct">7%</span><span class="rtok">87k</span></div>
+                        <div class="rrow"><img class="hl-svg" src="/static/icons/agents/kimi.png" alt="" title="Kimi"><span class="rname">Kimi</span><span class="rbar"><i style="width:5%"></i></span><span class="rpct">5%</span><span class="rtok">62k</span></div>
+                      </div>
+                    </div>
+                    <div class="rankgrp">
+                      <p class="rankkicker" data-i18n="comp.mac.rank.models">Top models · Today</p>
+                      <div class="rank">
+                        <div class="rrow"><span class="rname">claude-fable-5.1</span><span class="rbar"><i style="width:34%"></i></span><span class="rpct">34%</span><span class="rtok">422k</span></div>
+                        <div class="rrow"><span class="rname">gpt-6-astra</span><span class="rbar"><i style="width:28%"></i></span><span class="rpct">28%</span><span class="rtok">347k</span></div>
+                        <div class="rrow"><span class="rname">gemini-3-pro</span><span class="rbar"><i style="width:18%"></i></span><span class="rpct">18%</span><span class="rtok">223k</span></div>
+                        <div class="rrow"><span class="rname">gpt-5.6-sol</span><span class="rbar"><i style="width:12%"></i></span><span class="rpct">12%</span><span class="rtok">149k</span></div>
+                        <div class="rrow"><span class="rname">kimi-k2.6</span><span class="rbar"><i style="width:8%"></i></span><span class="rpct">8%</span><span class="rtok">99k</span></div>
+                      </div>
+                    </div>
                   </section>
-                  <section class="mac-month hairline">
-                    <span class="kicker">July</span>
-                    <span class="val">$48.90</span>
-                    <span class="muted">281M tokens</span>
+                  <section class="mac-glance hairline">
+                    <p class="kicker" data-i18n="comp.mac.glance">Most active hours</p>
+                    <div class="hist" role="img" aria-label="Tokens by hour of day"><i style="height:2%" title="00:00"></i><i style="height:2%" title="01:00"></i><i style="height:2%" title="02:00"></i><i style="height:2%" title="03:00"></i><i style="height:2%" title="04:00"></i><i style="height:2%" title="05:00"></i><i style="height:5%" title="06:00"></i><i style="height:12%" title="07:00"></i><i style="height:30%" title="08:00"></i><i style="height:55%" title="09:00"></i><i style="height:80%" title="10:00"></i><i style="height:95%" title="11:00"></i><i style="height:85%" title="12:00"></i><i style="height:60%" title="13:00"></i><i style="height:75%" title="14:00"></i><i style="height:90%" title="15:00"></i><i style="height:70%" title="16:00"></i><i style="height:50%" title="17:00"></i><i style="height:45%" title="18:00"></i><i style="height:40%" title="19:00"></i><i style="height:35%" title="20:00"></i><i style="height:25%" title="21:00"></i><i style="height:12%" title="22:00"></i><i style="height:5%" title="23:00"></i></div>
+                    <p class="hlabel" data-i18n="comp.mac.peak">peak 11:00–12:00 · by tokens</p>
                   </section>
                   <section class="mac-quota hairline">
-                    <div class="qhead"><p class="kicker">Subscription</p><span class="qseg" role="group" aria-label="Subscription view"><button type="button" tabindex="-1" aria-pressed="true" title="Only windows below their alert threshold">Low</button><button type="button" tabindex="-1" aria-pressed="false" title="Every detected subscription window">All</button></span></div>
+                    <div class="qhead"><p class="kicker" data-i18n="comp.mac.quota">Quota</p><span class="qseg" role="group" aria-label="Quota view"><button type="button" tabindex="-1" aria-pressed="false" title="Only windows below their alert threshold">Low</button><button type="button" tabindex="-1" aria-pressed="true" title="Every detected subscription window">All</button></span></div>
+                    <div class="qgroup"><img class="hl-svg" src="/static/icons/agents/claude.svg" alt="" title="Claude">Claude</div>
                     <div class="qrow">
                       <div class="qtop">
-                        <span class="qname">Claude · weekly</span>
-                        <span class="est" title="Estimated from local session data">Estimated</span>
-                        <span class="qleft">8% left</span>
-                        <span class="qreset">resets Monday</span>
+                        <span class="qname">Weekly</span>
+                        <span class="qreset">resets Thu 02:00</span>
+                        <span class="qleft">14%</span>
                       </div>
-                      <div class="qbar" role="img" aria-label="Claude weekly window: 8 percent remaining"><i class="low" style="width:8%"></i></div>
+                      <div class="qbar" role="img" aria-label="Claude weekly window: 14 percent remaining"><i class="low" style="width:14%"></i></div>
                     </div>
                     <div class="qrow">
                       <div class="qtop">
-                        <span class="qname">Codex · 5-hour</span>
-                        <span class="qleft">14% left</span>
-                        <span class="qreset">resets 14:40</span>
+                        <span class="qname">5 h</span>
+                        <span class="qreset">resets in 2 h 05 m</span>
+                        <span class="qleft">46%</span>
                       </div>
-                      <div class="qbar" role="img" aria-label="Codex 5-hour window: 14 percent remaining"><i class="low" style="width:14%"></i></div>
+                      <div class="qbar" role="img" aria-label="Claude 5-hour window: 46 percent remaining"><i class="mid" style="width:46%"></i></div>
+                    </div>
+                    <div class="qgroup"><img class="hl-svg hl-invert" src="/static/icons/agents/codex.png" alt="" title="Codex">Codex</div>
+                    <div class="qrow">
+                      <div class="qtop">
+                        <span class="qname">5 h</span>
+                        <span class="qreset">resets in 1 h 20 m</span>
+                        <span class="qleft">8%</span>
+                      </div>
+                      <div class="qbar" role="img" aria-label="Codex 5-hour window: 8 percent remaining"><i class="low" style="width:8%"></i></div>
+                    </div>
+                    <div class="qrow">
+                      <div class="qtop">
+                        <span class="qname">Weekly</span>
+                        <span class="qreset">resets Sun 00:00</span>
+                        <span class="qleft">57%</span>
+                      </div>
+                      <div class="qbar" role="img" aria-label="Codex weekly window: 57 percent remaining"><i class="fine" style="width:57%"></i></div>
+                    </div>
+                    <div class="credit-note"><svg class="cn-bolt" width="10" height="12" viewBox="0 0 12 14" aria-hidden="true"><path d="M7 1 1.8 8.2h3L4 13l5.2-7.2H6.2L7 1Z" fill="currentColor"/></svg><span class="cn-text" data-i18n="comp.mac.credits">2 reset credits · expire in 2 d</span><span class="cn-label" data-i18n="comp.mac.credits.label">use or lose</span></div>
+                    <div class="qgroup"><img class="hl-svg" src="/static/icons/agents/gemini.svg" alt="" title="Gemini">Gemini</div>
+                    <div class="qrow">
+                      <div class="qtop">
+                        <span class="qname">Weekly</span>
+                        <span class="est" title="Estimated from local session data">est</span>
+                        <span class="qreset">resets Mon 09:00</span>
+                        <span class="qleft">81%</span>
+                      </div>
+                      <div class="qbar" role="img" aria-label="Gemini weekly window: 81 percent remaining"><i class="fine" style="width:81%"></i></div>
                     </div>
                   </section>
-                  <section class="mac-activity hairline"><span>Most used today&nbsp;&nbsp;<b>Codex · gpt-5.6</b></span></section>
+                  <section class="mac-srv hairline">
+                    <p class="kicker" style="margin-bottom:6px" data-i18n="comp.mac.srv.h">Per server · Today</p>
+                    <div class="srv-rows">
+                      <div class="srow"><span class="dot ok"></span><span class="sname">wsl-home</span><span class="scost">$6.12</span></div>
+                      <div class="srow"><span class="dot ok"></span><span class="sname">mac-air</span><span class="scost">$0.80</span></div>
+                      <div class="srow"><span class="sdim" data-i18n="comp.mac.srv.note">combined in hero · this cycle only</span></div>
+                    </div>
+                  </section>
                   <section class="mac-actions hairline">
                     <button type="button" class="mac-btn primary" tabindex="-1">Open Dashboard</button>
                     <button type="button" class="mac-btn icon" tabindex="-1" aria-label="Refresh"><span style="display:inline-flex"><svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M12.2 7A5.2 5.2 0 1 1 11 3.2"/><path d="M12.4 1.4v2.6H9.8" stroke-linejoin="round"/></svg></span></button>
@@ -808,7 +828,7 @@
                   <button type="button" class="win-tray-icon" tabindex="-1" aria-label="Show hidden icons">
                     <svg width="11" height="11" viewBox="0 0 10 10" fill="none" stroke="#4A4A4A" stroke-width="1.5" aria-hidden="true"><path d="M2.2 3.8 5 6.6l2.8-2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
                   </button>
-                  <button type="button" class="win-tray-icon active" tabindex="-1" title="Tokdash: Today $3.42 · 18.7M tokens" aria-label="Tokdash, notification area icon">
+                  <button type="button" class="win-tray-icon active" tabindex="-1" title="Tokdash — Today $6.92 · 1.24M tokens" aria-label="Tokdash, notification area icon">
                     <!-- Color Tokdash logo, white interior for taskbar contrast -->
                     <svg width="17" height="18" viewBox="0 0 371 394" aria-hidden="true">
                       <rect x="24" y="24" width="323" height="296" rx="56" fill="#fff" stroke="#08253F" stroke-width="26"/>
@@ -819,7 +839,7 @@
                       <path d="M98 240 L160 158 L216 184 L294 84" fill="none" stroke="#B9967D" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
                       <circle cx="98" cy="240" r="20" fill="#B9967D"/><circle cx="160" cy="158" r="20" fill="#B9967D"/><circle cx="216" cy="184" r="20" fill="#B9967D"/><circle cx="294" cy="84" r="20" fill="#B9967D"/>
                     </svg>
-                    <span class="win-tip" role="tooltip">Tokdash: Today $3.42 · 18.7M tokens</span>
+                    <span class="win-tip" role="tooltip">Tokdash — Today $6.92 · 1.24M tokens</span>
                   </button>
                   <button type="button" class="win-tray-icon" tabindex="-1" aria-label="Network, volume, battery">
                     <svg width="30" height="14" viewBox="0 0 34 14" fill="none" aria-hidden="true">
@@ -844,37 +864,100 @@
                     <button type="button" class="win-icon-btn" tabindex="-1" aria-label="Settings"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-3.6 3.6-3.6 3.6z"/></svg></button>
                   </section>
                   <section class="win-hero divider">
-                    <p class="kicker">Today</p>
-                    <p class="big">$3.42</p>
-                    <p class="sub"><span title="18,700,000 tokens">18.7M tokens</span> · 248 messages</p>
-                    <p class="cmp down"><svg width="9" height="9" viewBox="0 0 10 10" fill="currentColor" aria-hidden="true"><path d="M5 8.5 1 3.2h8z"/></svg> 12% below yesterday</p>
+                    <div class="hero-top">
+                      <span class="kicker" data-i18n="comp.win.hero.today">Today</span>
+                      <span class="segp" role="group" aria-label="Period">
+                        <button type="button" tabindex="-1" aria-pressed="true" data-i18n="comp.win.seg.today">Today</button>
+                        <button type="button" tabindex="-1" aria-pressed="false" data-i18n="comp.win.seg.week">Week</button>
+                        <button type="button" tabindex="-1" aria-pressed="false" data-i18n="comp.win.seg.month">Month</button>
+                        <button type="button" tabindex="-1" aria-pressed="false" data-i18n="comp.win.seg.year">Year</button>
+                      </span>
+                    </div>
+                    <p class="big">$6.92</p>
+                    <p class="sub"><span title="1,240,000 tokens">1.24M tokens</span> · 218 messages · ◔ active 3 h 12 m</p>
+                    <p class="cmp" data-i18n="comp.win.delta"><span class="down">▼ 18% cost</span> · <span class="down">▼ 12% tokens</span> · <span class="up">▲ 6% msgs</span> vs yesterday</p>
+                    <div class="rankgrp">
+                      <p class="rankkicker" data-i18n="comp.win.rank.tools">Top tools · Today</p>
+                      <div class="rank">
+                        <div class="rrow"><img class="hl-svg" src="/static/icons/agents/claude.svg" alt="" title="Claude"><span class="rname">Claude</span><span class="rbar"><i style="width:52%"></i></span><span class="rpct">52%</span><span class="rtok">645k</span></div>
+                        <div class="rrow"><img class="hl-svg hl-invert" src="/static/icons/agents/codex.png" alt="" title="Codex"><span class="rname">Codex</span><span class="rbar"><i style="width:26%"></i></span><span class="rpct">26%</span><span class="rtok">322k</span></div>
+                        <div class="rrow"><img class="hl-svg" src="/static/icons/agents/opencode.png" alt="" title="opencode"><span class="rname">opencode</span><span class="rbar"><i style="width:10%"></i></span><span class="rpct">10%</span><span class="rtok">124k</span></div>
+                        <div class="rrow"><img class="hl-svg" src="/static/icons/agents/gemini.svg" alt="" title="Gemini"><span class="rname">Gemini</span><span class="rbar"><i style="width:7%"></i></span><span class="rpct">7%</span><span class="rtok">87k</span></div>
+                        <div class="rrow"><img class="hl-svg" src="/static/icons/agents/kimi.png" alt="" title="Kimi"><span class="rname">Kimi</span><span class="rbar"><i style="width:5%"></i></span><span class="rpct">5%</span><span class="rtok">62k</span></div>
+                      </div>
+                    </div>
+                    <div class="rankgrp">
+                      <p class="rankkicker" data-i18n="comp.win.rank.models">Top models · Today</p>
+                      <div class="rank">
+                        <div class="rrow"><span class="rname">claude-fable-5.1</span><span class="rbar"><i style="width:34%"></i></span><span class="rpct">34%</span><span class="rtok">422k</span></div>
+                        <div class="rrow"><span class="rname">gpt-6-astra</span><span class="rbar"><i style="width:28%"></i></span><span class="rpct">28%</span><span class="rtok">347k</span></div>
+                        <div class="rrow"><span class="rname">gemini-3-pro</span><span class="rbar"><i style="width:18%"></i></span><span class="rpct">18%</span><span class="rtok">223k</span></div>
+                        <div class="rrow"><span class="rname">gpt-5.6-sol</span><span class="rbar"><i style="width:12%"></i></span><span class="rpct">12%</span><span class="rtok">149k</span></div>
+                        <div class="rrow"><span class="rname">kimi-k2.6</span><span class="rbar"><i style="width:8%"></i></span><span class="rpct">8%</span><span class="rtok">99k</span></div>
+                      </div>
+                    </div>
                   </section>
-                  <section class="win-month divider">
-                    <span class="kicker">July</span>
-                    <span class="val">$48.90</span>
-                    <span class="muted">281M tokens</span>
+                  <section class="win-glance divider">
+                    <p class="kicker" data-i18n="comp.win.glance">Most active hours</p>
+                    <div class="hist" role="img" aria-label="Tokens by hour of day"><i style="height:2%" title="00:00"></i><i style="height:2%" title="01:00"></i><i style="height:2%" title="02:00"></i><i style="height:2%" title="03:00"></i><i style="height:2%" title="04:00"></i><i style="height:2%" title="05:00"></i><i style="height:5%" title="06:00"></i><i style="height:12%" title="07:00"></i><i style="height:30%" title="08:00"></i><i style="height:55%" title="09:00"></i><i style="height:80%" title="10:00"></i><i style="height:95%" title="11:00"></i><i style="height:85%" title="12:00"></i><i style="height:60%" title="13:00"></i><i style="height:75%" title="14:00"></i><i style="height:90%" title="15:00"></i><i style="height:70%" title="16:00"></i><i style="height:50%" title="17:00"></i><i style="height:45%" title="18:00"></i><i style="height:40%" title="19:00"></i><i style="height:35%" title="20:00"></i><i style="height:25%" title="21:00"></i><i style="height:12%" title="22:00"></i><i style="height:5%" title="23:00"></i></div>
+                    <p class="hlabel" data-i18n="comp.win.peak">peak 11:00–12:00 · by tokens</p>
                   </section>
                   <section class="win-quota divider">
-                    <div class="qhead"><p class="kicker">Subscription</p><span class="qseg" role="group" aria-label="Subscription view"><button type="button" tabindex="-1" aria-pressed="true" title="Only windows below their alert threshold">Low</button><button type="button" tabindex="-1" aria-pressed="false" title="Every detected subscription window">All</button></span></div>
+                    <div class="qhead"><p class="kicker" data-i18n="comp.win.quota">Quota</p><span class="qseg" role="group" aria-label="Quota view"><button type="button" tabindex="-1" aria-pressed="false" title="Only windows below their alert threshold">Low</button><button type="button" tabindex="-1" aria-pressed="true" title="Every detected subscription window">All</button></span></div>
+                    <div class="qgroup"><img class="hl-svg" src="/static/icons/agents/claude.svg" alt="" title="Claude">Claude</div>
                     <div class="qrow">
                       <div class="qtop">
-                        <span class="qname">Claude · weekly</span>
-                        <span class="est" title="Estimated from local session data">Estimated</span>
-                        <span class="qleft">8% left</span>
-                        <span class="qreset">resets Monday</span>
+                        <span class="qname">Weekly</span>
+                        <span class="qreset">resets Thu 02:00</span>
+                        <span class="qleft">14%</span>
                       </div>
-                      <div class="qbar" role="img" aria-label="Claude weekly window: 8 percent remaining"><i class="low" style="width:8%"></i></div>
+                      <div class="qbar" role="img" aria-label="Claude weekly window: 14 percent remaining"><i class="low" style="width:14%"></i></div>
                     </div>
                     <div class="qrow">
                       <div class="qtop">
-                        <span class="qname">Codex · 5-hour</span>
-                        <span class="qleft">14% left</span>
-                        <span class="qreset">resets 14:40</span>
+                        <span class="qname">5 h</span>
+                        <span class="qreset">resets in 2 h 05 m</span>
+                        <span class="qleft">46%</span>
                       </div>
-                      <div class="qbar" role="img" aria-label="Codex 5-hour window: 14 percent remaining"><i class="low" style="width:14%"></i></div>
+                      <div class="qbar" role="img" aria-label="Claude 5-hour window: 46 percent remaining"><i class="mid" style="width:46%"></i></div>
+                    </div>
+                    <div class="qgroup"><img class="hl-svg hl-invert" src="/static/icons/agents/codex.png" alt="" title="Codex">Codex</div>
+                    <div class="qrow">
+                      <div class="qtop">
+                        <span class="qname">5 h</span>
+                        <span class="qreset">resets in 1 h 20 m</span>
+                        <span class="qleft">8%</span>
+                      </div>
+                      <div class="qbar" role="img" aria-label="Codex 5-hour window: 8 percent remaining"><i class="low" style="width:8%"></i></div>
+                    </div>
+                    <div class="qrow">
+                      <div class="qtop">
+                        <span class="qname">Weekly</span>
+                        <span class="qreset">resets Sun 00:00</span>
+                        <span class="qleft">57%</span>
+                      </div>
+                      <div class="qbar" role="img" aria-label="Codex weekly window: 57 percent remaining"><i class="fine" style="width:57%"></i></div>
+                    </div>
+                    <div class="credit-note"><svg class="cn-bolt" width="10" height="12" viewBox="0 0 12 14" aria-hidden="true"><path d="M7 1 1.8 8.2h3L4 13l5.2-7.2H6.2L7 1Z" fill="currentColor"/></svg><span class="cn-text" data-i18n="comp.win.credits">2 reset credits · expire in 2 d</span><span class="cn-label" data-i18n="comp.win.credits.label">use or lose</span></div>
+                    <div class="qgroup"><img class="hl-svg" src="/static/icons/agents/gemini.svg" alt="" title="Gemini">Gemini</div>
+                    <div class="qrow">
+                      <div class="qtop">
+                        <span class="qname">Weekly</span>
+                        <span class="est" title="Estimated from local session data">est</span>
+                        <span class="qreset">resets Mon 09:00</span>
+                        <span class="qleft">81%</span>
+                      </div>
+                      <div class="qbar" role="img" aria-label="Gemini weekly window: 81 percent remaining"><i class="fine" style="width:81%"></i></div>
                     </div>
                   </section>
-                  <section class="win-activity divider"><span>Most used today&nbsp;&nbsp;<b>Codex · gpt-5.6</b></span></section>
+                  <section class="win-srv divider">
+                    <p class="kicker" style="margin-bottom:6px" data-i18n="comp.win.srv.h">Per server · Today</p>
+                    <div class="srv-rows">
+                      <div class="srow"><span class="dot ok"></span><span class="sname">wsl-home</span><span class="scost">$6.12</span></div>
+                      <div class="srow"><span class="dot ok"></span><span class="sname">mac-air</span><span class="scost">$0.80</span></div>
+                      <div class="srow"><span class="sdim" data-i18n="comp.win.srv.note">combined in hero · this cycle only</span></div>
+                    </div>
+                  </section>
                   <section class="win-actions divider">
                     <button type="button" class="win-btn primary" tabindex="-1">Open Dashboard</button>
                   </section>
@@ -919,12 +1002,12 @@
         <div class="surface p-6 reveal">
           <div class="feature-icon mb-4"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 2v20M17 7H9.5a2.5 2.5 0 0 0 0 5h5a2.5 2.5 0 0 1 0 5H6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
           <h3 class="text-lg font-bold" data-i18n="comp.1.h">Today's spend at a glance</h3>
-          <p class="text-sm text-muted mt-2" data-i18n="comp.1.p">Cost, tokens, and messages for today, the % change vs yesterday, and a month-to-date line for context.</p>
+          <p class="text-sm text-muted mt-2" data-i18n="comp.1.p">Cost, tokens, and messages with active time, the % change vs yesterday, and your top tools and models ranked.</p>
         </div>
         <div class="surface p-6 reveal">
           <div class="feature-icon mb-4"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="13" r="8" stroke="currentColor" stroke-width="2"/><path d="M12 9v4l2.5 2.5M9 2h6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
           <h3 class="text-lg font-bold" data-i18n="comp.2.h">Quota bars with reset countdowns</h3>
-          <p class="text-sm text-muted mt-2" data-i18n="comp.2.p">Per-provider subscription windows show remaining quota and relative reset times, such as "resets in 19 minutes", plus your most-used tool today.</p>
+          <p class="text-sm text-muted mt-2" data-i18n="comp.2.p">Per-provider subscription windows show remaining quota and relative reset times, such as "resets in 19 minutes", with Codex reset credits called out.</p>
         </div>
         <div class="surface p-6 reveal">
           <div class="feature-icon mb-4"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M10.3 21a2 2 0 0 0 3.4 0" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
@@ -949,94 +1032,6 @@
       <p class="text-xs text-muted text-center mt-4 max-w-xl mx-auto" data-i18n="comp.caveat">On Windows, the Microsoft Store build is signed by Microsoft and updates itself. The macOS universal dmg and the Windows portable zip on GitHub Releases are unsigned, so Gatekeeper / SmartScreen will warn on first launch. Look for tags <code class="mono">companion-v*</code>.</p>
     </section>
 
-    <!-- ============ GET STARTED / SETUP ============ -->
-    <span id="start" style="position:relative;top:-88px;display:block;" aria-hidden="true"></span>
-    <section id="install" data-section="setup" class="max-w-[1180px] mx-auto px-4 sm:px-6 py-14 lg:py-20">
-      <div class="grid lg:grid-cols-2 gap-10 lg:gap-14 items-center">
-        <div class="reveal">
-          <span class="chip" data-i18n="start.eyebrow"><span class="dot"></span> Get started</span>
-          <h2 class="sec-title font-extrabold tracking-tight mt-5" data-i18n="start.h">Up and running in 30 seconds</h2>
-          <p class="text-muted mt-3 max-w-md" data-i18n="start.sub">Python package, one command to install, one to set up. Your data never leaves your laptop.</p>
-
-          <ol class="mt-8 space-y-5">
-            <li class="flex gap-4">
-              <span class="step-num">1</span>
-              <div>
-                <h3 class="font-bold" data-i18n="start.1.h">Install</h3>
-                <p class="text-sm text-muted mt-0.5" data-i18n="start.1.p"><code class="mono" style="color:var(--color-primary);">pipx install tokdash</code></p>
-              </div>
-            </li>
-            <li class="flex gap-4">
-              <span class="step-num">2</span>
-              <div>
-                <h3 class="font-bold" data-i18n="start.2.h">Setup</h3>
-                <p class="text-sm text-muted mt-0.5" data-i18n="start.2.p">Run <code class="mono" style="color:var(--color-primary);">tokdash setup</code>. It configures a reversible, no-sudo background service and finds your CLI logs automatically.</p>
-              </div>
-            </li>
-            <li class="flex gap-4">
-              <span class="step-num">3</span>
-              <div>
-                <h3 class="font-bold" data-i18n="start.3.h">Done</h3>
-                <p class="text-sm text-muted mt-0.5" data-i18n="start.3.p">The wizard prints your dashboard URL, defaulting to <code class="mono" style="color:var(--color-primary);">http://127.0.0.1:55423</code>.</p>
-              </div>
-            </li>
-          </ol>
-
-          <div class="flex flex-wrap gap-3 mt-8">
-            <a href="/demo/" class="btn btn-primary">
-              <span data-i18n="start.cta_try">Try it now with no install</span>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </a>
-            <a href="https://github.com/JingbiaoMei/Tokdash" target="_blank" rel="noopener" class="btn btn-ghost" data-i18n="start.cta_docs">Read the docs</a>
-          </div>
-
-          <p class="text-xs text-muted mt-4" data-i18n="start.upgrade">Already set up? Upgrade any time with <code class="mono" style="color:var(--color-primary);">tokdash update</code>.</p>
-        </div>
-
-        <!-- Terminal -->
-        <div class="reveal terminal">
-          <div class="terminal-bar">
-            <span class="dot-r" style="background:#F87171;"></span>
-            <span class="dot-r" style="background:#FBBF24;"></span>
-            <span class="dot-r" style="background:#34D399;"></span>
-            <span class="mono text-xs ml-2" style="color:#94A3B8;">zsh: tokdash</span>
-          </div>
-          <div class="terminal-body">
-            <div><span class="p">$</span> <span class="c">pipx install tokdash</span></div>
-            <div class="o">installed package tokdash ✓</div>
-            <div><span class="p">$</span> <span class="c">tokdash setup</span></div>
-            <div class="o">scanning ~/.codex, ~/.claude, ~/.opencode …</div>
-            <div class="o">configuring user-level background service …</div>
-            <div class="ok">→ dashboard ready at http://127.0.0.1:55423</div>
-            <div><span class="p">$</span> <span class="c" style="opacity:.7;">▍</span></div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ============ CTA BAND ============ -->
-    <section class="max-w-[1180px] mx-auto px-4 sm:px-6 pb-20">
-      <div class="surface surface-static reveal overflow-hidden text-center px-6 py-12 sm:py-16"
-           style="background: linear-gradient(135deg, color-mix(in srgb, var(--color-primary) 16%, var(--color-bg)), color-mix(in srgb, var(--color-cta) 12%, var(--color-bg)));">
-        <h2 class="sec-title font-extrabold tracking-tight" data-i18n="cta.h">See it before you install</h2>
-        <p class="text-muted mt-3 max-w-xl mx-auto" data-i18n="cta.sub">The live demo runs the real dashboard on synthetic data, letting you explore every tab, theme, and chart right in your browser.</p>
-        <div class="flex flex-wrap justify-center gap-3 mt-8">
-          <a href="/demo/" class="btn btn-primary">
-            <span data-i18n="cta.open">Open the live demo</span>
-            <svg class="svg-drawable" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </a>
-          <button class="cmd" data-cmd="pipx install tokdash" aria-label="Copy: pipx install tokdash">
-            <span><span class="prompt">$</span>&nbsp;pipx install tokdash</span>
-            <span class="copy-ic" aria-hidden="true">
-              <svg class="copy-glyph" width="14" height="14" viewBox="0 0 24 24" fill="none" style="overflow:visible;">
-                <path class="copy-back" d="M 5 15 L 5 5 L 16 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <path class="copy-front" d="M 9 9 L 20 9 L 20 20 L 9 20 L 9 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </span>
-          </button>
-        </div>
-      </div>
-    </section>
     <div class="max-w-[1180px] mx-auto px-4 sm:px-6"><div class="divider-grad"></div></div>
 
     <!-- ============ RELATED PROJECT ============ -->
@@ -1068,11 +1063,11 @@
   <nav class="minimap" aria-label="Page sections">
     <ul class="minimap-rail">
       <li class="minimap-node"><a href="#top"><span class="minimap-bar"></span><span class="minimap-tip" data-i18n="rail.first">Quickstart</span></a></li>
-      <li class="minimap-node"><a href="#features"><span class="minimap-bar"></span><span class="minimap-tip"></span></a></li>
-      <li class="minimap-node"><a href="#servers"><span class="minimap-bar"></span><span class="minimap-tip"></span></a></li>
-      <li class="minimap-node"><a href="#optimize"><span class="minimap-bar"></span><span class="minimap-tip"></span></a></li>
-      <li class="minimap-node"><a href="#companion"><span class="minimap-bar"></span><span class="minimap-tip"></span></a></li>
       <li class="minimap-node"><a href="#install"><span class="minimap-bar"></span><span class="minimap-tip" data-i18n="rail.last">Setup</span></a></li>
+      <li class="minimap-node"><a href="#features"><span class="minimap-bar"></span><span class="minimap-tip"></span></a></li>
+      <li class="minimap-node"><a href="#tui"><span class="minimap-bar"></span><span class="minimap-tip"></span></a></li>
+      <li class="minimap-node"><a href="#servers"><span class="minimap-bar"></span><span class="minimap-tip"></span></a></li>
+      <li class="minimap-node"><a href="#companion"><span class="minimap-bar"></span><span class="minimap-tip"></span></a></li>
     </ul>
   </nav>
 
@@ -1090,6 +1085,7 @@
       <nav class="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm" aria-label="Footer">
         <a href="/demo/" class="nav-link" style="padding:6px 0;" data-i18n="footer.demo">Live demo</a>
         <a href="#features" class="nav-link" style="padding:6px 0;" data-i18n="footer.features">Features</a>
+        <a href="#tui" class="nav-link" style="padding:6px 0;" data-i18n="footer.tui">TUI</a>
         <a href="#companion" class="nav-link" style="padding:6px 0;" data-i18n="footer.companion">Companion</a>
         <a href="https://github.com/JingbiaoMei/Tokdash" target="_blank" rel="noopener" class="nav-link" style="padding:6px 0;">GitHub</a>
         <a href="https://github.com/JingbiaoMei/Tokdash/blob/main/LICENSE" target="_blank" rel="noopener" class="nav-link" style="padding:6px 0;" data-i18n="footer.license">License</a>

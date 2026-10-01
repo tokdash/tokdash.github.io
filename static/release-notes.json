@@ -1,6 +1,199 @@
 {
-  "current": "2.5.7",
+  "current": "2.6.8",
   "releases": [
+    {
+      "version": "2.6.8",
+      "date": "2026-09-30",
+      "sections": [
+        {
+          "type": "added",
+          "items": [
+            "gpt-6.1-sol is priced. OpenAI's newest Sol tier reads $2.00 input / $10.00 output per MTok at the standard short-context rates, with cache read at $0.10 and cache write at $2.50 -- the same as gpt-6-sol except that cached input is halved, and its long-context and Batch/Flex/Fast rules carry over unchanged."
+          ]
+        },
+        {
+          "type": "fixed",
+          "items": [
+            "A failed dashboard load no longer freezes the page behind a dialog. That failure was already reported on the persistent status line, so the alert was a second, blocking copy of a message the page had just shown; the error now stays in the console."
+          ]
+        }
+      ]
+    },
+    {
+      "version": "2.6.7",
+      "date": "2026-09-28",
+      "sections": [
+        {
+          "type": "added",
+          "items": [
+            "The pricing database is regenerated from the 2026-09-28 scan. Claude Sonnet 5.5 joins at $2.00 input / $10.00 output per MTok with cache at $0.20 read / $2.50 write, beside GLM 5.3 Prime ($2.80 / $8.80), Qwen 3.8 Max Prime ($4.00 / $12.00) and Command A Plus ($0.30 / $1.50). The sonnet-5.5 and sonnet55 aliases resolve to it, so Claude Code's bare short name prices like the sonnet-5 pair already did instead of costing nothing. The 86 price changes the scan flagged for manual review are not part of this update."
+          ]
+        },
+        {
+          "type": "fixed",
+          "items": [
+            "The quota poll interval and the Hit % column header speak the dashboard's language. The static \"Poll every\" select hardcoded 15 min through 120 min and so stayed English in all six locales while the per-server selects already used the translated minute unit; every Hit % header now takes the existing cacheHitRateHint translation too, where two carried an English-only tooltip and 21 had none at all."
+          ]
+        }
+      ]
+    },
+    {
+      "version": "2.6.6",
+      "date": "2026-09-28",
+      "sections": [
+        {
+          "type": "added",
+          "items": [
+            "The desktop dashboard gained a sidebar -- Overview, Sessions Explorer, Stats & Heatmap, Usage Report, Quota & Budgets, Servers and Pricing DB -- with What's New and Settings at its foot, a light/dark quick toggle in the header, and a Sessions tab filter row built from the tools that actually have sessions in the selected period. Phone widths keep the existing tab bar and pick up a gear and a What's New icon, so Settings and the language switch stay reachable below 768px.",
+            "Session detail now surfaces what the harnesses already record about a session: the working directory's project name and git branch for Hermes, per-session tool-call and message counts, profile name, and a metadata-only message timeline for Hermes and Antigravity sessions. Transcript text is never read into the API; only its measurements ship.",
+            "The Overview carries a Token Composition band breaking the window's tokens into prompt, cache, output and reasoning, with the cash value of the cache hits beside it."
+          ]
+        },
+        {
+          "type": "changed",
+          "items": [
+            "Settings opens as a modal over the page from its sidebar trigger, and both Settings and What's New keep one copy each instead of a header and a sidebar twin.",
+            "Light mode is no longer dark-mode paint with a light wall. The redesign's hardcoded surfaces are mapped to the theme tokens, so cards, the KPI grid, the drawer and the scrollbar follow the selected style theme. Every visible string was measured rather than eyeballed: no text in the dashboard falls below WCAG AA (4.5:1) in light mode or dark.",
+            "The energy/kWh estimate is gone. Its Joules-per-token coefficients cited a research note outside the repository, and the model matcher that fed them priced Kimi as llama-405b; Tokdash does not publish numbers it cannot source. Cost is the proxy that was always there.",
+            "The version strings in the sidebar and header are read from the running package instead of hardcoded literals that were already stale when written.",
+            "The Z.ai quota card wears the ZCode mark instead of the grey letter tile: the poll already reads the Z.ai key out of the ZCode CLI's own config, so the provider table maps zai onto the ZCode entry already in the package rather than shipping a second copy of the same glyph. The card keeps its own heading, so it still reads Z.ai.",
+            "A bare tokdash prints a one-screen command card -- eleven verbs in four groups, each with one line -- instead of the full flag reference. --help is still the whole reference and still lists every flag, but the usage line is now one line and the flags arrive in sections whose heading names every verb that reads them, so twelve flags stop each repeating a For tokdash quota consent line. An error prints the same short usage."
+          ]
+        },
+        {
+          "type": "fixed",
+          "items": [
+            "Hermes sessions keep their real end-of-activity timing. An earlier cut appended a zero-token turn at each session's ended_at to extend the active-time span, which credited sessions with hours of idle time between messages; the fabricated turn is out and the Hermes parser version stays at 1, so existing parsed caches survive the upgrade.",
+            "Pi fork replays are counted once. A Pi fork copies its parent's already-billed assistant events into a new session file, and those copies were read as new usage -- forking a session inflated every total that session touched, and the fork appeared in Sessions as a row whose whole history was replayed. Ancestry is now resolved from the parentSession header and each event is keyed by corroborated immutable fields, so the original owns the recorded billing, descendants contribute only their own new work, and a replay-only session disappears. Ancestry is persisted in per-file cache metadata, so deleting an ancestor's log cannot hand the same replay a fresh identity; Pi's parser version moved to 2 and rebuilds v1 rows once."
+          ]
+        }
+      ]
+    },
+    {
+      "version": "2.6.5",
+      "date": "2026-09-26",
+      "sections": [
+        {
+          "type": "added",
+          "items": [
+            "A server can hold several addresses. Settings keeps one entry per machine with a row per address, reads it through the quickest address the browser is allowed to use, and moves to the next one when an address is dead, so adding a second address no longer counts the same tokens twice.",
+            "An address is checked before it is stored: one that does not answer, or answers as a different Tokdash, is refused where it is typed and names the machine that owns it, and an address a browser provably cannot read is labelled blocked with the rule that blocks it rather than merged."
+          ]
+        },
+        {
+          "type": "changed",
+          "items": [
+            "Quota provider cards lead with the provider's own brand mark -- Codex, Claude Code, Antigravity, MiniMax, Kimi Code, Grok Build, OpenCode Go and Command Code -- picked through one provider-to-brand table so the mark and brand colour follow the source registry. Z.ai is the only provider left on the letter tile.",
+            "The Report tab's agent table prints every tool that recorded tokens instead of folding the tail behind an Other tools on this machine disclosure; a tool with no recorded session keeps its row with em dashes in the session and active-time columns."
+          ]
+        },
+        {
+          "type": "fixed",
+          "items": [
+            "On the TUI period views the [ / ] / 0 keys step by whole calendar periods: one press on the month view shows the entire previous month rather than the same month one day shorter, the week view steps a full Mon-Sun week and the year view a full calendar year.",
+            "Three TUI follow-ups from the same review: textual is pinned to 8.x, the quota disabled-poll note paints yellow instead of a literal [warn] tag, and the database status read moved off the event loop so a slow database cannot stall key handling.",
+            "Pinned Qoder CLI models are counted. Setting a model in the Qoder settings file used to silence the whole source; Tokdash now reads each model's context window from the CLI's own run logs, or from the --context-window a session declared, and recovers the tokens the CLI zero-fills. A model with no window evidence anywhere is named in a warning instead of vanishing.",
+            "Antigravity usage from agy 1.2.x is counted. That CLI writes no row timestamp, and an undated row never reached the usage store, so rows are now dated from the latest step they reference."
+          ]
+        }
+      ]
+    },
+    {
+      "version": "2.6.4",
+      "date": "2026-09-25",
+      "sections": [
+        {
+          "type": "added",
+          "items": [
+            "The changelog localizes: in the Chinese dashboard locale, What's New now overlays Simplified Chinese on the English record, and the footer links the generated Chinese changelog page. Locales without a translation, and untranslated releases, fall back to the English record.",
+            "tokdash tui opens an interactive terminal dashboard with Overview, Report and Quota tabs over the same compute and caches as the web dashboard. No server needed.",
+            "tokdash report prints a one-shot activity report for a single window; --json, --pretty and --output follow the tokdash export conventions."
+          ]
+        },
+        {
+          "type": "changed",
+          "items": [
+            "A bare tokdash with no verb prints the command help and exits instead of starting tokdash serve and opening a browser."
+          ]
+        },
+        {
+          "type": "fixed",
+          "items": [
+            "Claude Code quota no longer reads a usage percent of 1 as 100% used: the live API's 0-100 integer percents stay on that scale.",
+            "Antigravity quota now finds its sign-in on macOS when the agy CLI keeps the OAuth token in the login Keychain instead of a file, and failure snapshots redact unrecognized token metadata."
+          ]
+        }
+      ]
+    },
+    {
+      "version": "2.6.3",
+      "date": "2026-09-23",
+      "sections": [
+        {
+          "type": "added",
+          "items": [
+            "Claude Code limit resets now show on the Quota tab, in the same Reset Credits block the Codex card uses. Each reset lists its expiry under the install that holds it, and Tokdash only reads them: spending one still happens in Claude Code."
+          ]
+        }
+      ]
+    },
+    {
+      "version": "2.6.2",
+      "date": "2026-09-23",
+      "sections": [
+        {
+          "type": "changed",
+          "items": [
+            "The pricing database was updated for the September releases: Claude Opus 5.5 Fast (2x the standard rate), Claude Mythos 5.1 and OpenAI's GPT-5.6 Cyber are priced, GPT-5.6 Sol and Sol Pro drop to $4.00 / $20.00 under OpenAI's promotional pricing, and Claude Sonnet 5's $2.00 / $10.00 is confirmed as the standard price."
+          ]
+        }
+      ]
+    },
+    {
+      "version": "2.6.1",
+      "date": "2026-09-22",
+      "sections": [
+        {
+          "type": "added",
+          "items": [
+            "Devin CLI usage tracking: per-call token usage from Devin's local SQLite store lands in Overview, the period filters and Stats."
+          ]
+        },
+        {
+          "type": "changed",
+          "items": [
+            "The pricing database was refreshed from the 2026-09-22 model scan: Claude Opus 5.5 is priced at $4.00 input / $20.00 output per MTok, and Claude Fable 5.1 now sits with the other Anthropic entries."
+          ]
+        },
+        {
+          "type": "fixed",
+          "items": [
+            "A signed-out Claude Code profile no longer shows quota windows it can never refresh."
+          ]
+        }
+      ]
+    },
+    {
+      "version": "2.6.0",
+      "date": "2026-09-21",
+      "sections": [
+        {
+          "type": "added",
+          "items": [
+            "MiniMax Code usage tracking: per-call token usage from the mcode CLI lands in Overview, the period filters and Stats, beside the MiniMax quota card that already covered the account side.",
+            "Command Code subscription quota tracking shows the 5-hour and weekly windows the API reports and a monthly window derived from the resolved plan, behind an explicit consent: tokdash quota consent --credential-scan on --commandcode-api on.",
+            "OpenCode v2's session_message / session_v2 schema is read, so usage written after OpenCode's migration is counted again in Overview and Sessions. Kilo Code databases are detected the same way."
+          ]
+        },
+        {
+          "type": "fixed",
+          "items": [
+            "A quota card stops warning that it couldn't refresh as soon as the provider answers again, instead of warning for days after it recovered.",
+            "A quota window updated twice in the same second now keeps the newer reading, so a bar that should be withdrawn really disappears."
+          ]
+        }
+      ]
+    },
     {
       "version": "2.5.7",
       "date": "2026-09-15",
@@ -74,7 +267,7 @@
           "type": "changed",
           "items": [
             "The Report tab is much faster to reopen: sessions are cached per session and shared across the week, month and year windows instead of being rebuilt three times. TOKDASH_SESSION_CACHE_TURNS bounds what the cache retains.",
-            "The Report tab swaps the quick-range presets for period chips — this and last week, named months, years — each stepping the window a whole period back.",
+            "The Report tab swaps the quick-range presets for period chips \u2014 this and last week, named months, years \u2014 each stepping the window a whole period back.",
             "Share cards follow the app theme, export at 1800x3200, and print tokens and cost together in the header, with cost on by default and the toggle as the opt-out. Month cards use smaller heat squares with empty boxes for days still ahead, week cards drop the heat row, and the project card ranks the top 3 projects.",
             "Durations render in unit words, two at most: 25 hours reads as 1 day 1 hour, 34 days as 1 month 4 days."
           ]
@@ -385,7 +578,7 @@
           "type": "fixed",
           "items": [
             "Changing the date range no longer leaves the previous range's Apps & Models and Combined Models tables under the new range's label.",
-            "The Agent Time card now shows that it is loading instead of a dash, which read as “no agent time” while its request was still in flight.",
+            "The Agent Time card now shows that it is loading instead of a dash, which read as \u201cno agent time\u201d while its request was still in flight.",
             "Restored DeepSeek Harness session loading when the persistent usage database is disabled or unreadable."
           ]
         }
@@ -398,7 +591,7 @@
         {
           "type": "fixed",
           "items": [
-            "Codex subagent and fork sessions no longer double-count the parent thread they replay — newer Codex writes forks in a shape the old check could not see.",
+            "Codex subagent and fork sessions no longer double-count the parent thread they replay \u2014 newer Codex writes forks in a shape the old check could not see.",
             "Codex usage is no longer attributed to gpt-5.3-codex when a rollout records no model; those rows now take the file's own model, or read as unknown at zero cost.",
             "Picking a date range no longer keeps a fork's replayed rows when the range excluded the parent session."
           ]
@@ -424,7 +617,7 @@
         {
           "type": "added",
           "items": [
-            "Added DeepSeek Harness (dsh) as a token, cost and session source — each step's early usage chunk folds into its finalized message, and a forked session's inherited prefix is skipped, so nothing is double-counted.",
+            "Added DeepSeek Harness (dsh) as a token, cost and session source \u2014 each step's early usage chunk folds into its finalized message, and a forked session's inherited prefix is skipped, so nothing is double-counted.",
             "DeepSeek Harness sessions appear in the Session Explorer with title, project and active time, and sync into the persistent store.",
             "Added GLM 5.3, DeepSeek V4 Pro and Grok 4.6 pricing, plus a DeepSeek Harness brand mark."
           ]
