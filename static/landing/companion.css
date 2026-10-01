@@ -497,25 +497,40 @@ html.dark .comp-mock .win-fly .srv-rows .sdim { color: #B0B0B0; }
 .comp-mock .sl-codex { color: #00AF87; }
 
 /* ===== TUI overview mock (#tui section) =====
-   Sits in the same .terminal slab as the statusline mock; the terminal is a
-   dark object in both themes, so these need no html.dark variants.
-   Heatmap colors ride inline on the cells; layout lives here. */
-.comp-mock .tui-kpis { display: flex; gap: 8px; }
-.comp-mock .tui-kpi {
-  flex: 1; min-width: 0;
-  border: 1px solid rgba(255,255,255,0.10); border-radius: 6px;
-  padding: 8px 10px; background: rgba(255,255,255,0.03);
-  display: flex; flex-direction: column; gap: 2px;
-}
-.comp-mock .tui-kpi-k { font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: #94A3B8; }
-.comp-mock .tui-kpi-v { font-size: 15px; font-weight: 700; color: #FFFFFF; white-space: nowrap; }
-.comp-mock .tui-cap { margin: 14px 0 6px; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: #94A3B8; }
-.comp-mock .tui-heat-row { display: flex; gap: 3px; margin-bottom: 3px; }
-.comp-mock .tui-heat-row > div { flex: 1; min-width: 6px; height: 12px; border-radius: 2px; }
+   Mirrors the captured `tokdash tui` Overview frame: the status strip, the
+   tab row, the bordered period range, a plain-text KPI row with deltas, a
+   year heatmap with month and weekday labels, the per-tool table, and the
+   key footer. Sits in the same .terminal slab as the statusline mock; the
+   terminal is a dark object in both themes, so no html.dark variants. */
+.comp-mock .tui-status { font-size: 11px; color: #94A3B8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.comp-mock .tui-tabs { display: flex; gap: 10px; margin: 8px 0 2px; font-size: 12px; color: #94A3B8; }
+.comp-mock .tui-tab.on { color: #FFFFFF; background: #2563EB; padding: 1px 8px; font-weight: 700; }
+.comp-mock .tui-range { display: inline-block; margin: 8px 0 0; padding: 1px 8px; background: #E2E8F0; color: #0F172A; font-weight: 700; font-size: 12px; }
+.comp-mock .tui-hint { margin-top: 8px; font-size: 11px; color: #64748B; white-space: pre-line; }
+.comp-mock .tui-kpis { display: flex; gap: 20px; flex-wrap: wrap; margin: 8px 0 2px; }
+.comp-mock .tui-kpi { min-width: 0; display: flex; flex-direction: column; }
+.comp-mock .tui-kpi-k { font-size: 12px; font-weight: 700; color: #E2E8F0; }
+.comp-mock .tui-kpi-v { font-size: 12.5px; color: #E2E8F0; white-space: nowrap; }
+.comp-mock .tui-delta { font-size: 11px; color: #F87171; }
+.comp-mock .tui-months { display: flex; gap: 3px; margin: 12px 0 3px 30px; font-size: 9.5px; color: #94A3B8; }
+.comp-mock .tui-months span { flex: 1; }
+.comp-mock .tui-heat-row { display: flex; gap: 3px; align-items: center; margin-bottom: 3px; }
+.comp-mock .tui-dow { width: 27px; flex: none; font-size: 10px; color: #94A3B8; }
+.comp-mock .tui-heat-row .hx { flex: 1; min-width: 5px; height: 11px; }
+.comp-mock .hx.t0 { background: #16202F; }
+.comp-mock .hx.t1 { background: rgba(226,232,240,0.30); }
+.comp-mock .hx.t2 { background: rgba(226,232,240,0.62); }
+.comp-mock .hx.t3 { background: #E2E8F0; }
+.comp-mock .tui-table { margin-top: 14px; width: 100%; border-collapse: collapse; font-size: 11.5px; color: #CBD5E1; }
+.comp-mock .tui-table th { text-align: right; background: rgba(255,255,255,0.09); padding: 2px 7px; font-weight: 700; color: #FFFFFF; }
+.comp-mock .tui-table td { text-align: right; padding: 2px 7px; white-space: nowrap; }
+.comp-mock .tui-table th:first-child, .comp-mock .tui-table td:first-child { text-align: left; }
+.comp-mock .tui-table td.dim { color: #64748B; }
 .comp-mock .tui-keys { margin-top: 14px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; flex-wrap: wrap; gap: 6px; font-size: 11px; color: #94A3B8; white-space: nowrap; }
 .comp-mock .tui-key {
-  display: inline-block; min-width: 16px; text-align: center;
+  display: inline-block; min-width: 14px; text-align: center;
   padding: 0 4px; border: 1px solid rgba(255,255,255,0.18); border-radius: 4px;
-  background: rgba(255,255,255,0.06); color: #E2E8F0; font-size: 10.5px; line-height: 16px;
+  background: rgba(255,255,255,0.06); color: #E5C07B; font-size: 10.5px; line-height: 16px; font-weight: 700;
 }
 .comp-mock .tui-keys-gap { width: 10px; flex: none; }
+.comp-mock .tui-keys-tail { margin-left: auto; color: #64748B; }
