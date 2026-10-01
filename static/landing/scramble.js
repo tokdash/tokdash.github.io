@@ -5,25 +5,14 @@
     'feat.h',
     'srv.1.h',
     'srv.2.h',
-    'srv.3.h',
-    'srv.4.h',
-    'opt.1.h',
-    'opt.2.h',
-    'opt.3.h',
-    'opt.4.h',
-    'cta.h'
+    'srv.3.h'
   ];
 
   var TARGET_KEYS = [
     'feat.sub',
     'srv.1.p',
     'srv.2.p',
-    'srv.3.p',
-    'srv.4.p',
-    'opt.1.p',
-    'opt.2.p',
-    'opt.3.p',
-    'opt.4.p'
+    'srv.3.p'
   ];
 
   // Scramble settings: includes '.' full stop

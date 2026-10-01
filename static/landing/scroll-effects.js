@@ -44,7 +44,7 @@
   if (!map) return;
   var nodes = Array.prototype.slice.call(map.querySelectorAll('.minimap-node'));
   if (!nodes.length) return;
-  var ids = ['top', 'features', 'servers', 'optimize', 'companion', 'install'];
+  var ids = ['top', 'install', 'features', 'tui', 'servers', 'companion'];
 
   var sections = ids.map(function (id) { return document.getElementById(id); });
   if (sections.some(function (s) { return !s; })) return;

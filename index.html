@@ -243,9 +243,7 @@
 
       <nav class="hidden md:flex items-center gap-1" aria-label="Primary">
         <a href="#features" class="nav-link" data-i18n="nav.features">Features</a>
-        <a href="#tui" class="nav-link" data-i18n="nav.tui">Terminal</a>
-        <a href="#tools" class="nav-link" data-i18n="nav.tools">Tools</a>
-        <a href="#privacy" class="nav-link" data-i18n="nav.privacy">Privacy</a>
+        <a href="#tui" class="nav-link" data-i18n="nav.tui">TUI</a>
         <a href="#companion" class="nav-link" data-i18n="nav.companion">Companion</a>
         <a href="#install" class="nav-link" data-i18n="nav.install">Install</a>
         <a href="/demo/" class="nav-link" data-i18n="nav.demo">Demo</a>
@@ -320,10 +318,7 @@
                 </svg>
               </span>
             </button>
-            <a href="/demo/" class="btn btn-primary">
-              <span data-i18n="hero.cta_demo">View live demo</span>
-              <svg class="svg-drawable" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </a>
+            <a href="/demo/" class="mono text-sm" style="color:var(--color-primary);">tokdash.github.io/demo</a>
           </div>
 
           <!-- Proof strip: only claims the product can actually back up. The
@@ -401,67 +396,65 @@
       </div>
     </section>
 
-    <!-- ============ TRUST / LOGOS ============ -->
-    <section id="privacy" class="max-w-[1180px] mx-auto px-4 sm:px-6 py-6">
-      <div class="surface surface-static p-6 sm:p-8">
-        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div class="reveal">
-            <div class="feature-icon mb-3"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 2 4 5v6c0 5 3.4 8.5 8 11 4.6-2.5 8-6 8-11V5l-8-3z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="m9 12 2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-            <h3 class="font-bold" data-i18n="trust.local.h">100% local</h3>
-            <p class="text-sm text-muted mt-1" data-i18n="trust.local.p">Reads logs already on your disk. Nothing is ever uploaded.</p>
+    <!-- ============ GET STARTED / SETUP ============ -->
+    <span id="start" style="position:relative;top:-88px;display:block;" aria-hidden="true"></span>
+    <section id="install" data-section="setup" class="max-w-[1180px] mx-auto px-4 sm:px-6 py-14 lg:py-20">
+      <div class="grid lg:grid-cols-2 gap-10 lg:gap-14 items-center">
+        <div class="reveal">
+          <span class="chip" data-i18n="start.eyebrow"><span class="dot"></span> Get started</span>
+          <h2 class="sec-title font-extrabold tracking-tight mt-5" data-i18n="start.h">Up and running in 30 seconds</h2>
+          <p class="text-muted mt-3 max-w-md" data-i18n="start.sub">Python package, one command to install, one to set up. Your data never leaves your laptop.</p>
+
+          <ol class="mt-8 space-y-5">
+            <li class="flex gap-4">
+              <span class="step-num">1</span>
+              <div>
+                <h3 class="font-bold" data-i18n="start.1.h">Install</h3>
+                <p class="text-sm text-muted mt-0.5" data-i18n="start.1.p"><code class="mono" style="color:var(--color-primary);">pipx install tokdash</code></p>
+              </div>
+            </li>
+            <li class="flex gap-4">
+              <span class="step-num">2</span>
+              <div>
+                <h3 class="font-bold" data-i18n="start.2.h">Setup</h3>
+                <p class="text-sm text-muted mt-0.5" data-i18n="start.2.p">Run <code class="mono" style="color:var(--color-primary);">tokdash setup</code>. It configures a reversible, no-sudo background service and finds your CLI logs automatically.</p>
+              </div>
+            </li>
+            <li class="flex gap-4">
+              <span class="step-num">3</span>
+              <div>
+                <h3 class="font-bold" data-i18n="start.3.h">Done</h3>
+                <p class="text-sm text-muted mt-0.5" data-i18n="start.3.p">The wizard prints your dashboard URL, defaulting to <code class="mono" style="color:var(--color-primary);">http://127.0.0.1:55423</code>.</p>
+              </div>
+            </li>
+          </ol>
+
+          <div class="flex flex-wrap items-center gap-3 mt-8">
+            <a href="https://github.com/JingbiaoMei/Tokdash" target="_blank" rel="noopener" class="btn btn-ghost" data-i18n="start.cta_docs">Read the docs</a>
+            <a href="/demo/" class="mono text-sm" style="color:var(--color-primary);">tokdash.github.io/demo</a>
           </div>
-          <div class="reveal">
-            <div class="feature-icon mb-3"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 12a9 9 0 0 1 18 0M3 12a9 9 0 0 0 18 0" stroke="currentColor" stroke-width="2"/><path d="M3 12h18" stroke="currentColor" stroke-width="2"/><path d="M4 6l16 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
-            <h3 class="font-bold" data-i18n="trust.telemetry.h">Zero telemetry</h3>
-            <p class="text-sm text-muted mt-1" data-i18n="trust.telemetry.p">No accounts, no tracking, no phone-home. Works fully offline.</p>
+
+          <p class="text-xs text-muted mt-4" data-i18n="start.upgrade">Already set up? Upgrade any time with <code class="mono" style="color:var(--color-primary);">tokdash update</code>.</p>
+        </div>
+
+        <!-- Terminal -->
+        <div class="reveal terminal">
+          <div class="terminal-bar">
+            <span class="dot-r" style="background:#F87171;"></span>
+            <span class="dot-r" style="background:#FBBF24;"></span>
+            <span class="dot-r" style="background:#34D399;"></span>
+            <span class="mono text-xs ml-2" style="color:#94A3B8;">zsh: tokdash</span>
           </div>
-          <div class="reveal">
-            <div class="feature-icon mb-3"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-            <h3 class="font-bold" data-i18n="trust.oss.h">Open source</h3>
-            <p class="text-sm text-muted mt-1" data-i18n="trust.oss.p">MIT licensed and auditable. Install in one command with pipx.</p>
-          </div>
-          <div class="reveal">
-            <div class="feature-icon mb-3"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="14" rx="2" stroke="currentColor" stroke-width="2"/><path d="M8 21h8M12 18v3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
-            <h3 class="font-bold" data-i18n="trust.pwa.h">Dashboard installs as a PWA</h3>
-            <p class="text-sm text-muted mt-1" data-i18n="trust.pwa.p">Pin the dashboard like a native app, light or dark, in 6 languages.</p>
+          <div class="terminal-body">
+            <div><span class="p">$</span> <span class="c">pipx install tokdash</span></div>
+            <div class="o">installed package tokdash ✓</div>
+            <div><span class="p">$</span> <span class="c">tokdash setup</span></div>
+            <div class="o">scanning ~/.codex, ~/.claude, ~/.opencode …</div>
+            <div class="o">configuring user-level background service …</div>
+            <div class="ok">→ dashboard ready at http://127.0.0.1:55423</div>
+            <div><span class="p">$</span> <span class="c" style="opacity:.7;">▍</span></div>
           </div>
         </div>
-      </div>
-    </section>
-
-    <!-- ============ SUPPORTED TOOLS ============ -->
-    <section id="tools" class="band max-w-[1180px] mx-auto px-4 sm:px-6 py-14 lg:py-20">
-      <div class="text-center max-w-2xl mx-auto reveal">
-        <h2 class="sec-title font-extrabold tracking-tight" data-i18n="tools.h">One dashboard for every agent</h2>
-        <p class="text-muted mt-3" data-i18n="tools.sub">Tokdash unifies usage across twenty-seven AI coding tools, letting you switch agents without losing the bill.</p>
-      </div>
-
-      <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 mt-10 max-w-3xl mx-auto reveal">
-        <a href="https://openai.com/codex/" target="_blank" rel="noopener" class="tool-pill"><img class="tool-logo" src="/static/icons/agents/codex.png" alt="Codex logo" loading="lazy" onerror="this.style.display='none'">Codex</a>
-        <a href="https://www.claude.com/product/claude-code" target="_blank" rel="noopener" class="tool-pill"><img class="tool-logo" src="/static/icons/agents/claude.svg" alt="Claude Code logo" loading="lazy" onerror="this.style.display='none'">Claude Code</a>
-        <a href="https://opencode.ai/" target="_blank" rel="noopener" class="tool-pill"><img class="tool-logo" src="/static/icons/agents/opencode.png" alt="OpenCode logo" loading="lazy" onerror="this.style.display='none'">OpenCode</a>
-        <a href="https://github.com/google-gemini/gemini-cli" target="_blank" rel="noopener" class="tool-pill"><img class="tool-logo" src="/static/icons/agents/gemini.svg" alt="Gemini CLI logo" loading="lazy" onerror="this.style.display='none'">Gemini CLI</a>
-        <a href="https://antigravity.google/" target="_blank" rel="noopener" class="tool-pill"><img class="tool-logo" src="/static/icons/agents/antigravity.png" alt="Antigravity logo" loading="lazy" onerror="this.style.display='none'">Antigravity</a>
-        <a href="https://openclaw.ai/" target="_blank" rel="noopener" class="tool-pill"><img class="tool-logo" src="/static/icons/agents/openclaw.png" alt="OpenClaw logo" loading="lazy" onerror="this.style.display='none'">OpenClaw</a>
-        <a href="https://github.com/MoonshotAI/kimi-cli" target="_blank" rel="noopener" class="tool-pill"><img class="tool-logo" src="/static/icons/agents/kimi.png" alt="Kimi CLI logo" loading="lazy" onerror="this.style.display='none'">Kimi CLI</a>
-        <a href="https://mimo.xiaomi.com/coder" target="_blank" rel="noopener" class="tool-pill" title="MiMo Code"><img class="tool-logo is-wordmark" src="/static/icons/agents/mimo.svg" alt="Xiaomi MiMo Code" loading="lazy" onerror="this.style.display='none'"></a>
-        <a href="https://grok.com/build" target="_blank" rel="noopener" class="tool-pill"><img class="tool-logo" src="/static/icons/agents/grok.png" alt="Grok Build logo" loading="lazy" onerror="this.style.display='none'">Grok Build</a>
-        <a href="https://pi.dev/" target="_blank" rel="noopener" class="tool-pill"><img class="tool-logo" src="/static/icons/agents/pi.png" alt="Pi logo" loading="lazy" onerror="this.style.display='none'">Pi</a>
-        <a href="https://github.com/features/copilot" target="_blank" rel="noopener" class="tool-pill"><img class="tool-logo" src="/static/icons/agents/copilot.svg" alt="GitHub Copilot CLI logo" loading="lazy" onerror="this.style.display='none'">Copilot CLI</a>
-        <a href="https://hermes-agent.nousresearch.com/" target="_blank" rel="noopener" class="tool-pill"><img class="tool-logo" src="/static/icons/agents/hermes.png" alt="Hermes logo" loading="lazy" onerror="this.style.display='none'">Hermes</a>
-        <a href="https://github.com/deepseek-ai/deepseek-harness" target="_blank" rel="noopener" class="tool-pill"><img class="tool-logo" src="/static/icons/agents/dsh.svg" alt="DeepSeek Harness logo" loading="lazy" onerror="this.style.display='none'">DeepSeek Harness</a>
-        <a href="https://reasonix.io/" target="_blank" rel="noopener" class="tool-pill"><img class="tool-logo" src="/static/icons/agents/reasonix.svg" alt="Reasonix logo" loading="lazy" onerror="this.style.display='none'">Reasonix</a>
-        <a href="https://zcode.z.ai/" target="_blank" rel="noopener" class="tool-pill"><img class="tool-logo" src="/static/icons/agents/zcode.png" alt="ZCode logo" loading="lazy" onerror="this.style.display='none'">ZCode</a>
-        <a href="https://www.workbuddy.ai/" target="_blank" rel="noopener" class="tool-pill"><img class="tool-logo" src="/static/icons/agents/workbuddy.png" alt="WorkBuddy logo" loading="lazy" onerror="this.style.display='none'">WorkBuddy</a>
-        <a href="https://qoder.com/" target="_blank" rel="noopener" class="tool-pill"><img class="tool-logo" src="/static/icons/agents/qoder.png" alt="Qoder IDE logo" loading="lazy" onerror="this.style.display='none'">Qoder IDE</a>
-        <a href="https://qoder.com/" target="_blank" rel="noopener" class="tool-pill"><img class="tool-logo" src="/static/icons/agents/qoder.png" alt="Qoder CLI logo" loading="lazy" onerror="this.style.display='none'">Qoder CLI</a>
-        <a href="https://omp.sh/" target="_blank" rel="noopener" class="tool-pill"><img class="tool-logo" src="/static/icons/agents/omp.png" alt="omp logo" loading="lazy" onerror="this.style.display='none'">omp</a>
-        <a href="https://kilocode.ai/" target="_blank" rel="noopener" class="tool-pill"><img class="tool-logo" src="/static/icons/agents/kilocode.png" alt="Kilo Code logo" loading="lazy" onerror="this.style.display='none'">Kilo Code</a>
-        <a href="https://cline.bot/" target="_blank" rel="noopener" class="tool-pill"><img class="tool-logo" src="/static/icons/agents/cline.png" alt="Cline logo" loading="lazy" onerror="this.style.display='none'">Cline</a>
-        <a href="https://zed.dev/" target="_blank" rel="noopener" class="tool-pill"><img class="tool-logo" src="/static/icons/agents/zed.svg" alt="Zed logo" loading="lazy" onerror="this.style.display='none'">Zed</a>
-        <a href="https://github.com/QwenLM/qwen-code" target="_blank" rel="noopener" class="tool-pill"><img class="tool-logo" src="/static/icons/agents/qwen_code.svg" alt="Qwen Code logo" loading="lazy" onerror="this.style.display='none'">Qwen Code</a>
-        <a href="https://charm.land/crush" target="_blank" rel="noopener" class="tool-pill"><img class="tool-logo" src="/static/icons/agents/crush.png" alt="Crush logo" loading="lazy" onerror="this.style.display='none'">Crush</a>
-        <a href="https://dev.meta.ai/docs/muse-code" target="_blank" rel="noopener" class="tool-pill"><img class="tool-logo" src="/static/icons/agents/muse.svg" alt="Muse Code logo" loading="lazy" onerror="this.style.display='none'">Muse Code</a>
       </div>
     </section>
 
@@ -515,8 +508,8 @@
         <!-- 7 -->
         <div class="surface p-6 reveal">
           <div class="feature-icon mb-4"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 12a9 9 0 0 1 15-6.7M21 12a9 9 0 0 1-15 6.7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M18 3v4h-4M6 21v-4h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-          <h3 class="text-lg font-bold" data-i18n="feat.7.h">Managed background service</h3>
-          <p class="text-sm text-muted mt-2" data-i18n="feat.7.p"><code class="mono" style="color:var(--color-primary);">tokdash setup</code> configures a reversible, no-sudo systemd/launchd service in one step, while <code class="mono" style="color:var(--color-primary);">doctor</code>, <code class="mono" style="color:var(--color-primary);">update</code>, and <code class="mono" style="color:var(--color-primary);">uninstall</code> keep it healthy and fully removable.</p>
+          <h3 class="text-lg font-bold" data-i18n="feat.7.h">One package, four views</h3>
+          <p class="text-sm text-muted mt-2" data-i18n="feat.7.p">One install ships the WebUI, the TUI, the macOS and Windows companion, and the shell statusline. Same data, whichever surface you are at.</p>
         </div>
         <!-- 8 -->
         <div class="surface p-6 reveal">
@@ -535,12 +528,12 @@
 
     <div class="max-w-[1180px] mx-auto px-4 sm:px-6"><div class="divider-grad"></div></div>
 
-    <!-- ============ TERMINAL ============ -->
+    <!-- ============ TUI ============ -->
     <section id="tui" class="max-w-[1180px] mx-auto px-4 sm:px-6 py-14 lg:py-20">
       <div class="grid lg:grid-cols-2 gap-10 lg:gap-14 items-center">
         <!-- Copy -->
         <div class="reveal">
-          <span class="chip" data-i18n="tui.eyebrow"><span class="dot"></span> Terminal</span>
+          <span class="chip" data-i18n="tui.eyebrow"><span class="dot"></span> TUI</span>
           <h2 class="sec-title font-extrabold tracking-tight mt-5" data-i18n="tui.h">The whole dashboard, driven by the keyboard</h2>
           <p class="text-muted mt-3 max-w-md" data-i18n="tui.sub">Run <code class="mono" style="color:var(--color-primary);">tokdash tui</code> and the Overview, Report and Quota tabs open inside your terminal, no browser required. Launched beside <code class="mono" style="color:var(--color-primary);">tokdash serve</code> it reads the same local index and cache, so the two views never drift apart.</p>
         </div>
@@ -604,10 +597,6 @@
               <span class="opt-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><path d="M12 12 16 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>
               <div><h3 class="font-bold text-[15px]" data-i18n="srv.3.h">Quota stays per machine</h3><p class="text-sm text-muted" data-i18n="srv.3.p">Subscription windows render under the server that owns them, so two machines on one Codex plan never blur into a single bar.</p></div>
             </li>
-            <li class="opt-li">
-              <span class="opt-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 3 3 7v6c0 4.4 3.6 8 9 8s9-3.6 9-8V7l-9-4z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M12 9v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M12 16h.01" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></span>
-              <div><h3 class="font-bold text-[15px]" data-i18n="srv.4.h">A dead server says so</h3><p class="text-sm text-muted" data-i18n="srv.4.p">An unreachable server is flagged, and the combined total keeps the last good read instead of pretending to be fresh.</p></div>
-            </li>
           </ul>
 
           <a href="/demo/" class="btn btn-primary mt-8">
@@ -656,86 +645,6 @@
     </section>
 
     <div class="max-w-[1180px] mx-auto px-4 sm:px-6"><div class="divider-grad"></div></div>
-
-    <!-- ============ COST OPTIMIZATION ============ -->
-    <section id="optimize" class="max-w-[1180px] mx-auto px-4 sm:px-6 py-14 lg:py-20">
-      <div class="grid lg:grid-cols-2 gap-10 lg:gap-14 items-center">
-        <!-- Copy -->
-        <div class="reveal">
-          <span class="chip" data-i18n="opt.eyebrow"><span class="dot"></span> Cost optimization</span>
-          <h2 class="sec-title font-extrabold tracking-tight mt-5" data-i18n="opt.h">See where every dollar goes</h2>
-          <p class="text-muted mt-3 max-w-md" data-i18n="opt.sub">Tokdash breaks spend down to the session, model, and project, so you can find waste and cut it, not just watch the number climb.</p>
-
-          <ul class="mt-7 space-y-4">
-            <li class="opt-li">
-              <span class="opt-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M4 19V5M4 19h16M8 16V9M12 16V6M16 16v-4M20 16v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>
-              <div><h3 class="font-bold text-[15px]" data-i18n="opt.1.h">Cost by model, agent &amp; project</h3><p class="text-sm text-muted" data-i18n="opt.1.p">Rank exactly what's running up the bill across every tool.</p></div>
-            </li>
-            <li class="opt-li">
-              <span class="opt-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M21 12a9 9 0 1 1-6.2-8.56" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M21 4v5h-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-              <div><h3 class="font-bold text-[15px]" data-i18n="opt.2.h">Spot low cache-hit sessions</h3><p class="text-sm text-muted" data-i18n="opt.2.p">A low hit rate means you're re-paying full price for context you could reuse.</p></div>
-            </li>
-            <li class="opt-li">
-              <span class="opt-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 12h10M4 18h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="19" cy="15" r="3" stroke="currentColor" stroke-width="2"/><path d="m21.4 17.4 1.6 1.6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>
-              <div><h3 class="font-bold text-[15px]" data-i18n="opt.3.h">Follow a session down to the turn</h3><p class="text-sm text-muted" data-i18n="opt.3.p">Turn trends, cache reads, and estimated agent time per session, rather than one blurred daily total.</p></div>
-            </li>
-            <li class="opt-li">
-              <span class="opt-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M16 3h5v5M21 3l-7 7M8 21H3v-5M3 21l7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-              <div><h3 class="font-bold text-[15px]" data-i18n="opt.4.h">Compare machines side by side</h3><p class="text-sm text-muted" data-i18n="opt.4.p">Tokens, cost and cache-hit rate per Tokdash server, with the combined column beside them.</p></div>
-            </li>
-          </ul>
-
-          <a href="/demo/" class="btn btn-primary mt-8">
-            <span data-i18n="opt.cta">Explore it in the live demo</span>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </a>
-        </div>
-
-        <!-- Cost-insights card -->
-        <div class="reveal preview-wrap">
-          <div class="surface surface-static overflow-hidden" aria-hidden="true">
-            <div class="preview-topbar">
-              <span class="dot-r" style="background:#F87171;"></span>
-              <span class="dot-r" style="background:#FBBF24;"></span>
-              <span class="dot-r" style="background:#34D399;"></span>
-              <span class="mono text-xs text-muted ml-2">cost insights · last 30 days</span>
-              <span class="ml-auto text-[11px] font-bold px-2.5 py-1 rounded-md" style="background:color-mix(in srgb, var(--color-cost) 14%, transparent); color:var(--color-cost);">$315.30</span>
-            </div>
-            <div class="p-4 sm:p-5">
-              <div class="kpi-label mb-3" data-i18n="opt.card.drivers">Top cost drivers</div>
-              <div class="space-y-3.5">
-                <div>
-                  <div class="flex justify-between items-baseline text-sm mb-1.5"><span class="mono">claude-opus-4.8</span><span class="font-bold" style="color:var(--color-cost);">$182.40</span></div>
-                  <div class="bar"><div class="bar-fill" style="width:100%;"></div></div>
-                </div>
-                <div>
-                  <div class="flex justify-between items-baseline text-sm mb-1.5"><span class="mono">claude-sonnet-4.6</span><span class="font-bold" style="color:var(--color-cost);">$73.10</span></div>
-                  <div class="bar"><div class="bar-fill" style="width:40%;"></div></div>
-                </div>
-                <div>
-                  <div class="flex justify-between items-baseline text-sm mb-1.5"><span class="mono">gpt-5.2-codex</span><span class="font-bold" style="color:var(--color-cost);">$41.20</span></div>
-                  <div class="bar"><div class="bar-fill" style="width:23%;"></div></div>
-                </div>
-                <div>
-                  <div class="flex justify-between items-baseline text-sm mb-1.5"><span class="mono">gemini-3-pro</span><span class="font-bold" style="color:var(--color-cost);">$18.60</span></div>
-                  <div class="bar"><div class="bar-fill" style="width:10%;"></div></div>
-                </div>
-              </div>
-
-              <div class="readout-box mt-5">
-                <div class="flex items-start gap-2.5">
-                  <span class="mt-0.5" style="color:var(--color-cost);" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M21 12a9 9 0 1 1-6.2-8.56" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M21 4v5h-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-                  <div>
-                    <div class="text-sm font-bold" data-i18n="opt.card.readout.h">Cache hit 67.4%</div>
-                    <div class="text-xs text-muted mt-0.5" data-i18n="opt.card.readout.p">Two thirds of prompt input came from cache; the rest was paid at full price. Hit % is a sortable Sessions column.</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
 
     <!-- ============ COMPANION APP ============ -->
     <section id="companion" class="band max-w-[1180px] mx-auto px-4 sm:px-6 py-14 lg:py-20">
@@ -1123,94 +1032,6 @@
       <p class="text-xs text-muted text-center mt-4 max-w-xl mx-auto" data-i18n="comp.caveat">On Windows, the Microsoft Store build is signed by Microsoft and updates itself. The macOS universal dmg and the Windows portable zip on GitHub Releases are unsigned, so Gatekeeper / SmartScreen will warn on first launch. Look for tags <code class="mono">companion-v*</code>.</p>
     </section>
 
-    <!-- ============ GET STARTED / SETUP ============ -->
-    <span id="start" style="position:relative;top:-88px;display:block;" aria-hidden="true"></span>
-    <section id="install" data-section="setup" class="max-w-[1180px] mx-auto px-4 sm:px-6 py-14 lg:py-20">
-      <div class="grid lg:grid-cols-2 gap-10 lg:gap-14 items-center">
-        <div class="reveal">
-          <span class="chip" data-i18n="start.eyebrow"><span class="dot"></span> Get started</span>
-          <h2 class="sec-title font-extrabold tracking-tight mt-5" data-i18n="start.h">Up and running in 30 seconds</h2>
-          <p class="text-muted mt-3 max-w-md" data-i18n="start.sub">Python package, one command to install, one to set up. Your data never leaves your laptop.</p>
-
-          <ol class="mt-8 space-y-5">
-            <li class="flex gap-4">
-              <span class="step-num">1</span>
-              <div>
-                <h3 class="font-bold" data-i18n="start.1.h">Install</h3>
-                <p class="text-sm text-muted mt-0.5" data-i18n="start.1.p"><code class="mono" style="color:var(--color-primary);">pipx install tokdash</code></p>
-              </div>
-            </li>
-            <li class="flex gap-4">
-              <span class="step-num">2</span>
-              <div>
-                <h3 class="font-bold" data-i18n="start.2.h">Setup</h3>
-                <p class="text-sm text-muted mt-0.5" data-i18n="start.2.p">Run <code class="mono" style="color:var(--color-primary);">tokdash setup</code>. It configures a reversible, no-sudo background service and finds your CLI logs automatically.</p>
-              </div>
-            </li>
-            <li class="flex gap-4">
-              <span class="step-num">3</span>
-              <div>
-                <h3 class="font-bold" data-i18n="start.3.h">Done</h3>
-                <p class="text-sm text-muted mt-0.5" data-i18n="start.3.p">The wizard prints your dashboard URL, defaulting to <code class="mono" style="color:var(--color-primary);">http://127.0.0.1:55423</code>.</p>
-              </div>
-            </li>
-          </ol>
-
-          <div class="flex flex-wrap gap-3 mt-8">
-            <a href="/demo/" class="btn btn-primary">
-              <span data-i18n="start.cta_try">Try it now with no install</span>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </a>
-            <a href="https://github.com/JingbiaoMei/Tokdash" target="_blank" rel="noopener" class="btn btn-ghost" data-i18n="start.cta_docs">Read the docs</a>
-          </div>
-
-          <p class="text-xs text-muted mt-4" data-i18n="start.upgrade">Already set up? Upgrade any time with <code class="mono" style="color:var(--color-primary);">tokdash update</code>.</p>
-        </div>
-
-        <!-- Terminal -->
-        <div class="reveal terminal">
-          <div class="terminal-bar">
-            <span class="dot-r" style="background:#F87171;"></span>
-            <span class="dot-r" style="background:#FBBF24;"></span>
-            <span class="dot-r" style="background:#34D399;"></span>
-            <span class="mono text-xs ml-2" style="color:#94A3B8;">zsh: tokdash</span>
-          </div>
-          <div class="terminal-body">
-            <div><span class="p">$</span> <span class="c">pipx install tokdash</span></div>
-            <div class="o">installed package tokdash ✓</div>
-            <div><span class="p">$</span> <span class="c">tokdash setup</span></div>
-            <div class="o">scanning ~/.codex, ~/.claude, ~/.opencode …</div>
-            <div class="o">configuring user-level background service …</div>
-            <div class="ok">→ dashboard ready at http://127.0.0.1:55423</div>
-            <div><span class="p">$</span> <span class="c" style="opacity:.7;">▍</span></div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ============ CTA BAND ============ -->
-    <section class="max-w-[1180px] mx-auto px-4 sm:px-6 pb-20">
-      <div class="surface surface-static reveal overflow-hidden text-center px-6 py-12 sm:py-16"
-           style="background: linear-gradient(135deg, color-mix(in srgb, var(--color-primary) 16%, var(--color-bg)), color-mix(in srgb, var(--color-cta) 12%, var(--color-bg)));">
-        <h2 class="sec-title font-extrabold tracking-tight" data-i18n="cta.h">See it before you install</h2>
-        <p class="text-muted mt-3 max-w-xl mx-auto" data-i18n="cta.sub">The live demo runs the real dashboard on synthetic data, letting you explore every tab, theme, and chart right in your browser.</p>
-        <div class="flex flex-wrap justify-center gap-3 mt-8">
-          <a href="/demo/" class="btn btn-primary">
-            <span data-i18n="cta.open">Open the live demo</span>
-            <svg class="svg-drawable" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </a>
-          <button class="cmd" data-cmd="pipx install tokdash" aria-label="Copy: pipx install tokdash">
-            <span><span class="prompt">$</span>&nbsp;pipx install tokdash</span>
-            <span class="copy-ic" aria-hidden="true">
-              <svg class="copy-glyph" width="14" height="14" viewBox="0 0 24 24" fill="none" style="overflow:visible;">
-                <path class="copy-back" d="M 5 15 L 5 5 L 16 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <path class="copy-front" d="M 9 9 L 20 9 L 20 20 L 9 20 L 9 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </span>
-          </button>
-        </div>
-      </div>
-    </section>
     <div class="max-w-[1180px] mx-auto px-4 sm:px-6"><div class="divider-grad"></div></div>
 
     <!-- ============ RELATED PROJECT ============ -->
@@ -1242,12 +1063,11 @@
   <nav class="minimap" aria-label="Page sections">
     <ul class="minimap-rail">
       <li class="minimap-node"><a href="#top"><span class="minimap-bar"></span><span class="minimap-tip" data-i18n="rail.first">Quickstart</span></a></li>
+      <li class="minimap-node"><a href="#install"><span class="minimap-bar"></span><span class="minimap-tip" data-i18n="rail.last">Setup</span></a></li>
       <li class="minimap-node"><a href="#features"><span class="minimap-bar"></span><span class="minimap-tip"></span></a></li>
       <li class="minimap-node"><a href="#tui"><span class="minimap-bar"></span><span class="minimap-tip"></span></a></li>
       <li class="minimap-node"><a href="#servers"><span class="minimap-bar"></span><span class="minimap-tip"></span></a></li>
-      <li class="minimap-node"><a href="#optimize"><span class="minimap-bar"></span><span class="minimap-tip"></span></a></li>
       <li class="minimap-node"><a href="#companion"><span class="minimap-bar"></span><span class="minimap-tip"></span></a></li>
-      <li class="minimap-node"><a href="#install"><span class="minimap-bar"></span><span class="minimap-tip" data-i18n="rail.last">Setup</span></a></li>
     </ul>
   </nav>
 
@@ -1265,7 +1085,7 @@
       <nav class="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm" aria-label="Footer">
         <a href="/demo/" class="nav-link" style="padding:6px 0;" data-i18n="footer.demo">Live demo</a>
         <a href="#features" class="nav-link" style="padding:6px 0;" data-i18n="footer.features">Features</a>
-        <a href="#tui" class="nav-link" style="padding:6px 0;" data-i18n="footer.tui">Terminal</a>
+        <a href="#tui" class="nav-link" style="padding:6px 0;" data-i18n="footer.tui">TUI</a>
         <a href="#companion" class="nav-link" style="padding:6px 0;" data-i18n="footer.companion">Companion</a>
         <a href="https://github.com/JingbiaoMei/Tokdash" target="_blank" rel="noopener" class="nav-link" style="padding:6px 0;">GitHub</a>
         <a href="https://github.com/JingbiaoMei/Tokdash/blob/main/LICENSE" target="_blank" rel="noopener" class="nav-link" style="padding:6px 0;" data-i18n="footer.license">License</a>
