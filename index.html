@@ -303,24 +303,6 @@
             total. No account, no upload, no telemetry.
           </p>
 
-          <div class="reveal flex flex-wrap items-center gap-2.5 mt-5" aria-label="Tokdash at a glance">
-            <span class="chip" data-i18n="hero.tag1" id="heroTag1"><span class="dot"></span> Twenty-seven agents, one dashboard</span>
-            <span class="chip" data-i18n="hero.tag2">WSL, macOS and Linux servers, combined</span>
-          </div>
-
-          <div class="reveal flex flex-wrap items-center gap-3 mt-8">
-            <button class="cmd" data-cmd="pipx install tokdash" aria-label="Copy: pipx install tokdash">
-              <span><span class="prompt">$</span>&nbsp;pipx install tokdash</span>
-              <span class="copy-ic" aria-hidden="true">
-                <svg id="copyGlyph" class="copy-glyph" width="14" height="14" viewBox="0 0 24 24" fill="none" style="overflow:visible;">
-                  <path class="copy-back" d="M 5 15 L 5 5 L 16 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  <path class="copy-front" d="M 9 9 L 20 9 L 20 20 L 9 20 L 9 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </span>
-            </button>
-            <a href="/demo/" class="mono text-sm" style="color:var(--color-primary);">tokdash.github.io/demo</a>
-          </div>
-
           <!-- Proof strip: only claims the product can actually back up. The
                figure lives *inside* the translated string, so word order and
                counters stay natural in all six languages. -->
@@ -339,11 +321,6 @@
             </span>
           </div>
 
-          <!-- Fades out on the first real scroll, once the reader commits. -->
-          <div class="scroll-hint reveal" aria-hidden="true">
-            <span class="scroll-hint-mouse"><i></i></span>
-            <span class="scroll-hint-text" data-i18n="hero.scroll">Scroll</span>
-          </div>
         </div>
 
         <!-- Preview mini-dashboard -->
@@ -431,7 +408,10 @@
 
           <div class="flex flex-wrap items-center gap-3 mt-8">
             <a href="https://github.com/JingbiaoMei/Tokdash" target="_blank" rel="noopener" class="btn btn-ghost" data-i18n="start.cta_docs">Read the docs</a>
-            <a href="/demo/" class="mono text-sm" style="color:var(--color-primary);">tokdash.github.io/demo</a>
+            <a href="/demo/" class="btn btn-primary">
+              <span data-i18n="start.cta_demo">Demo</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
           </div>
 
           <p class="text-xs text-muted mt-4" data-i18n="start.upgrade">Already set up? Upgrade any time with <code class="mono" style="color:var(--color-primary);">tokdash update</code>.</p>
@@ -536,39 +516,63 @@
           <span class="chip" data-i18n="tui.eyebrow"><span class="dot"></span> TUI</span>
           <h2 class="sec-title font-extrabold tracking-tight mt-5" data-i18n="tui.h">The whole dashboard, driven by the keyboard</h2>
           <p class="text-muted mt-3 max-w-md" data-i18n="tui.sub">Run <code class="mono" style="color:var(--color-primary);">tokdash tui</code> and the Overview, Report and Quota tabs open inside your terminal, no browser required. Launched beside <code class="mono" style="color:var(--color-primary);">tokdash serve</code> it reads the same local index and cache, so the two views never drift apart.</p>
+
+          <ul class="mt-7 space-y-4">
+            <li class="opt-li">
+              <span class="opt-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="2" y="6" width="20" height="12" rx="2" stroke="currentColor" stroke-width="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M8 14h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>
+              <div><h3 class="font-bold text-[15px]" data-i18n="tui.1.h">All keyboard</h3><p class="text-sm text-muted" data-i18n="tui.1.p">1/2/3 switch Overview, Report and Quota; t/w/m/y/a set the period; [ and ] shift it; q quits.</p></div>
+            </li>
+            <li class="opt-li">
+              <span class="opt-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/><path d="M3 9h18M3 15h18M9 9v12" stroke="currentColor" stroke-width="2"/></svg></span>
+              <div><h3 class="font-bold text-[15px]" data-i18n="tui.2.h">Every panel, in the pane</h3><p class="text-sm text-muted" data-i18n="tui.2.p">The same KPIs, activity heatmap, and per-tool and per-model tables the browser shows, drawn straight in the terminal.</p></div>
+            </li>
+            <li class="opt-li">
+              <span class="opt-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M4 14a8 8 0 1 1 16 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M12 14l3.5-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M2 18h20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>
+              <div><h3 class="font-bold text-[15px]" data-i18n="tui.3.h">Quota, one tab away</h3><p class="text-sm text-muted" data-i18n="tui.3.p">Every subscription window with its reset time, so you can see which plan is about to run dry before it does.</p></div>
+            </li>
+          </ul>
         </div>
 
-        <!-- TUI mockup (decorative; terminal innards stay English like the other mocks) -->
+        <!-- TUI mockup (decorative; mirrors the captured `tokdash tui` Overview frame) -->
         <figure class="surface surface-static overflow-hidden reveal">
-          <div class="comp-mock" role="img" aria-label="Tokdash terminal dashboard Overview tab showing today's cost, tokens and active time above a twelve-week activity heatmap">
+          <div class="comp-mock" role="img" aria-label="Tokdash terminal dashboard Overview tab in the year period: KPI row, year activity heatmap and per-tool cost table">
             <div class="terminal">
               <div class="terminal-bar">
                 <span class="dot-r" style="background:#F87171;"></span>
                 <span class="dot-r" style="background:#FBBF24;"></span>
                 <span class="dot-r" style="background:#34D399;"></span>
-                <span class="mono text-xs ml-2" style="color:#94A3B8;">tokdash tui  -  Overview</span>
+                <span class="mono text-xs ml-2" style="color:#94A3B8;">tokdash</span>
               </div>
               <div class="terminal-body">
+                <div class="tui-status">Overview &middot; year &middot; t/w/m/y/a period &middot; [ ] shift period &middot; 0 today &middot; cache hit age 0s &middot; usage db 1.4 GB &middot; 419 days &middot; live</div>
+                <div class="tui-tabs"><span class="tui-tab on">Overview</span><span class="tui-tab">Report</span><span class="tui-tab">Quota</span></div>
+                <div class="tui-range">2026-01-01 &rarr; 2026-09-29 &middot; 272 days</div>
                 <div class="tui-kpis">
-                  <div class="tui-kpi"><span class="tui-kpi-k">Today</span><span class="tui-kpi-v">$6.92</span></div>
-                  <div class="tui-kpi"><span class="tui-kpi-k">Tokens</span><span class="tui-kpi-v">1.24M</span></div>
-                  <div class="tui-kpi"><span class="tui-kpi-k">Active</span><span class="tui-kpi-v">3 h 12 m</span></div>
+                  <div class="tui-kpi"><span class="tui-kpi-k">Tokens</span><span class="tui-kpi-v">151.6B</span><span class="tui-delta">&uarr; 0.3%</span></div>
+                  <div class="tui-kpi"><span class="tui-kpi-k">Cost</span><span class="tui-kpi-v">$370,082.02</span><span class="tui-delta">&uarr; 0.3%</span></div>
+                  <div class="tui-kpi"><span class="tui-kpi-k">Msgs</span><span class="tui-kpi-v">1,588,406</span><span class="tui-delta">&uarr; 0.3%</span></div>
+                  <div class="tui-kpi"><span class="tui-kpi-k">Cache hit</span><span class="tui-kpi-v">86.2%</span></div>
+                  <div class="tui-kpi"><span class="tui-kpi-k">Top model</span><span class="tui-kpi-v">claude-fable-5.1</span></div>
                 </div>
-                <div class="tui-cap">Activity · last 12 weeks</div>
-                <div aria-hidden="true">
-                  <div class="tui-heat-row"><div style="background:rgba(52,211,153,0.28);"></div><div style="background:rgba(52,211,153,0.78);"></div><div style="background:rgba(52,211,153,0.28);"></div><div style="background:rgba(52,211,153,0.78);"></div><div style="background:rgba(52,211,153,0.52);"></div><div style="background:rgba(52,211,153,0.52);"></div><div style="background:rgba(52,211,153,0.52);"></div><div style="background:#16202F;"></div><div style="background:rgba(52,211,153,0.28);"></div><div style="background:rgba(52,211,153,0.52);"></div><div style="background:rgba(52,211,153,0.78);"></div><div style="background:rgba(52,211,153,0.52);"></div></div>
-                  <div class="tui-heat-row"><div style="background:#16202F;"></div><div style="background:#16202F;"></div><div style="background:rgba(52,211,153,0.52);"></div><div style="background:rgba(52,211,153,0.78);"></div><div style="background:rgba(52,211,153,0.78);"></div><div style="background:rgba(52,211,153,0.28);"></div><div style="background:rgba(52,211,153,0.28);"></div><div style="background:rgba(52,211,153,0.28);"></div><div style="background:rgba(52,211,153,0.78);"></div><div style="background:#34D399;"></div><div style="background:#34D399;"></div><div style="background:rgba(52,211,153,0.78);"></div></div>
-                  <div class="tui-heat-row"><div style="background:rgba(52,211,153,0.78);"></div><div style="background:rgba(52,211,153,0.28);"></div><div style="background:#16202F;"></div><div style="background:#16202F;"></div><div style="background:#34D399;"></div><div style="background:rgba(52,211,153,0.52);"></div><div style="background:#34D399;"></div><div style="background:rgba(52,211,153,0.78);"></div><div style="background:rgba(52,211,153,0.78);"></div><div style="background:#34D399;"></div><div style="background:rgba(52,211,153,0.78);"></div><div style="background:rgba(52,211,153,0.52);"></div></div>
-                  <div class="tui-heat-row"><div style="background:rgba(52,211,153,0.78);"></div><div style="background:rgba(52,211,153,0.78);"></div><div style="background:rgba(52,211,153,0.52);"></div><div style="background:#16202F;"></div><div style="background:rgba(52,211,153,0.78);"></div><div style="background:rgba(52,211,153,0.28);"></div><div style="background:#16202F;"></div><div style="background:#16202F;"></div><div style="background:rgba(52,211,153,0.28);"></div><div style="background:#34D399;"></div><div style="background:#34D399;"></div><div style="background:rgba(52,211,153,0.78);"></div></div>
-                  <div class="tui-heat-row"><div style="background:rgba(52,211,153,0.78);"></div><div style="background:rgba(52,211,153,0.28);"></div><div style="background:#16202F;"></div><div style="background:rgba(52,211,153,0.28);"></div><div style="background:rgba(52,211,153,0.52);"></div><div style="background:#16202F;"></div><div style="background:rgba(52,211,153,0.52);"></div><div style="background:rgba(52,211,153,0.78);"></div><div style="background:rgba(52,211,153,0.52);"></div><div style="background:rgba(52,211,153,0.52);"></div><div style="background:rgba(52,211,153,0.78);"></div><div style="background:#34D399;"></div></div>
-                  <div class="tui-heat-row"><div style="background:rgba(52,211,153,0.28);"></div><div style="background:rgba(52,211,153,0.28);"></div><div style="background:rgba(52,211,153,0.28);"></div><div style="background:rgba(52,211,153,0.28);"></div><div style="background:rgba(52,211,153,0.52);"></div><div style="background:rgba(52,211,153,0.52);"></div><div style="background:rgba(52,211,153,0.28);"></div><div style="background:rgba(52,211,153,0.52);"></div><div style="background:rgba(52,211,153,0.28);"></div><div style="background:rgba(52,211,153,0.78);"></div><div style="background:rgba(52,211,153,0.78);"></div><div style="background:rgba(52,211,153,0.78);"></div></div>
-                  <div class="tui-heat-row"><div style="background:#16202F;"></div><div style="background:#16202F;"></div><div style="background:rgba(52,211,153,0.28);"></div><div style="background:rgba(52,211,153,0.28);"></div><div style="background:rgba(52,211,153,0.52);"></div><div style="background:rgba(52,211,153,0.52);"></div><div style="background:rgba(52,211,153,0.28);"></div><div style="background:#16202F;"></div><div style="background:rgba(52,211,153,0.52);"></div><div style="background:rgba(52,211,153,0.28);"></div><div style="background:rgba(52,211,153,0.52);"></div><div style="background:rgba(52,211,153,0.28);"></div></div>
-                </div>
-                <div class="tui-keys"><span class="tui-key">1</span> Overview<span class="tui-keys-gap"></span><span class="tui-key">2</span> Report<span class="tui-keys-gap"></span><span class="tui-key">3</span> Quota<span class="tui-keys-gap"></span><span class="tui-key">q</span> quit</div>
+                <div class="tui-months"><span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span><span>Jul</span><span>Aug</span><span>Sep</span></div>
+                  <div class="tui-heat-row"><span class="tui-dow">Mon</span><div class="hx t1"></div><div class="hx t1"></div><div class="hx t0"></div><div class="hx t0"></div><div class="hx t2"></div><div class="hx t2"></div><div class="hx t1"></div><div class="hx t1"></div><div class="hx t1"></div><div class="hx t1"></div><div class="hx t1"></div><div class="hx t0"></div><div class="hx t0"></div><div class="hx t2"></div><div class="hx t1"></div><div class="hx t2"></div><div class="hx t1"></div><div class="hx t1"></div></div>
+                  <div class="tui-heat-row"><span class="tui-dow">Tue</span><div class="hx t1"></div><div class="hx t2"></div><div class="hx t2"></div><div class="hx t2"></div><div class="hx t2"></div><div class="hx t1"></div><div class="hx t0"></div><div class="hx t1"></div><div class="hx t2"></div><div class="hx t1"></div><div class="hx t2"></div><div class="hx t2"></div><div class="hx t0"></div><div class="hx t2"></div><div class="hx t2"></div><div class="hx t2"></div><div class="hx t1"></div><div class="hx t1"></div></div>
+                  <div class="tui-heat-row"><span class="tui-dow">Wed</span><div class="hx t1"></div><div class="hx t1"></div><div class="hx t1"></div><div class="hx t0"></div><div class="hx t2"></div><div class="hx t1"></div><div class="hx t1"></div><div class="hx t0"></div><div class="hx t2"></div><div class="hx t0"></div><div class="hx t2"></div><div class="hx t0"></div><div class="hx t1"></div><div class="hx t3"></div><div class="hx t3"></div><div class="hx t1"></div><div class="hx t2"></div><div class="hx t3"></div></div>
+                  <div class="tui-heat-row"><span class="tui-dow">Thu</span><div class="hx t2"></div><div class="hx t2"></div><div class="hx t1"></div><div class="hx t2"></div><div class="hx t1"></div><div class="hx t1"></div><div class="hx t1"></div><div class="hx t0"></div><div class="hx t1"></div><div class="hx t2"></div><div class="hx t1"></div><div class="hx t1"></div><div class="hx t2"></div><div class="hx t2"></div><div class="hx t1"></div><div class="hx t1"></div><div class="hx t2"></div><div class="hx t1"></div></div>
+                  <div class="tui-heat-row"><span class="tui-dow">Fri</span><div class="hx t1"></div><div class="hx t1"></div><div class="hx t1"></div><div class="hx t1"></div><div class="hx t1"></div><div class="hx t1"></div><div class="hx t2"></div><div class="hx t2"></div><div class="hx t0"></div><div class="hx t0"></div><div class="hx t2"></div><div class="hx t1"></div><div class="hx t1"></div><div class="hx t2"></div><div class="hx t3"></div><div class="hx t1"></div><div class="hx t2"></div><div class="hx t3"></div></div>
+                  <div class="tui-heat-row"><span class="tui-dow">Sat</span><div class="hx t0"></div><div class="hx t0"></div><div class="hx t0"></div><div class="hx t0"></div><div class="hx t0"></div><div class="hx t0"></div><div class="hx t0"></div><div class="hx t0"></div><div class="hx t0"></div><div class="hx t0"></div><div class="hx t0"></div><div class="hx t0"></div><div class="hx t0"></div><div class="hx t1"></div><div class="hx t0"></div><div class="hx t0"></div><div class="hx t1"></div><div class="hx t0"></div></div>
+                  <div class="tui-heat-row"><span class="tui-dow">Sun</span><div class="hx t0"></div><div class="hx t0"></div><div class="hx t0"></div><div class="hx t0"></div><div class="hx t0"></div><div class="hx t0"></div><div class="hx t0"></div><div class="hx t0"></div><div class="hx t0"></div><div class="hx t0"></div><div class="hx t0"></div><div class="hx t0"></div><div class="hx t0"></div><div class="hx t0"></div><div class="hx t1"></div><div class="hx t0"></div><div class="hx t0"></div><div class="hx t1"></div></div>
+                <table class="tui-table" aria-hidden="true">
+                  <tr><th>Tool</th><th>Total</th><th>Hit</th><th>Cost</th><th>Msgs</th></tr>
+                  <tr><td>OpenClaw</td><td>16.1B</td><td>86.4%</td><td>$34,777.55</td><td class="dim">&mdash;</td></tr>
+                  <tr><td>Claude Code</td><td>15.6B</td><td>86.0%</td><td>$38,644.16</td><td class="dim">144,880</td></tr>
+                  <tr><td>Codex</td><td>15.4B</td><td>86.9%</td><td>$39,080.14</td><td class="dim">200,448</td></tr>
+                </table>
+                <div class="tui-keys"><span class="tui-key">q</span> Quit<span class="tui-keys-gap"></span><span class="tui-key">r</span> Refresh<span class="tui-keys-gap"></span><span class="tui-key">1</span> Overview<span class="tui-keys-gap"></span><span class="tui-key">2</span> Report<span class="tui-keys-gap"></span><span class="tui-key">3</span> Quota<span class="tui-keys-gap"></span><span class="tui-key">?</span> Keys</div>
               </div>
             </div>
           </div>
-          <figcaption class="mono text-xs text-muted" style="padding:10px 16px;border-top:1px solid var(--color-border);" data-i18n="tui.shot">tokdash tui · Overview tab</figcaption>
+          <figcaption class="mono text-xs text-muted" style="padding:10px 16px;border-top:1px solid var(--color-border);" data-i18n="tui.shot">tokdash tui &middot; Overview tab</figcaption>
         </figure>
       </div>
     </section>
@@ -995,30 +999,6 @@
           </div>
           <figcaption class="mono text-xs text-muted" style="padding:10px 16px;border-top:1px solid var(--color-border);" data-i18n="comp.shot.statusline">Claude Code statusline integration</figcaption>
         </figure>
-      </div>
-
-      <!-- Feature cards -->
-      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 mt-10">
-        <div class="surface p-6 reveal">
-          <div class="feature-icon mb-4"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 2v20M17 7H9.5a2.5 2.5 0 0 0 0 5h5a2.5 2.5 0 0 1 0 5H6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-          <h3 class="text-lg font-bold" data-i18n="comp.1.h">Today's spend at a glance</h3>
-          <p class="text-sm text-muted mt-2" data-i18n="comp.1.p">Cost, tokens, and messages with active time, the % change vs yesterday, and your top tools and models ranked.</p>
-        </div>
-        <div class="surface p-6 reveal">
-          <div class="feature-icon mb-4"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="13" r="8" stroke="currentColor" stroke-width="2"/><path d="M12 9v4l2.5 2.5M9 2h6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-          <h3 class="text-lg font-bold" data-i18n="comp.2.h">Quota bars with reset countdowns</h3>
-          <p class="text-sm text-muted mt-2" data-i18n="comp.2.p">Per-provider subscription windows show remaining quota and relative reset times, such as "resets in 19 minutes", with Codex reset credits called out.</p>
-        </div>
-        <div class="surface p-6 reveal">
-          <div class="feature-icon mb-4"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M10.3 21a2 2 0 0 0 3.4 0" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-          <h3 class="text-lg font-bold" data-i18n="comp.3.h">Alerts you control</h3>
-          <p class="text-sm text-muted mt-2" data-i18n="comp.3.p">Opt-in low-quota notifications with your own thresholds, launch at login, and a UI in System&nbsp;/&nbsp;English&nbsp;/&nbsp;简体中文&nbsp;/&nbsp;日本語&nbsp;/&nbsp;한국어&nbsp;/&nbsp;Español&nbsp;/&nbsp;Português.</p>
-        </div>
-        <div class="surface p-6 reveal">
-          <div class="feature-icon mb-4"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 2 4 6v6c0 5 3.4 8.4 8 10 4.6-1.6 8-5 8-10V6l-8-4z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="m9 12 2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-          <h3 class="text-lg font-bold" data-i18n="comp.4.h">Private by design</h3>
-          <p class="text-sm text-muted mt-2" data-i18n="comp.4.p">No telemetry, nothing uploaded. The app only talks to the Tokdash endpoint you set, which is usually your own localhost service.</p>
-        </div>
       </div>
 
       <!-- Download -->
