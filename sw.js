@@ -28,6 +28,7 @@ const CORE_ASSETS = [
   appPath("/static/landing/lander.css"),
   appPath("/static/landing/chrome.js"),
   appPath("/static/landing/hero.js"),
+  appPath("/static/landing/ticker.js"),
   appPath("/static/landing/scroll-effects.js"),
   appPath("/static/landing/reveal.js"),
   appPath("/static/landing/i18n.js"),

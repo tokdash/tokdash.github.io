@@ -2,6 +2,9 @@
 (function () {
   var I18N = {
     en: {
+      'tools.h': `One dashboard for every agent`,
+      'tools.sub': `Tokdash unifies usage across twenty-eight AI coding tools, letting you switch agents without losing the bill.`,
+      'tools.pause': `Pause motion`,
       'langSystem': `System`,
       'nav.features': `Features`,
       'nav.tui': `TUI`,
@@ -12,8 +15,8 @@
       'nav.demo': `Demo`,
       'hero.eyebrow': `<span class="dot"></span> Open source · Local-first · MIT`,
       'hero.h1': `Local token & cost dashboard <span class="grad-text">for your AI coding tools</span>`,
-      'hero.sub': `Tokdash reads the logs already on your machine and shows exactly how many tokens you burn, and what they cost, across twenty-seven coding agents. Add the rest of your machines as servers and read them as one total. No account, no upload, no telemetry.`,
-      'hero.proof1': `<b>27</b> coding agents`,
+      'hero.sub': `Tokdash reads the logs already on your machine and shows exactly how many tokens you burn, and what they cost, across twenty-eight coding agents. Add the rest of your machines as servers and read them as one total. No account, no upload, no telemetry.`,
+      'hero.proof1': `<b>28</b> coding agents`,
       'hero.proof2': `<b>6</b> UI languages`,
       'hero.proof3': `<b>17</b> themes`,
       'feat.eyebrow': `<span class="dot"></span> Features`,
@@ -124,6 +127,9 @@
       'meta.title': `Tokdash: Local token & cost dashboard for AI coding tools`
     },
     zh: {
+      'tools.h': `一个仪表盘，统管所有智能体`,
+      'tools.sub': `Tokdash 统一汇总二十八款 AI 编码工具的用量，让你随意切换工具，账单始终一目了然。`,
+      'tools.pause': `暂停动画`,
       'langSystem': `跟随系统`,
       'nav.features': `功能`,
       'nav.tui': `TUI`,
@@ -134,8 +140,8 @@
       'nav.demo': `演示`,
       'hero.eyebrow': `<span class="dot"></span> 开源 · 本地优先 · MIT`,
       'hero.h1': `本地 Token 与成本仪表盘，<span class="grad-text">为你的 AI 编码工具而生</span>`,
-      'hero.sub': `Tokdash 在你自己的机器上读取日志，精确显示你消耗了多少 Token、花费多少成本，覆盖二十七款 AI 编码工具。把其他机器也添加为服务器，就能合并成一个总量。无需账号，不上传，零遥测。`,
-      'hero.proof1': `<b>27</b> 款 AI 编码工具`,
+      'hero.sub': `Tokdash 在你自己的机器上读取日志，精确显示你消耗了多少 Token、花费多少成本，覆盖二十八款 AI 编码工具。把其他机器也添加为服务器，就能合并成一个总量。无需账号，不上传，零遥测。`,
+      'hero.proof1': `<b>28</b> 款 AI 编码工具`,
       'hero.proof2': `<b>6</b> 种界面语言`,
       'hero.proof3': `<b>17</b> 款主题`,
       'feat.eyebrow': `<span class="dot"></span> 功能`,
@@ -246,6 +252,9 @@
       'meta.title': `Tokdash: 面向 AI 编码工具的本地 Token 与成本仪表盘`
     },
     ja: {
+      'tools.h': `すべてのエージェントをひとつのダッシュボードで`,
+      'tools.sub': `Tokdash は 28 種の AI コーディングツールの利用量を統合、エージェントを切り替えても請求は逃しません。`,
+      'tools.pause': `動きを一時停止`,
       'langSystem': `システム`,
       'nav.features': `機能`,
       'nav.tui': `TUI`,
@@ -256,8 +265,8 @@
       'nav.demo': `デモ`,
       'hero.eyebrow': `<span class="dot"></span> オープンソース · ローカルファースト · MIT`,
       'hero.h1': `AI コーディングツール向け <span class="grad-text">ローカル トークン・コスト ダッシュボード</span>`,
-      'hero.sub': `Tokdash はあなたのマシン上のログを読み取り、27 種の AI コーディングツール全体でどれだけトークンを消費し、いくらかかったかを正確に表示します。他のマシンもサーバーとして追加すれば、ひとつの合計値として確認できます。アカウント不要、アップロードなし、テレメトリなし。`,
-      'hero.proof1': `<b>27</b> 種のコーディングツール`,
+      'hero.sub': `Tokdash はあなたのマシン上のログを読み取り、28 種の AI コーディングツール全体でどれだけトークンを消費し、いくらかかったかを正確に表示します。他のマシンもサーバーとして追加すれば、ひとつの合計値として確認できます。アカウント不要、アップロードなし、テレメトリなし。`,
+      'hero.proof1': `<b>28</b> 種のコーディングツール`,
       'hero.proof2': `<b>6</b> 言語の UI`,
       'hero.proof3': `<b>17</b> のテーマ`,
       'feat.eyebrow': `<span class="dot"></span> 機能`,
@@ -368,6 +377,9 @@
       'meta.title': `Tokdash: AI コーディングツール向けローカル トークン・コスト ダッシュボード`
     },
     ko: {
+      'tools.h': `모든 에이전트를 위한 한 대시보드`,
+      'tools.sub': `Tokdash는 28개 AI 코딩 도구의 사용량을 통합하여, 에이전트를 바꿔도 청구서만은 놓치지 않습니다.`,
+      'tools.pause': `애니메이션 일시 정지`,
       'langSystem': `시스템`,
       'nav.features': `기능`,
       'nav.tui': `TUI`,
@@ -378,8 +390,8 @@
       'nav.demo': `데모`,
       'hero.eyebrow': `<span class="dot"></span> 오픈소스 · 로컬 우선 · MIT`,
       'hero.h1': `AI 코딩 도구를 위한 <span class="grad-text">로컬 토큰·비용 대시보드</span>`,
-      'hero.sub': `Tokdash는 자체 머신의 로그를 읽어 27개 AI 코딩 도구에서 얼마나 많은 토큰을 소모했고 얼마를 지출했는지 정확히 보여줍니다. 나머지 기계도 서버로 추가하면 하나의 합계로 볼 수 있습니다. 계정 없이, 업로드 없이, 텔레메트리 없이.`,
-      'hero.proof1': `<b>27</b>개의 코딩 도구`,
+      'hero.sub': `Tokdash는 자체 머신의 로그를 읽어 28개 AI 코딩 도구에서 얼마나 많은 토큰을 소모했고 얼마를 지출했는지 정확히 보여줍니다. 나머지 기계도 서버로 추가하면 하나의 합계로 볼 수 있습니다. 계정 없이, 업로드 없이, 텔레메트리 없이.`,
+      'hero.proof1': `<b>28</b>개의 코딩 도구`,
       'hero.proof2': `<b>6</b>개 UI 언어`,
       'hero.proof3': `<b>17</b>개의 테마`,
       'feat.eyebrow': `<span class="dot"></span> 기능`,
@@ -490,6 +502,9 @@
       'meta.title': `Tokdash: AI 코딩 도구를 위한 로컬 토큰·비용 대시보드`
     },
     es: {
+      'tools.h': `Un dashboard para cada agente`,
+      'tools.sub': `Tokdash unifica el uso de veintiocho herramientas de IA, permitiendo cambiar de agente sin perder la factura.`,
+      'tools.pause': `Pausar movimiento`,
       'langSystem': `Sistema`,
       'nav.features': `Funciones`,
       'nav.tui': `TUI`,
@@ -500,8 +515,8 @@
       'nav.demo': `Demo`,
       'hero.eyebrow': `<span class="dot"></span> Código abierto · Local-first · MIT`,
       'hero.h1': `Dashboard local de tokens y costos <span class="grad-text">para tus herramientas de IA</span>`,
-      'hero.sub': `Tokdash lee los registros que ya están en tu máquina y muestra exactamente cuántos tokens consumes, y cuánto cuestan, en veintisiete agentes de codificación. Añade el resto de tus máquinas como servidores y léelos como un solo total. Sin cuenta, sin subida, sin telemetría.`,
-      'hero.proof1': `<b>27</b> agentes de codificación`,
+      'hero.sub': `Tokdash lee los registros que ya están en tu máquina y muestra exactamente cuántos tokens consumes, y cuánto cuestan, en veintiocho agentes de codificación. Añade el resto de tus máquinas como servidores y léelos como un solo total. Sin cuenta, sin subida, sin telemetría.`,
+      'hero.proof1': `<b>28</b> agentes de codificación`,
       'hero.proof2': `<b>6</b> idiomas de interfaz`,
       'hero.proof3': `<b>17</b> temas`,
       'feat.eyebrow': `<span class="dot"></span> Funciones`,
@@ -612,6 +627,9 @@
       'meta.title': `Tokdash: Dashboard local de tokens y costos para herramientas de IA`
     },
     pt: {
+      'tools.h': `Um dashboard para cada agente`,
+      'tools.sub': `O Tokdash unifica o uso de vinte e oito ferramentas de IA, permitindo trocar de agente sem perder a fatura.`,
+      'tools.pause': `Pausar animação`,
       'langSystem': `Sistema`,
       'nav.features': `Recursos`,
       'nav.tui': `TUI`,
@@ -622,8 +640,8 @@
       'nav.demo': `Demo`,
       'hero.eyebrow': `<span class="dot"></span> Código aberto · Local-first · MIT`,
       'hero.h1': `Dashboard local de tokens e custos <span class="grad-text">para suas ferramentas de IA</span>`,
-      'hero.sub': `O Tokdash lê os logs que já estão na sua máquina e mostra exatamente quantos tokens você queima, e quanto eles custam, em vinte e sete agentes de codificação. Adicione as outras máquinas como servidores e veja tudo como um único total. Sem conta, sem upload, sem telemetria.`,
-      'hero.proof1': `<b>27</b> agentes de codificação`,
+      'hero.sub': `O Tokdash lê os logs que já estão na sua máquina e mostra exatamente quantos tokens você queima, e quanto eles custam, em vinte e oito agentes de codificação. Adicione as outras máquinas como servidores e veja tudo como um único total. Sem conta, sem upload, sem telemetria.`,
+      'hero.proof1': `<b>28</b> agentes de codificação`,
       'hero.proof2': `<b>6</b> idiomas de interface`,
       'hero.proof3': `<b>17</b> temas`,
       'feat.eyebrow': `<span class="dot"></span> Recursos`,

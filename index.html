@@ -196,7 +196,7 @@
       <div id="landerChipsGrid" class="lander-chips-grid">
         <div class="lander-story-chip">
           <span class="chip-dot"></span>
-          <span>Twenty-seven agents, one dashboard</span>
+          <span>Twenty-eight agents, one dashboard</span>
         </div>
         <div class="lander-story-chip">
           <span class="chip-dot"></span>
@@ -299,7 +299,7 @@
 
           <p id="heroParagraph" class="reveal text-base sm:text-lg text-muted mt-5 max-w-xl" data-i18n="hero.sub">
             Tokdash reads the logs already on your machine and shows exactly how many tokens you burn, and what they
-            cost, across twenty-seven coding agents. Add the rest of your machines as servers and read them as one
+            cost, across twenty-eight coding agents. Add the rest of your machines as servers and read them as one
             total. No account, no upload, no telemetry.
           </p>
 
@@ -309,7 +309,7 @@
           <div class="proof reveal" aria-label="Tokdash at a glance">
             <span class="proof-item">
               <span class="tick" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="m5 13 4 4L19 7" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-              <span data-i18n="hero.proof1"><b>27</b> coding agents</span>
+              <span data-i18n="hero.proof1"><b>28</b> coding agents</span>
             </span>
             <span class="proof-item">
               <span class="tick" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="m5 13 4 4L19 7" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
@@ -368,6 +368,78 @@
                 <div id="miniHeat" class="mini-heat"></div>
               </div>
             </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SUPPORTED TOOLS ============ -->
+    <section id="tools" class="tools-section max-w-[1180px] mx-auto px-4 sm:px-6" aria-labelledby="toolsHeading">
+      <div class="text-center max-w-2xl mx-auto reveal">
+        <h2 id="toolsHeading" class="sec-title font-extrabold tracking-tight" data-i18n="tools.h">One dashboard for every agent</h2>
+        <p class="text-muted mt-3" data-i18n="tools.sub">Tokdash unifies usage across twenty-eight AI coding tools, letting you switch agents without losing the bill.</p>
+        <button class="ticker-control" type="button" aria-controls="toolsTrack" aria-pressed="false"><span aria-hidden="true">Ⅱ</span> <span data-i18n="tools.pause">Pause motion</span></button>
+      </div>
+      <!-- The duplicate completes the seamless loop; each agent is announced and tabbed to once. -->
+      <div class="ticker reveal">
+        <div class="tick-row">
+          <div id="toolsTrack" class="tick-track">
+          <a class="tick-item" href="https://opencode.ai/" target="_blank" rel="noopener"><img class="tick-logo" src="/static/icons/agents/opencode.png" width="26" height="26" alt="" loading="lazy" onerror="this.hidden=true"><span>OpenCode</span></a>
+          <a class="tick-item" href="https://openai.com/codex/" target="_blank" rel="noopener"><img class="tick-logo" src="/static/icons/agents/codex.png" width="26" height="26" alt="" loading="lazy" onerror="this.hidden=true"><span>Codex</span></a>
+          <a class="tick-item" href="https://www.claude.com/product/claude-code" target="_blank" rel="noopener"><img class="tick-logo" src="/static/icons/agents/claude.svg" width="26" height="26" alt="" loading="lazy" onerror="this.hidden=true"><span>Claude Code</span></a>
+          <a class="tick-item" href="https://github.com/google-gemini/gemini-cli" target="_blank" rel="noopener"><img class="tick-logo" src="/static/icons/agents/gemini.svg" width="26" height="26" alt="" loading="lazy" onerror="this.hidden=true"><span>Gemini CLI</span></a>
+          <a class="tick-item" href="https://antigravity.google/" target="_blank" rel="noopener"><img class="tick-logo" src="/static/icons/agents/antigravity.png" width="26" height="26" alt="" loading="lazy" onerror="this.hidden=true"><span>Antigravity</span></a>
+          <a class="tick-item" href="https://openclaw.ai/" target="_blank" rel="noopener"><img class="tick-logo" src="/static/icons/agents/openclaw.png" width="26" height="26" alt="" loading="lazy" onerror="this.hidden=true"><span>OpenClaw</span></a>
+          <a class="tick-item" href="https://github.com/MoonshotAI/kimi-cli" target="_blank" rel="noopener"><img class="tick-logo" src="/static/icons/agents/kimi.png" width="26" height="26" alt="" loading="lazy" onerror="this.hidden=true"><span>Kimi CLI</span></a>
+          <a class="tick-item" aria-label="MiMo Code" href="https://mimo.xiaomi.com/coder" target="_blank" rel="noopener"><img class="tick-logo is-wordmark" src="/static/icons/agents/mimo.svg" width="112" height="24" alt="" loading="lazy" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><span hidden>MiMo Code</span></a>
+          <a class="tick-item" href="https://grok.com/build" target="_blank" rel="noopener"><img class="tick-logo" src="/static/icons/agents/grok.png" width="26" height="26" alt="" loading="lazy" onerror="this.hidden=true"><span>Grok Build</span></a>
+          <a class="tick-item" href="https://pi.dev/" target="_blank" rel="noopener"><img class="tick-logo" src="/static/icons/agents/pi.png" width="26" height="26" alt="" loading="lazy" onerror="this.hidden=true"><span>Pi</span></a>
+          <a class="tick-item" href="https://omp.sh/" target="_blank" rel="noopener"><img class="tick-logo" src="/static/icons/agents/omp.png" width="26" height="26" alt="" loading="lazy" onerror="this.hidden=true"><span>omp</span></a>
+          <a class="tick-item" href="https://kilocode.ai/" target="_blank" rel="noopener"><img class="tick-logo" src="/static/icons/agents/kilocode.png" width="26" height="26" alt="" loading="lazy" onerror="this.hidden=true"><span>Kilo Code</span></a>
+          <a class="tick-item" href="https://cline.bot/" target="_blank" rel="noopener"><img class="tick-logo" src="/static/icons/agents/cline.png" width="26" height="26" alt="" loading="lazy" onerror="this.hidden=true"><span>Cline</span></a>
+          <a class="tick-item" href="https://github.com/features/copilot" target="_blank" rel="noopener"><img class="tick-logo" src="/static/icons/agents/copilot.svg" width="26" height="26" alt="" loading="lazy" onerror="this.hidden=true"><span>GitHub Copilot CLI</span></a>
+          <a class="tick-item" href="https://hermes-agent.nousresearch.com/" target="_blank" rel="noopener"><img class="tick-logo" src="/static/icons/agents/hermes.png" width="26" height="26" alt="" loading="lazy" onerror="this.hidden=true"><span>Hermes</span></a>
+          <a class="tick-item" href="https://github.com/deepseek-ai/deepseek-harness" target="_blank" rel="noopener"><img class="tick-logo" src="/static/icons/agents/dsh.svg" width="26" height="26" alt="" loading="lazy" onerror="this.hidden=true"><span>DeepSeek Harness</span></a>
+          <a class="tick-item" href="https://reasonix.io/" target="_blank" rel="noopener"><img class="tick-logo" src="/static/icons/agents/reasonix.svg" width="26" height="26" alt="" loading="lazy" onerror="this.hidden=true"><span>Reasonix</span></a>
+          <a class="tick-item" href="https://zcode.z.ai" target="_blank" rel="noopener"><img class="tick-logo" src="/static/icons/agents/zcode.png" width="26" height="26" alt="" loading="lazy" onerror="this.hidden=true"><span>ZCode</span></a>
+          <a class="tick-item" href="https://www.workbuddy.ai/" target="_blank" rel="noopener"><img class="tick-logo" src="/static/icons/agents/workbuddy.png" width="26" height="26" alt="" loading="lazy" onerror="this.hidden=true"><span>WorkBuddy</span></a>
+          <a class="tick-item" href="https://qoder.com/" target="_blank" rel="noopener"><img class="tick-logo" src="/static/icons/agents/qoder.png" width="26" height="26" alt="" loading="lazy" onerror="this.hidden=true"><span>Qoder IDE</span></a>
+          <a class="tick-item" href="https://qoder.com/" target="_blank" rel="noopener"><img class="tick-logo" src="/static/icons/agents/qoder.png" width="26" height="26" alt="" loading="lazy" onerror="this.hidden=true"><span>Qoder CLI</span></a>
+          <a class="tick-item" href="https://zed.dev/" target="_blank" rel="noopener"><img class="tick-logo" src="/static/icons/agents/zed.svg" width="26" height="26" alt="" loading="lazy" onerror="this.hidden=true"><span>Zed</span></a>
+          <a class="tick-item" href="https://github.com/QwenLM/qwen-code" target="_blank" rel="noopener"><img class="tick-logo" src="/static/icons/agents/qwen_code.svg" width="26" height="26" alt="" loading="lazy" onerror="this.hidden=true"><span>Qwen Code</span></a>
+          <a class="tick-item" href="https://charm.land/crush" target="_blank" rel="noopener"><img class="tick-logo" src="/static/icons/agents/crush.png" width="26" height="26" alt="" loading="lazy" onerror="this.hidden=true"><span>Crush</span></a>
+          <a class="tick-item" href="https://dev.meta.ai/docs/muse-code" target="_blank" rel="noopener"><img class="tick-logo" src="/static/icons/agents/muse.svg" width="26" height="26" alt="" loading="lazy" onerror="this.hidden=true"><span>Muse Code</span></a>
+          <a class="tick-item" href="https://freebuff.com/" target="_blank" rel="noopener"><img class="tick-logo" src="/static/icons/agents/freebuff.svg" width="26" height="26" alt="" loading="lazy" onerror="this.hidden=true"><span>Freebuff</span></a>
+          <a class="tick-item" href="https://github.com/MiniMax-AI/minimax-code" target="_blank" rel="noopener"><img class="tick-logo" src="/static/icons/agents/minimax.png" width="26" height="26" alt="" loading="lazy" onerror="this.hidden=true"><span>MiniMax Code</span></a>
+          <a class="tick-item" href="https://devin.ai/cli" target="_blank" rel="noopener"><img class="tick-logo" src="/static/icons/agents/devin.png" width="26" height="26" alt="" loading="lazy" onerror="this.hidden=true"><span>Devin CLI</span></a>
+          <a class="tick-item" aria-hidden="true" tabindex="-1" href="https://opencode.ai/" target="_blank" rel="noopener"><img class="tick-logo" src="/static/icons/agents/opencode.png" width="26" height="26" alt="" loading="lazy" onerror="this.hidden=true"><span>OpenCode</span></a>
+          <a class="tick-item" aria-hidden="true" tabindex="-1" href="https://openai.com/codex/" target="_blank" rel="noopener"><img class="tick-logo" src="/static/icons/agents/codex.png" width="26" height="26" alt="" loading="lazy" onerror="this.hidden=true"><span>Codex</span></a>
+          <a class="tick-item" aria-hidden="true" tabindex="-1" href="https://www.claude.com/product/claude-code" target="_blank" rel="noopener"><img class="tick-logo" src="/static/icons/agents/claude.svg" width="26" height="26" alt="" loading="lazy" onerror="this.hidden=true"><span>Claude Code</span></a>
+          <a class="tick-item" aria-hidden="true" tabindex="-1" href="https://github.com/google-gemini/gemini-cli" target="_blank" rel="noopener"><img class="tick-logo" src="/static/icons/agents/gemini.svg" width="26" height="26" alt="" loading="lazy" onerror="this.hidden=true"><span>Gemini CLI</span></a>
+          <a class="tick-item" aria-hidden="true" tabindex="-1" href="https://antigravity.google/" target="_blank" rel="noopener"><img class="tick-logo" src="/static/icons/agents/antigravity.png" width="26" height="26" alt="" loading="lazy" onerror="this.hidden=true"><span>Antigravity</span></a>
+          <a class="tick-item" aria-hidden="true" tabindex="-1" href="https://openclaw.ai/" target="_blank" rel="noopener"><img class="tick-logo" src="/static/icons/agents/openclaw.png" width="26" height="26" alt="" loading="lazy" onerror="this.hidden=true"><span>OpenClaw</span></a>
+          <a class="tick-item" aria-hidden="true" tabindex="-1" href="https://github.com/MoonshotAI/kimi-cli" target="_blank" rel="noopener"><img class="tick-logo" src="/static/icons/agents/kimi.png" width="26" height="26" alt="" loading="lazy" onerror="this.hidden=true"><span>Kimi CLI</span></a>
+          <a class="tick-item" aria-hidden="true" tabindex="-1" aria-label="MiMo Code" href="https://mimo.xiaomi.com/coder" target="_blank" rel="noopener"><img class="tick-logo is-wordmark" src="/static/icons/agents/mimo.svg" width="112" height="24" alt="" loading="lazy" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><span hidden>MiMo Code</span></a>
+          <a class="tick-item" aria-hidden="true" tabindex="-1" href="https://grok.com/build" target="_blank" rel="noopener"><img class="tick-logo" src="/static/icons/agents/grok.png" width="26" height="26" alt="" loading="lazy" onerror="this.hidden=true"><span>Grok Build</span></a>
+          <a class="tick-item" aria-hidden="true" tabindex="-1" href="https://pi.dev/" target="_blank" rel="noopener"><img class="tick-logo" src="/static/icons/agents/pi.png" width="26" height="26" alt="" loading="lazy" onerror="this.hidden=true"><span>Pi</span></a>
+          <a class="tick-item" aria-hidden="true" tabindex="-1" href="https://omp.sh/" target="_blank" rel="noopener"><img class="tick-logo" src="/static/icons/agents/omp.png" width="26" height="26" alt="" loading="lazy" onerror="this.hidden=true"><span>omp</span></a>
+          <a class="tick-item" aria-hidden="true" tabindex="-1" href="https://kilocode.ai/" target="_blank" rel="noopener"><img class="tick-logo" src="/static/icons/agents/kilocode.png" width="26" height="26" alt="" loading="lazy" onerror="this.hidden=true"><span>Kilo Code</span></a>
+          <a class="tick-item" aria-hidden="true" tabindex="-1" href="https://cline.bot/" target="_blank" rel="noopener"><img class="tick-logo" src="/static/icons/agents/cline.png" width="26" height="26" alt="" loading="lazy" onerror="this.hidden=true"><span>Cline</span></a>
+          <a class="tick-item" aria-hidden="true" tabindex="-1" href="https://github.com/features/copilot" target="_blank" rel="noopener"><img class="tick-logo" src="/static/icons/agents/copilot.svg" width="26" height="26" alt="" loading="lazy" onerror="this.hidden=true"><span>GitHub Copilot CLI</span></a>
+          <a class="tick-item" aria-hidden="true" tabindex="-1" href="https://hermes-agent.nousresearch.com/" target="_blank" rel="noopener"><img class="tick-logo" src="/static/icons/agents/hermes.png" width="26" height="26" alt="" loading="lazy" onerror="this.hidden=true"><span>Hermes</span></a>
+          <a class="tick-item" aria-hidden="true" tabindex="-1" href="https://github.com/deepseek-ai/deepseek-harness" target="_blank" rel="noopener"><img class="tick-logo" src="/static/icons/agents/dsh.svg" width="26" height="26" alt="" loading="lazy" onerror="this.hidden=true"><span>DeepSeek Harness</span></a>
+          <a class="tick-item" aria-hidden="true" tabindex="-1" href="https://reasonix.io/" target="_blank" rel="noopener"><img class="tick-logo" src="/static/icons/agents/reasonix.svg" width="26" height="26" alt="" loading="lazy" onerror="this.hidden=true"><span>Reasonix</span></a>
+          <a class="tick-item" aria-hidden="true" tabindex="-1" href="https://zcode.z.ai" target="_blank" rel="noopener"><img class="tick-logo" src="/static/icons/agents/zcode.png" width="26" height="26" alt="" loading="lazy" onerror="this.hidden=true"><span>ZCode</span></a>
+          <a class="tick-item" aria-hidden="true" tabindex="-1" href="https://www.workbuddy.ai/" target="_blank" rel="noopener"><img class="tick-logo" src="/static/icons/agents/workbuddy.png" width="26" height="26" alt="" loading="lazy" onerror="this.hidden=true"><span>WorkBuddy</span></a>
+          <a class="tick-item" aria-hidden="true" tabindex="-1" href="https://qoder.com/" target="_blank" rel="noopener"><img class="tick-logo" src="/static/icons/agents/qoder.png" width="26" height="26" alt="" loading="lazy" onerror="this.hidden=true"><span>Qoder IDE</span></a>
+          <a class="tick-item" aria-hidden="true" tabindex="-1" href="https://qoder.com/" target="_blank" rel="noopener"><img class="tick-logo" src="/static/icons/agents/qoder.png" width="26" height="26" alt="" loading="lazy" onerror="this.hidden=true"><span>Qoder CLI</span></a>
+          <a class="tick-item" aria-hidden="true" tabindex="-1" href="https://zed.dev/" target="_blank" rel="noopener"><img class="tick-logo" src="/static/icons/agents/zed.svg" width="26" height="26" alt="" loading="lazy" onerror="this.hidden=true"><span>Zed</span></a>
+          <a class="tick-item" aria-hidden="true" tabindex="-1" href="https://github.com/QwenLM/qwen-code" target="_blank" rel="noopener"><img class="tick-logo" src="/static/icons/agents/qwen_code.svg" width="26" height="26" alt="" loading="lazy" onerror="this.hidden=true"><span>Qwen Code</span></a>
+          <a class="tick-item" aria-hidden="true" tabindex="-1" href="https://charm.land/crush" target="_blank" rel="noopener"><img class="tick-logo" src="/static/icons/agents/crush.png" width="26" height="26" alt="" loading="lazy" onerror="this.hidden=true"><span>Crush</span></a>
+          <a class="tick-item" aria-hidden="true" tabindex="-1" href="https://dev.meta.ai/docs/muse-code" target="_blank" rel="noopener"><img class="tick-logo" src="/static/icons/agents/muse.svg" width="26" height="26" alt="" loading="lazy" onerror="this.hidden=true"><span>Muse Code</span></a>
+          <a class="tick-item" aria-hidden="true" tabindex="-1" href="https://freebuff.com/" target="_blank" rel="noopener"><img class="tick-logo" src="/static/icons/agents/freebuff.svg" width="26" height="26" alt="" loading="lazy" onerror="this.hidden=true"><span>Freebuff</span></a>
+          <a class="tick-item" aria-hidden="true" tabindex="-1" href="https://github.com/MiniMax-AI/minimax-code" target="_blank" rel="noopener"><img class="tick-logo" src="/static/icons/agents/minimax.png" width="26" height="26" alt="" loading="lazy" onerror="this.hidden=true"><span>MiniMax Code</span></a>
+          <a class="tick-item" aria-hidden="true" tabindex="-1" href="https://devin.ai/cli" target="_blank" rel="noopener"><img class="tick-logo" src="/static/icons/agents/devin.png" width="26" height="26" alt="" loading="lazy" onerror="this.hidden=true"><span>Devin CLI</span></a>
           </div>
         </div>
       </div>
@@ -1079,6 +1151,7 @@
 
   <script src="/static/landing/chrome.js"></script>
   <script src="/static/landing/hero.js"></script>
+  <script src="/static/landing/ticker.js"></script>
   <script src="/static/landing/scroll-effects.js"></script>
   <script src="/static/landing/reveal.js"></script>
   <script src="/static/landing/i18n.js"></script>

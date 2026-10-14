@@ -3,7 +3,7 @@
 Official site for [Tokdash](https://github.com/JingbiaoMei/Tokdash) — a local token & cost
 dashboard for AI coding tools. It reads the session logs your agents already write to disk:
 Codex, Claude Code, OpenCode, Gemini CLI, Kimi CLI, ZCode, and
-[18 more](https://github.com/JingbiaoMei/Tokdash/blob/main/docs/reference/SUPPORTED_CLIENTS.md).
+[22 more](https://github.com/JingbiaoMei/Tokdash/blob/main/docs/reference/SUPPORTED_CLIENTS.md).
 
 - **`/`** — the marketing landing page (`index.html`).
 - **`/demo/`** — the live, interactive dashboard demo (`demo/index.html`).
@@ -58,6 +58,11 @@ python3 -m http.server 8000
 The landing page's "Hi." intro plays on a visitor's first visit only, remembered in
 `localStorage`. Add `?intro` to the URL to play it again.
 
+The supported-agent ticker sits under the hero and lists the 28 clients shipped in
+v2.6.17. Its pause toggle stops the motion; keyboard focus reveals a static list so
+every link stays visible. Reduced motion, disabled JavaScript, and low-memory
+devices also get the static list.
+
 ## How it works
 
 |  File                       | Purpose                                                                |
@@ -94,6 +99,7 @@ step: they are plain CSS and classic scripts that share globals, so load order m
 | `lander.css`         | The first-visit intro                                                          |
 | `chrome.js`          | Theme toggle, copy command, scroll driver and capability gate, nav progress, star count |
 | `hero.js`            | Proof strip, hero heatmap, entrance, live figures                              |
+| `ticker.js`          | Supported-agent ticker, pause toggle, pointer speed and keyboard fallback     |
 | `scroll-effects.js`  | Scroll-linked depth, minimap rail                                              |
 | `reveal.js`          | Reveal engine, drawable SVGs                                                   |
 | `i18n.js`            | The six-language dictionary and the applier                                    |
@@ -167,6 +173,7 @@ No Node tooling is committed — this is a one-off build step that only touches 
 python3 check_demo_sync.py # demo vs. the upstream UI: page, notes, pricing, mock tool lists
 node test-mock-api.mjs     # mock API routes, no browser
 python3 verify_landing.py  # landing page: renders offline, all six languages, 390px mobile
+python3 scripts/verify_ticker.py # ticker: keyboard, pointer, pause, loop, fallbacks and six locales
 python3 verify_demo.py     # demo: every client, every session panel, per-machine quota, cards
 ```
 

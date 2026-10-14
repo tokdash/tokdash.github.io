@@ -204,6 +204,12 @@ var canAnimate = (function () {
   if (typeof nav.hardwareConcurrency === 'number' && nav.hardwareConcurrency <= 2) return false;
   return true;
 })();
+// The verdict is also published on <html>, so CSS can gate on it. Anything
+// that runs for as long as the tab is open, rather than for the length of
+// one entrance, has to be reachable from a stylesheet, and re-asking the
+// same questions here would be a second answer that can disagree with
+// the first. The class is written in one go, at load, never toggled.
+document.documentElement.classList.toggle('can-animate', canAnimate);
 
 var onScroll = (function () {
   var subs = [], resizers = [], queued = false;

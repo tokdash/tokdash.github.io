@@ -5,3 +5,4 @@ node_modules/
 *.log
 verify-*.png
 __pycache__/
+/output/

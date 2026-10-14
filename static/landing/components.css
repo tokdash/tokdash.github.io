@@ -335,3 +335,253 @@ html.dark .cmd { background: #0D1322; border: 1px solid rgba(255,255,255,0.16); 
 /* Same chip for marks that are wordmarks: they carry the name, so the pill prints no label. */
 .tool-logo.is-wordmark { width: auto; height: 26px; max-width: 100%; padding: 4px 8px; }
 .tool-dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+
+/* ---- Supported tools, as one row of drifting names ----
+   The tools used to sit in a three-column grid of twenty-five bordered
+   pills, each carrying a logo. The grid read as a wall: every box was the
+   same weight, so the eye had nothing to land on and the section took
+   eleven rows to say what one line of names says.
+
+   One row of names, drifting slowly, says it in one.
+
+   The row is full bleed. The section around it is capped at 1180px and
+   centred, so the ticker has to escape that cap to reach the edges of the
+   window, which is what the 100vw width and the negative margin below are
+   for. It carried the cap as well at first, which is why the row used to
+   start part way across the screen and stop 260px short of the right edge
+   on a 1440px display: the text was laid out inside a centred 1180px box
+   and then clipped by a row that ran the full width. */
+.ticker {
+  --tick-gap: 32px;
+  /* How far in from each edge the names take to arrive. Scaled to the
+     window rather than held at a fixed length, so the run is the same
+     proportion of the row on a phone and on a wide desktop, and floored
+     and capped so it neither eats the whole row on a small screen nor
+     swallows a third of it on a large one. */
+  --tick-fade: clamp(72px, 12vw, 200px);
+  position: relative;
+  margin-top: 24px;
+  /* Break out of the centred column so the names run edge to edge. The
+     negative margin pulls it back by half the difference between the
+     window and the column, which is what centres the overflow. */
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  /* The same slab the preview dashboards are built from, so the row reads
+     as part of the same object rather than as a strip of text laid over
+     the page.
+
+     Thinner than the shared --glass by a long way, and blurred to pay for
+     what the fill no longer does. Glass reads as glass because you can see
+     through it, and at the opacity the panels elsewhere use you barely
+     can: a near-opaque white fill over a moving canvas looks like paint
+     sitting on top of the page.
+
+     This row is not a panel though, it is a single band the visitor reads
+     past, and a fill strong enough to match the cards was strong enough to
+     be the thing they read instead. So the fill is cut to roughly a third
+     of what it was: the band is still a surface, the logos and names still
+     sit on something smooth rather than on whatever happened to be drifting
+     past, and the page behind comes through almost all the way. What is
+     left is a tint rather than a slab, which is what the row wants to be.
+
+     The blur keeps doing the work of smoothing what is behind the names,
+     which the thinner fill would otherwise leave legible as shapes. The
+     saturate is nearly gone: at 1.6 it pushed whatever blue the page
+     already has up another half stop, and over a full-width band that
+     reads as the row being tinted blue rather than as glass. Near neutral,
+     it just softens. */
+  --tick-glass: color-mix(in srgb, var(--glass) 26%, transparent);
+  --tick-blur: blur(20px) saturate(1.1);
+  background: var(--tick-glass);
+  backdrop-filter: var(--tick-blur);
+  -webkit-backdrop-filter: var(--tick-blur);
+  padding: 20px 0;
+  /* A hairline above and a hairline below, rather than a border on all
+     four sides. The row runs off both edges of the window, so a left and
+     right border would be two vertical lines cut off by the viewport and
+     would read as a mistake. Each hairline fades out at both ends, which
+     is what the .divider-grad between the other sections already does.
+     Painted as two 1px backgrounds so the fade can live in the gradient:
+     a border colour cannot fade.
+
+     They run out on the same curve as the names below them, over the same
+     distance, so the slab dissolves as one thing. A hairline that ended
+     sooner would draw an edge across the row at the point where the
+     names were still fading, which is exactly the line the fade exists
+     to avoid.
+
+     Both are held back from the shared --glass-line, for the same reason
+     the fill is: at full strength the dark theme's line is a distinctly
+     blue 1px running the entire width of the window, which against a fill
+     this thin reads as a drawn border around a strip of nothing. Derived
+     from the token rather than set per theme, so it stays correct in
+     either one. */
+  --tick-line: color-mix(in srgb, var(--glass-line) 40%, transparent);
+  background-image:
+    linear-gradient(90deg,
+      transparent 0,
+      var(--tick-line) var(--tick-fade),
+      var(--tick-line) calc(100% - var(--tick-fade)),
+      transparent 100%),
+    linear-gradient(90deg,
+      transparent 0,
+      var(--tick-line) var(--tick-fade),
+      var(--tick-line) calc(100% - var(--tick-fade)),
+      transparent 100%),
+    linear-gradient(var(--tick-glass), var(--tick-glass));
+  background-size: 100% 1px, 100% 1px, 100% 100%;
+  background-position: 0 0, 0 100%, 0 0;
+  background-repeat: no-repeat;
+  /* The near edge that a raised panel has: light catches the top of it,
+     which is what stops a flat fill reading as paint on the page. Held
+     back from the shared --hairline for the same reason as the lines
+     above: it is the last thing standing between this row and a visible
+     band, and on the dark theme it is a blue lip rather than a highlight. */
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--glass-line) 22%, transparent);
+}
+/* The fade at each end is a mask on the row rather than a panel of colour
+   laid over it. A gradient overlay has to know what is behind it, and
+   behind this row is the ambient canvas, which moves: an overlay in the
+   colour of the page would show as a flat patch over a moving background.
+   A mask takes the names out where they should be hidden and leaves the
+   glass itself whole.
+
+   The ramp is not straight. A single stop between transparent and opaque
+   fades at one speed for the whole run, which reads as a name sliding
+   in from off screen: by the time it clears the mask it is already at
+   full strength. These stops hold a name back for most of the run and
+   then bring it up quickly, so a name stays a suggestion at the edge,
+   firms up as it comes, and is gone again on the far side. It arrives
+   out of the background rather than out of the margin. */
+.tick-row {
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(90deg,
+    transparent 0,
+    rgb(0 0 0 / 0.18) calc(var(--tick-fade) * 0.28),
+    rgb(0 0 0 / 0.46) calc(var(--tick-fade) * 0.52),
+    rgb(0 0 0 / 0.78) calc(var(--tick-fade) * 0.76),
+    #000 var(--tick-fade),
+    #000 calc(100% - var(--tick-fade)),
+    rgb(0 0 0 / 0.78) calc(100% - var(--tick-fade) * 0.76),
+    rgb(0 0 0 / 0.46) calc(100% - var(--tick-fade) * 0.52),
+    rgb(0 0 0 / 0.18) calc(100% - var(--tick-fade) * 0.28),
+    transparent 100%);
+  mask-image: linear-gradient(90deg,
+    transparent 0,
+    rgb(0 0 0 / 0.18) calc(var(--tick-fade) * 0.28),
+    rgb(0 0 0 / 0.46) calc(var(--tick-fade) * 0.52),
+    rgb(0 0 0 / 0.78) calc(var(--tick-fade) * 0.76),
+    #000 var(--tick-fade),
+    #000 calc(100% - var(--tick-fade)),
+    rgb(0 0 0 / 0.78) calc(100% - var(--tick-fade) * 0.76),
+    rgb(0 0 0 / 0.46) calc(100% - var(--tick-fade) * 0.52),
+    rgb(0 0 0 / 0.18) calc(100% - var(--tick-fade) * 0.28),
+    transparent 100%);
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+}
+.tick-track {
+  display: flex; align-items: center; width: max-content;
+  will-change: transform;
+  animation: tick-drift 52s linear infinite;
+}
+.tick-item {
+  flex: none;
+  display: inline-flex; align-items: center; gap: 9px;
+  margin-right: var(--tick-gap);
+  font-weight: 600; font-size: 16px; letter-spacing: -0.005em;
+  color: var(--color-muted); text-decoration: none; white-space: nowrap;
+  transition: color var(--t-fast) ease;
+}
+/* The marks are the same white chip the old pills used, at a size that
+   holds its own against the names beside it: a logo with no backing loses
+   its edges against the band, and a dark monochrome glyph on a dark page
+   disappears entirely without one. */
+.tick-logo {
+  width: 26px; height: 26px; flex: none;
+  object-fit: contain; border-radius: 7px;
+  background: #fff; padding: 3px;
+  box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.06);
+  transition: transform var(--t-fast) ease;
+}
+/* Wordmarks carry the name themselves, so those print no label beside them
+   and are allowed their own width rather than being cropped to a square. */
+.tick-logo.is-wordmark { width: 112px; height: 24px; padding: 3px 6px; }
+.tick-item:hover .tick-logo { transform: scale(1.08); }
+.tick-item::after {
+  /* The separator travels with the name rather than sitting on the row, so
+     the gap between two names is the same all the way round the loop and
+     does not change at the point where one copy becomes the next. */
+  content: ''; width: 4px; height: 4px; border-radius: 50%;
+  margin-left: var(--tick-gap);
+  background: color-mix(in srgb, var(--color-text) 22%, transparent);
+}
+.tick-item:hover { color: var(--color-text); }
+.tick-item:focus-visible {
+  color: var(--color-text); outline: 2px solid var(--color-primary);
+  outline-offset: 3px; border-radius: 4px;
+}
+/* The row eases down to a crawl while a name is pointed at rather than
+   stopping dead. A hard stop reads as a glitch: the eye is following a
+   name, the name stops, and the page looks as though it has caught. Slowing
+   it keeps the motion unbroken, which leaves the pointer something to aim
+   at and keeps the link under it hittable.
+
+   The rate itself lives in ticker.js. CSS cannot slow a running animation
+   without restarting it, and restarting it jumps the row sideways. */
+
+@keyframes tick-drift {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(-50%, 0, 0); }
+}
+
+.tools-section { padding-top: 16px; padding-bottom: 32px; }
+.ticker-control {
+  display: none; align-items: center; gap: 6px; margin-top: 14px;
+  padding: 5px 10px; border: 1px solid var(--color-border); border-radius: 999px;
+  color: var(--color-muted); background: transparent; font-size: 12px; cursor: pointer;
+}
+html.js.can-animate .ticker-control { display: inline-flex; }
+.ticker-control:hover { color: var(--color-text); }
+.ticker-control:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 3px; }
+.ticker-control[aria-pressed='true'] { color: var(--color-primary); background: color-mix(in srgb, var(--color-primary) 8%, transparent); }
+.ticker.is-paused .tick-track { animation-play-state: paused; }
+/* Keyboard focus reveals the real links. Pointer focus keeps the row in
+   place until the click, so a link never moves away during pointerdown. */
+.ticker.is-keyboard { width: auto; margin-left: auto; margin-right: auto; }
+.ticker.is-keyboard .tick-row { -webkit-mask-image: none; mask-image: none; overflow: visible; }
+.ticker.is-keyboard .tick-track { animation: none; transform: none; width: auto; flex-wrap: wrap; justify-content: center; gap: 14px 24px; }
+.ticker.is-keyboard .tick-item { margin-right: 0; }
+.ticker.is-keyboard .tick-item::after { display: none; }
+.ticker.is-keyboard .tick-item[aria-hidden='true'] { display: none; }
+
+/* Reduced motion, no JavaScript, or a device the capability gate turned down:
+   the names stand still and wrap into a plain list. A row that cannot move
+   is not a row, so the two copies collapse to one and the track becomes an
+   ordinary centred wrap. */
+@media (prefers-reduced-motion: reduce) {
+  html.js.can-animate .ticker-control { display: none; }
+  .ticker { width: auto; margin-left: auto; margin-right: auto; }
+  .tick-row {
+    -webkit-mask-image: none; mask-image: none;
+  }
+  .tick-track { animation: none; width: auto; flex-wrap: wrap; justify-content: center; gap: 14px 24px; }
+  .tick-item { margin-right: 0; }
+  .tick-item::after { display: none; }
+  .tick-item[aria-hidden='true'] { display: none; }
+}
+/* html.js is added by the first script on the page. Without it there is no
+   class to gate on, so the names must not wait on an animation that was
+   never going to be allowed to run anyway. */
+html:not(.js) .ticker .tick-track { animation: none; width: auto; flex-wrap: wrap; justify-content: center; gap: 14px 24px; }
+html:not(.js) .tick-row { -webkit-mask-image: none; mask-image: none; }
+html:not(.js) .ticker .tick-item[aria-hidden='true'] { display: none; }
+/* The page's capability gate has already made this call in JS: a metered or
+   memory-constrained connection, two cores or 2GB. The verdict is read off
+   <html> rather than asked a second time here. */
+html:not(.can-animate) .ticker { width: auto; margin-left: auto; margin-right: auto; }
+html:not(.can-animate) .tick-track { animation: none; width: auto; flex-wrap: wrap; justify-content: center; gap: 14px 24px; }
+html:not(.can-animate) .tick-row { -webkit-mask-image: none; mask-image: none; }
+html:not(.can-animate) .tick-item[aria-hidden='true'] { display: none; }
+html:not(.can-animate) .tick-item { margin-right: 0; }
+html:not(.can-animate) .tick-item::after { display: none; }
