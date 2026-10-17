@@ -207,11 +207,43 @@ assert(trend.view === "trend" && !trend.buckets.length && !trend.offered_buckets
 const tod = await get("/api/output-speed?view=time-of-day&source=codex&model=x"
   + "&measurement_kind=post_first_token&token_basis=output");
 assert(tod.view === "time-of-day" && !tod.hourly.length && !tod.six_hour.length, "time-of-day view stays empty");
+// Batch summaries: one per requested session, including the unmeasured ones. A row
+// the table asked about and did not get back is read as not-indexed, which parks its
+// speed cell on "Pending" and a hint about a build that will never arrive.
+const realSession = codexList.sessions[0].session_id;
 const sessSpeed = await (await fetchMock("/api/session-speeds", {
   method: "POST", headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ sessions: [{ tool: "codex", session_id: "none" }] }),
+  body: JSON.stringify({
+    date_from: "2026-01-01", date_to: "2026-12-31",
+    sessions: [{ tool: "codex", session_id: realSession },
+               { tool: "codex", session_id: realSession },
+               { tool: "codex", session_id: "absent" }],
+  }),
 })).json();
-assert(Array.isArray(sessSpeed.sessions) && !sessSpeed.sessions.length, "session speeds reports nothing cached");
+assert(sessSpeed.schema_version === 1 && sessSpeed.scope.kind === "date_range", "session batch names its scope");
+assert(sessSpeed.sessions.length === 2,
+  `session batch answers every distinct request and collapses duplicates (got ${sessSpeed.sessions.length})`);
+const sessRow = sessSpeed.sessions[0];
+assert(sessRow.tool === "codex" && sessRow.session_id === realSession && sessRow.cache_state === "ready",
+  "session batch settles the requested session instead of leaving it pending");
+assert(sessRow.measurement_status === "timing_unavailable" && sessRow.output_tok_per_s === null
+  && sessRow.speed_calls === 0 && sessRow.coverage === 0 && !sessRow.groups.length,
+  "session batch says unmeasured rather than inventing a rate");
+assert(sessRow.eligible_calls > 0,
+  "an unmeasured session still reports the output-bearing calls it could have measured");
+assert(sessSpeed.sessions[1].eligible_calls === 0 && sessSpeed.sessions[1].coverage === null,
+  "a session the demo does not have is unmeasured with nothing to measure, not pending");
+
+// Timeline: opening a session detail must not fall over. The modal turns a failed
+// read into "Timing history could not be read." and a job id into a build it waits on.
+const timeline = await get(`/api/session-speed?tool=codex&session_id=${realSession}&max_points=1000`);
+assert(timeline.cache.state === "ready" && !timeline.cache.job_id,
+  "timeline is jobless, so the modal never opens a build stream it cannot finish");
+assert(!timeline.series.length && !timeline.groups.length && !timeline.truncated
+  && timeline.total_responses === 0, "timeline is empty without claiming a truncated build");
+assert(timeline.summary.measurement_status === "timing_unavailable"
+  && timeline.summary.output_tok_per_s === null && timeline.scope.kind === "entire_session",
+  "timeline summary says unmeasured over the whole session");
 
 // /api/insights (the Report tab's facet scan)
 

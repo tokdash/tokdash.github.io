@@ -1569,6 +1569,79 @@
     };
   }
 
+  // ---------- /api/session-speeds and /api/session-speed (v2.6.9+) ----------
+  // Timing needs a response's own duration, which a synthetic turn does not have.
+  // Both routes still have to answer, because their failure states are loud: the
+  // Sessions table reads a summary it did not get as not-indexed and leaves the cell
+  // on "Pending" forever, and a session detail that cannot load its timeline prints
+  // "Timing history could not be read." So both answer the way a server with the
+  // timing cache but no measurements for this client does -- ready, jobless, and
+  // unmeasured -- which is the state the shell renders as a plain em dash.
+  function speedSummary(tool, sessionId) {
+    const internalSource = SESSION_TOOL_KEYS[String(tool || "").toLowerCase()];
+    // A tool the demo does not serve has no session to look up, which is a different
+    // statement from "this session produced no output" only in the eligible count.
+    const found = internalSource && allSessions.find(
+      (s) => s.source === internalSource && s.session_id === sessionId);
+    // Responses eligible for timing are the ones that generated output. None were
+    // measured, so coverage is zero of that real count; zero eligible would claim the
+    // session has nothing to measure, which is a different and untrue statement.
+    const eligible = found ? found.turns.filter((t) => t.tokens_out > 0).length : 0;
+    return {
+      tool,
+      session_id: sessionId,
+      cache_state: "ready",
+      measurement_status: "timing_unavailable",
+      output_tok_per_s: null,
+      speed_calls: 0,
+      eligible_calls: eligible,
+      coverage: eligible ? 0 : null,
+      partial_model_scope: false,
+      groups: [],
+    };
+  }
+
+  function buildSessionSpeeds(body) {
+    const seen = new Set();
+    const sessions = [];
+    for (const item of Array.isArray(body.sessions) ? body.sessions : []) {
+      const tool = String(item && item.tool || "");
+      const sessionId = String(item && item.session_id || "");
+      if (!tool || !sessionId) continue;
+      const key = tool + "\u0000" + sessionId;
+      if (seen.has(key)) continue; // upstream collapses duplicates in a batch too
+      seen.add(key);
+      sessions.push(speedSummary(tool, sessionId));
+    }
+    return {
+      schema_version: 1,
+      scope: { kind: "date_range", from: body.date_from || null, to: body.date_to || null },
+      measurement_generation: 0,
+      sessions,
+    };
+  }
+
+  function buildSessionSpeedTimeline(params) {
+    const from = params.get("date_from"), to = params.get("date_to");
+    return {
+      schema_version: 1,
+      tool: params.get("tool"),
+      session_id: params.get("session_id"),
+      scope: from && to ? { kind: "date_range", from, to } : { kind: "entire_session" },
+      // Jobless on purpose: a job id would have the modal open a build-job stream
+      // for a build the demo can never finish.
+      cache: { state: "ready", job_id: null },
+      measurement_generation: 0,
+      summary: speedSummary(params.get("tool"), params.get("session_id")),
+      groups: [],
+      series: [],
+      bucketed: false,
+      total_responses: 0,
+      returned_points: 0,
+      truncated: false,
+    };
+  }
+
   // ---------- /api/output-speed (v2.6.9+) ----------
   // The Model output speed page reads a disposable cache built from real
   // per-response durations. The demo's turns are synthetic and carry no response
@@ -1773,10 +1846,19 @@
       return jsonResponse(buildOutputSpeed(params.get("view") || "across-models",
         params.get("period"), params.get("date_from"), params.get("date_to")));
     }
+    if (path === "/api/session-speed" && method === "GET") {
+      return jsonResponse(buildSessionSpeedTimeline(params));
+    }
     if (path === "/api/session-speeds" && method === "POST") {
-      // Cache-only per-session summaries: nothing is indexed, so there is nothing
-      // to add and the Sessions table keeps its em dashes for every client.
-      return jsonResponse({ measurement_generation: 0, sessions: [] });
+      // One summary per requested session, including the unmeasured ones: omitting a
+      // session is what the table reads as "not indexed yet".
+      let body = {};
+      try {
+        body = JSON.parse((init && init.body) || "{}");
+      } catch (err) {
+        body = {};
+      }
+      return jsonResponse(buildSessionSpeeds(body));
     }
     if (path === "/api/output-speed/ensure" && method === "POST") {
       // Queues a timing build. The demo has no timing to extract, so it reports the
