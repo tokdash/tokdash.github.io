@@ -92,8 +92,10 @@ with sync_playwright() as p:
     assert text("#overviewActiveTime") not in ("<missing>", "-", ""), "agent-time card empty"
 
     # Top Model KPI: the full name must fit the card (regression for the
-    # anthropic/claude-opus-4.7 overflow) and carry a hover title. The probe
-    # constrains the element to the real card inner width (1200px container,
+    # anthropic/claude-opus-4.7 overflow) and stay readable in full on hover. The
+    # hover affordance is #topModelExact, an exact-value readout the shell fills with
+    # setKpiExactReadout, which replaced the title attribute this check used to read.
+    # The probe constrains the element to the real card inner width (1200px container,
     # 6-col grid at lg, 16px gaps, p-5 cards) and measures against a fixed long
     # name, so it does not depend on which model the dataset ranks first.
     top_model = page.locator("#topModel")
@@ -101,28 +103,37 @@ with sync_playwright() as p:
     name = (top_model.inner_text() or "").strip()
     assert name not in ("", "-", "—"), "Top Model KPI empty"
     assert "break-all" in (top_model.get_attribute("class") or ""), "Top Model KPI missing break-all"
-    assert top_model.get_attribute("title") == name, "Top Model KPI missing hover title"
+    readout = page.locator("#topModelExact")
+    assert readout.count() == 1, "Top Model KPI has no exact-value readout"
+    assert readout.get_attribute("hidden") is None, "exact-value readout stays hidden"
+    assert (readout.text_content() or "").strip() == name, "exact-value readout lacks the full name"
+    assert top_model.get_attribute("aria-label") == name, "Top Model KPI missing its accessible name"
     fit = page.evaluate(
         """() => {
           const el = document.getElementById('topModel');
           const vp = window.innerWidth;
           const innerW = (Math.min(1200, vp - 64) - 5 * 16) / 6 - 40;
           const probe = document.createElement('style');
-          probe.textContent = '.td-ovf-test{word-break:break-all;}';
+          // Both arms need !important: the page ships a break-all utility of its own
+          // now that Tailwind loads from static/vendor, and a rule that only ever
+          // adds the property leaves the "without" arm measured with it on.
+          probe.textContent = '.td-ovf-off{word-break:normal !important;}'
+                            + '.td-ovf-on{word-break:break-all !important;}';
           document.head.appendChild(probe);
           const original = el.textContent;
           el.textContent = 'anthropic/claude-opus-4.7-experimental-20260903';
-          const measure = (fixed) => {
-            el.classList.toggle('td-ovf-test', fixed);
+          const measure = (arm) => {
+            el.classList.remove('td-ovf-off', 'td-ovf-on');
+            el.classList.add(arm);
             el.style.width = innerW + 'px';
             const scroll = el.scrollWidth;
             el.style.width = '';
             return scroll;
           };
-          const withoutFix = measure(false);
-          const withFix = measure(true);
+          const withoutFix = measure('td-ovf-off');
+          const withFix = measure('td-ovf-on');
           el.textContent = original;
-          el.classList.remove('td-ovf-test');
+          el.classList.remove('td-ovf-off', 'td-ovf-on');
           probe.remove();
           return { innerW: Math.round(innerW), withoutFix, withFix };
         }"""
@@ -131,6 +142,18 @@ with sync_playwright() as p:
           f"scrollWithoutFix={fit['withoutFix']} scrollWithFix={fit['withFix']}")
     assert fit["withoutFix"] > fit["innerW"], "overflow probe is vacuous (the long name fits unwrapped)"
     assert fit["withFix"] <= fit["innerW"] + 1, "Top Model KPI overflows its card with break-all"
+
+    # And the readout must actually arrive: CSS reveals it on hover of the wrap
+    # (.overview-token-value-wrap:hover), which is the only way to read an unbroken
+    # name now that the card wraps it across lines.
+    page.locator("#topModelWrap").hover()
+    page.wait_for_timeout(300)  # let the opacity transition settle
+    assert page.evaluate(
+        """() => {
+          const s = getComputedStyle(document.getElementById('topModelExact'));
+          return s.visibility === 'visible' && parseFloat(s.opacity) > 0.9;
+        }"""
+    ), "exact-value readout does not reveal on hover"
 
     # Two things to prove about the Overview tools table, and both read the client
     # list from the demo itself rather than a list frozen in this file: the page
@@ -345,20 +368,26 @@ with sync_playwright() as p:
     )
 
     kpis = {i: text("#" + i) for i in (
-        "usageReportKTokens", "usageReportKCost", "usageReportKActive", "usageReportKDays")}
+        "usageReportKTokens", "usageReportKCost", "usageReportKActive", "usageReportKDays",
+        "usageReportKSessions", "usageReportKMessages")}
     print("report KPIs:", kpis)
     assert all(v not in ("<missing>", "", "-", "\u2014") for v in kpis.values()), \
         f"report hero KPI empty: {kpis}"
     assert page.locator("#usageReportBanner").is_hidden(), "report shows a missing-source banner"
     assert page.locator("#usageReportStatePanel").is_hidden(), "report shows its error/state panel"
 
-    for label in ("usageReportRange", "usageReportSentence", "usageReportStreak",
-                  "usageReportGroupNote", "usageReportFooter", "usageReportTz"):
+    for label in ("usageReportRange", "usageReportStreak",
+                  "usageReportFooter", "usageReportTz"):
         value = text("#" + label)
         assert value not in ("<missing>", "", "-", "\u2014"), f"{label} printed nothing"
-    print("report sentence:", text("#usageReportSentence")[:150])
     print("report streak:", text("#usageReportStreak"))
-    print("report groups:", text("#usageReportGroupNote")[:120])
+
+    # The podium note is apology-only: it appears to flag missing project rows or
+    # partial facet coverage, neither of which the demo's synthetic fleet has, so a
+    # silent note is the healthy answer here and a printed one is the regression.
+    group_note = page.locator("#usageReportGroupNote")
+    assert group_note.is_hidden(), "report flags facet gaps on complete demo data"
+    print("report groups note:", (group_note.text_content() or "").strip()[:120] or "<none>")
 
     assert page.locator("#usageReportHeat > *").count() >= 1, "report day map painted nothing"
     podium = page.locator("#usageReportPodium > *")
@@ -423,6 +452,23 @@ with sync_playwright() as p:
     print("card fit:", audit[:150])
     page.screenshot(path="verify-report.png", full_page=True)
 
+    # Model output speed (v2.6.9+) is a page the demo cannot fill: the synthetic
+    # turns carry no response durations, so the mock answers with the API's own cold
+    # snapshot. That is only a good demo while it renders the state upstream designed
+    # for it, so pin that here -- a route the mock dropped would print the shell's
+    # "Output speed could not be loaded." line and look like a broken product.
+    page.locator('.sidebar-nav-item[data-tab-target="speed"]').click()
+    page.wait_for_timeout(2500)
+    assert page.locator("#speed-content").is_visible(), "Model output speed does not open"
+    speed_state = text("#usageReportSpeedState")
+    body = text("#usageReportSpeedBody")
+    assert "could not be loaded" not in speed_state.lower(), f"speed page failed to load: {speed_state!r}"
+    assert "no measured output speed" in body.lower(), f"speed table is not on its empty state: {body[:120]!r}"
+    sources = text("#usageReportSpeedSources")
+    assert "Freebuff" in sources, f"speed availability omits the newest client: {sources[:120]!r}"
+    print("speed page:", speed_state, "|", sources[:70])
+    page.screenshot(path="verify-speed.png", full_page=True)
+
     # The What's new view reads static/release-notes.json, which the site copies from
     # a release. A copy left behind upstream is a sync bug, not a UI bug.
     notes = json.loads((ROOT / "static" / "release-notes.json").read_text(encoding="utf-8"))
@@ -442,7 +488,11 @@ with sync_playwright() as p:
 
     browser.close()
 
-real_errors = [e for e in errors if "cdn.tailwindcss.com" not in e and "googletagmanager" not in e]
+# This run aborts every off-origin request on purpose, so the shell's own health
+# probes for the CDN and for Google Fonts fail by design; both resolve on the live
+# site, which is why the shell logs them at all.
+OFFLINE_EXPECTED = ("cdn.tailwindcss.com", "googletagmanager", "Failed to load Google Fonts")
+real_errors = [e for e in errors if not any(needle in e for needle in OFFLINE_EXPECTED)]
 print("console errors:", real_errors if real_errors else "none")
 assert not real_errors, "console errors on the demo page"
 print("BROWSER-CHECK-OK")

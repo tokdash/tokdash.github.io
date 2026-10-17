@@ -314,6 +314,7 @@
     { source: "muse",            label: "Muse Code",      weight: 0.02 },
     { source: "devin",           label: "Devin CLI",      weight: 0.02 },
     { source: "minimax",         label: "MiniMax Code",   weight: 0.02 },
+    { source: "freebuff",        label: "Freebuff",       weight: 0.02 },
   ];
   // OpenClaw is a separate app (its own panel in the UI).
   const OPENCLAW = { source: "openclaw", label: "OpenClaw", weight: 0.05 };
@@ -324,14 +325,14 @@
     { name: "openai/gpt-5.1-codex-max",   provider: "openai",     in: 1.25, out: 10.00, cr: 0.125, cw: 1.25, tools: { codex: 0.20 } },
     { name: "openai/gpt-5.1-codex-mini",  provider: "openai",     in: 0.25, out: 2.00,  cr: 0.025, cw: 0.25, tools: { codex: 0.15, gemini: 0.10, opencode: 0.10, qoder: 0.25, qoder_cli: 0.35 } },
     { name: "openai/gpt-5.5",             provider: "openai",     in: 5.00, out: 30.00, cr: 0.50, cw: 5.00,  tools: { copilot_cli: 0.50, hermes: 0.15 } },
-    { name: "anthropic/claude-opus-4.7",  provider: "anthropic",  in: 15.0, out: 75.00, cr: 1.50, cw: 15.0, tools: { claude_code: 0.45, opencode: 0.10, openclaw: 0.45, hermes: 0.25, devin: 0.25 } },
-    { name: "anthropic/claude-sonnet-4.6",provider: "anthropic",  in: 3.00, out: 15.00, cr: 0.30, cw: 3.00, tools: { claude_code: 0.40, opencode: 0.30, openclaw: 0.35, copilot_cli: 0.20, hermes: 0.30, reasonix: 0.45, workbuddy: 0.35, kilocode: 0.35, cline: 0.40, zed: 0.25, crush: 0.30, devin: 0.60 } },
+    { name: "anthropic/claude-opus-4.7",  provider: "anthropic",  in: 15.0, out: 75.00, cr: 1.50, cw: 15.0, tools: { claude_code: 0.45, opencode: 0.10, openclaw: 0.45, hermes: 0.25, devin: 0.25, freebuff: 0.20 } },
+    { name: "anthropic/claude-sonnet-4.6",provider: "anthropic",  in: 3.00, out: 15.00, cr: 0.30, cw: 3.00, tools: { claude_code: 0.40, opencode: 0.30, openclaw: 0.35, copilot_cli: 0.20, hermes: 0.30, reasonix: 0.45, workbuddy: 0.35, kilocode: 0.35, cline: 0.40, zed: 0.25, crush: 0.30, devin: 0.60, freebuff: 0.45 } },
     { name: "anthropic/claude-haiku-4.5", provider: "anthropic",  in: 0.80, out: 4.00,  cr: 0.08, cw: 0.80, tools: { claude_code: 0.10, openclaw: 0.05, cline: 0.15 } },
     { name: "google/gemini-3-pro-preview",provider: "google",     in: 2.00, out: 12.00, cr: 0.20, cw: 0.375, tools: { gemini: 0.55, openclaw: 0.05, cline: 0.15, antigravity_cli: 0.35 } },
-    { name: "google/gemini-3-flash-preview",provider: "google",   in: 0.50, out: 3.00,  cr: 0.05, cw: 0.083333, tools: { gemini: 0.30, antigravity_cli: 0.25, zed: 0.20 } },
+    { name: "google/gemini-3-flash-preview",provider: "google",   in: 0.50, out: 3.00,  cr: 0.05, cw: 0.083333, tools: { gemini: 0.30, antigravity_cli: 0.25, zed: 0.20, freebuff: 0.15 } },
     { name: "moonshotai/kimi-k2.6",       provider: "moonshotai", in: 0.60, out: 2.50,  cr: 0.15, cw: 0.60, tools: { kimi: 0.85, openclaw: 0.05 } },
     { name: "minimax/minimax-m2.7",       provider: "minimax",    in: 0.30, out: 1.20,  cr: 0.06, cw: 0.30,  tools: { pi_agent: 0.80, hermes: 0.30, mimo: 0.90, workbuddy: 0.20, omp: 0.55, minimax: 0.90 } },
-    { name: "openai/gpt-5.2",             provider: "openai",     in: 1.75, out: 14.00, cr: 0.175, cw: 1.75, tools: { pi_agent: 0.20, omp: 0.30 } },
+    { name: "openai/gpt-5.2",             provider: "openai",     in: 1.75, out: 14.00, cr: 0.175, cw: 1.75, tools: { pi_agent: 0.20, omp: 0.30, freebuff: 0.20 } },
     { name: "z-ai/glm-5.1",               provider: "z-ai",       in: 0.30, out: 1.10,  cr: 0.06, cw: 0.30, tools: { kimi: 0.15, opencode: 0.30, openclaw: 0.05, reasonix: 0.55, zcode: 1.00, workbuddy: 0.15, qoder: 0.20, qoder_cli: 0.20, omp: 0.15, kilocode: 0.15, crush: 0.30 } },
     { name: "deepseek/deepseek-v3.2",     provider: "deepseek",   in: 0.28, out: 0.42,  cr: 0.13, cw: 0.28, tools: { dsh: 0.85, opencode: 0.05, kilocode: 0.15, crush: 0.20 } },
     { name: "deepseek/deepseek-r1",       provider: "deepseek",   in: 0.70, out: 2.50,  cr: 0.028, cw: 0.28, tools: { dsh: 0.15 } },
@@ -851,7 +852,7 @@
 
   // ---------- /api/sessions and /api/session ----------
   // Mirrors the backend's SESSION_TOOLS (src/tokdash/sessions.py). Clients with a
-  // parser but no session harness (crush, zed, muse, amp) stay out of this map and
+  // parser but no session harness (crush, zed, muse, freebuff, amp) stay out of this map and
   // out of /api/active-time's by_tool, exactly as the real server leaves them.
   const SESSION_TOOL_KEYS = {
     codex: "codex",
@@ -1568,6 +1569,55 @@
     };
   }
 
+  // ---------- /api/output-speed (v2.6.9+) ----------
+  // The Model output speed page reads a disposable cache built from real
+  // per-response durations. The demo's turns are synthetic and carry no response
+  // duration, so the honest answer is the API's own cold snapshot: no rows, and
+  // every client with usage listed as unmeasured. The page then lands on the state
+  // upstream designed for this ("No measured output speed in this range.") instead
+  // of an error, and with no job_id the shell never opens the build-job stream.
+  // Rates are never averaged upstream, so nothing here invents one.
+  function buildOutputSpeed(view, period, dateFrom, dateTo) {
+    const range = periodToRange(period, dateFrom, dateTo, "year");
+    // usage_rows is how many stored usage rows the client has in the window, counted
+    // from the same turns /api/usage aggregates rather than from its summary, whose
+    // by_tool rows carry tokens and cost but no row count.
+    const usageRows = {};
+    for (const { session } of iterTurnsInRange(range)) {
+      const src = toolKey(session.source);
+      usageRows[src] = (usageRows[src] || 0) + 1;
+    }
+    const base = {
+      schema_version: 1,
+      view,
+      metric: "output_tok_per_s",
+      aggregation: "sum_tokens_over_sum_duration",
+      range: { from: ymd(range.since), to: ymd(range.until - MS_DAY) },
+      cache: {
+        state: "cold", job_id: null, published_generation: 0,
+        publication_revision: 0, deferred_inputs: 0, error: null,
+      },
+      measurement_generation: 0,
+      hidden_request_windows: [],
+      // Same tool-key space as /api/usage, so the page's pills and its agent
+      // labels match the rows every other route serves.
+      source_status: Object.entries(usageRows)
+        .map(([tool, rows]) => ({ source: tool, status: "timing_unavailable", usage_rows: rows }))
+        .sort((a, b) => a.source.localeCompare(b.source)),
+    };
+    if (view === "trend") {
+      // No offered bucket: a window needs two buckets of a size to offer it, and
+      // with no measured response it offers none.
+      return { ...base, offered_buckets: [], auto_bucket: null, granularity: null,
+               buckets: [], series: [], model_series: [],
+               spread: { quantiles: ["p10", "p25", "p50", "p75", "p90"], min_responses: 30, weight: "duration" } };
+    }
+    if (view === "time-of-day") {
+      return { ...base, selected_key: null, hourly: [], six_hour: [], days_with_measurements: 0 };
+    }
+    return { ...base, rows: [], models: [], available_measurement_range: null };
+  }
+
   // ---------- /api/pricing-db (read-only, served from a static JSON file) ----------
   let pricingCache = null;
   function demoBasePath() {
@@ -1718,6 +1768,20 @@
     }
     if (path === "/api/activity-insights" && method === "GET") {
       return jsonResponse(activityInsightsFor(server));
+    }
+    if (path === "/api/output-speed" && method === "GET") {
+      return jsonResponse(buildOutputSpeed(params.get("view") || "across-models",
+        params.get("period"), params.get("date_from"), params.get("date_to")));
+    }
+    if (path === "/api/session-speeds" && method === "POST") {
+      // Cache-only per-session summaries: nothing is indexed, so there is nothing
+      // to add and the Sessions table keeps its em dashes for every client.
+      return jsonResponse({ measurement_generation: 0, sessions: [] });
+    }
+    if (path === "/api/output-speed/ensure" && method === "POST") {
+      // Queues a timing build. The demo has no timing to extract, so it reports the
+      // same cold snapshot and no job, which is what stops the caller polling for one.
+      return jsonResponse({ cache: { state: "cold", job_id: null } });
     }
     if (path === "/api/version" && method === "GET") {
       // The static demo runs no update checks (opt-in server feature), so the

@@ -1,6 +1,283 @@
 {
-  "current": "2.6.8",
+  "current": "2.6.18",
   "releases": [
+    {
+      "version": "2.6.18",
+      "date": "2026-10-16",
+      "sections": [
+        {
+          "type": "added",
+          "items": [
+            "A new end-user troubleshooting guide covers the eight problems that used to mean opening an issue: port conflicts, a database too new for the installed version, SQLite WAL locks, macOS Keychain prompts, WSL2 localhost binding, Copilot token tracking, an empty dashboard and failed update checks.",
+            "The API reference documents the three endpoints that were missing, including activity insights and the two PWA endpoints, and the supported-clients list now carries Amp alongside two previously unlinked specs.",
+            "37 test modules now say what they cover in a module docstring, so a file's scope is readable before its assertions.",
+            "Pricing DB 2.0.35 adds muse-wonder at $4.00 in / $20.00 out per MTok, cache $0.20 read and $4.00 write. The scan's 90 price changes stay in the updater's diff report for a manual pass."
+          ]
+        },
+        {
+          "type": "changed",
+          "items": [
+            "Model output speed now measures generation windows by default instead of whole requests, so every figure on the page answers the same question. A Settings toggle brings whole requests back and reveals the timing labels, and API defaults are unchanged."
+          ]
+        },
+        {
+          "type": "fixed",
+          "items": [
+            "Claude messages copied between transcripts no longer lose usage or keep a smaller snapshot when the owning file is rewritten or deleted, and a Crush session copied into two databases is no longer counted twice in the live view.",
+            "Codex rollouts are read whether they are stored plain or Zstandard-compressed, in both active and archived session directories, and a corrupt compressed frame no longer blocks the other rollouts.",
+            "WorkBuddy now counts its function-call usage once per provider message, and finds both the current ~/.workbuddy directory and the legacy ~/.workbuddy-ai.",
+            "The Hermes agent mark is the official icon on the web, macOS and Windows, with the old dark variant removed.",
+            "The GitHub Actions artifacts move to download-artifact 8.0.2 and upload-artifact 7.0.2 in the PyPI publish and companion release workflows."
+          ]
+        }
+      ]
+    },
+    {
+      "version": "2.6.17",
+      "date": "2026-10-13",
+      "sections": [
+        {
+          "type": "added",
+          "items": [
+            "Claude Code output speed is now measured from its transcripts, so it no longer sits under tools without speed measurements. Interrupted and retried requests are left out rather than guessed.",
+            "The per-stream speed trend now shades how much individual responses vary around each model's line. Buckets with too few responses show no shading instead of a guess.",
+            "The hourly cache-rate sparkline now bridges short idle gaps with a dashed line instead of breaking apart; the measured rates and the headline are unchanged."
+          ]
+        },
+        {
+          "type": "changed",
+          "items": [
+            "The output speed page no longer rebuilds on nearly every visit. Only changed inputs are re-read, switching date ranges reuses the same build, and logs still being written settle before they are timed.",
+            "Codex output speed now covers responses that end in a tool call and sessions from before Codex 0.153, so most of an agentic session is timed instead of about one response in eight.",
+            "The session detail modal now follows the theme and language everywhere, including its speed chart, its load-failure message and its token-share bars in dark mode.",
+            "Documented that Claude Code subagent output tokens are under-reported because of an upstream bug. Nothing is estimated and billed numbers do not change."
+          ]
+        },
+        {
+          "type": "fixed",
+          "items": [
+            "Codex remote compaction requests that were never billed are now counted, in both Overview and Sessions.",
+            "OpenClaw session archives compressed as `.zst` are now read, so one no longer blocks all OpenClaw history from being ingested.",
+            "Codex no longer shows as waiting for speed timing forever when its rollouts were archived, and tools without speed measurements are grouped by reason again.",
+            "ZCode no longer misses a database rewrite that keeps the same size within one clock tick."
+          ]
+        }
+      ]
+    },
+    {
+      "version": "2.6.16",
+      "date": "2026-10-11",
+      "sections": [
+        {
+          "type": "added",
+          "items": [
+            "Speed gained a trend view for longer stretches, grouping the same figures into hour, day, week, month or quarter buckets. The page asks which sizes fit the window you picked, so a range never offers a grouping it has no data for."
+          ]
+        },
+        {
+          "type": "changed",
+          "items": [
+            "The Model output speed page now leads with combined throughput: what your machine actually produced, counting responses that ran at the same time once each rather than only as fast as the fastest single stream. Per stream stays right beside it as a lens, and the gap between the two is shown as how many ran in parallel, so fanning out subagents no longer reads as a slower machine than it was.",
+            "The page is built around one chart now. Pick up to six rows from the table underneath and walk the window by day, week, month, quarter or year; a model you drive from several tools counts as a single line. The first time you open it after upgrading, the timing cache rebuilds itself once while the last good figures stay readable."
+          ]
+        }
+      ]
+    },
+    {
+      "version": "2.6.15",
+      "date": "2026-10-11",
+      "sections": [
+        {
+          "type": "added",
+          "items": [
+            "If your machine has no Chinese font installed, an optional new script can fetch one for you. It installs Noto Sans SC together with its license into a local folder that never gets committed, keeps whatever you already have if a download fails, and leaves the dashboard's stylesheet alone unless you agree to the change. Font files never become part of the download or the installed package, so this is for running Tokdash from source."
+          ]
+        },
+        {
+          "type": "changed",
+          "items": [
+            "Chinese, Japanese and Korean now use font stacks the dashboard chooses instead of whatever the browser guessed, and translated headings no longer inherit the spacing and weight of Latin type. Charts and report canvases follow the same choice, so switching language updates the lettering without a reload.",
+            "Opening a session no longer drops a fixed blue panel on top of your theme. Its tabs, charts, token bars and chat cards read your colours in both light and dark, and a session left open redraws itself if you change theme or language while you are looking at it. The wording inside is translated into all six dashboard languages, and text contrast was measured in every theme and mode combination so none of it is hard to read."
+          ]
+        },
+        {
+          "type": "fixed",
+          "items": [
+            "Codex sessions hold on to their output-speed figures. Codex records time in whole milliseconds and often logs a quick command as starting and finishing on the same one, which used to be read as a broken clock that discarded the timing of every response in that turn. A command that fast is now taken at face value, so many more sessions show measured tok/s instead of an empty panel."
+          ]
+        }
+      ]
+    },
+    {
+      "version": "2.6.14",
+      "date": "2026-10-10",
+      "sections": [
+        {
+          "type": "added",
+          "items": [
+            "A new Model output speed page, under Intelligence, shows how fast each model actually streamed, measured from your own logs. Rates come only from responses whose duration was matched, and every row says how many calls were measured and what share of eligible calls that covers, so a figure built on 40 calls does not read like one built on 40,000. Pick a model and its rate spreads across the day, by hour and by six-hour window.",
+            "Sessions gained an Output tok/s column for the selected date range, and opening a session shows its per-response speed as a chart or as the list behind it. When a session uses several models or mixes two kinds of duration, it says so instead of blending them into one average.",
+            "Timing is built on demand in its own small cache, never during your ordinary usage refresh, and the build runs at a fraction of your CPU that you can set. Nothing leaves your machine and no conversation text is stored: only the numbers."
+          ]
+        },
+        {
+          "type": "changed",
+          "items": [
+            "The documentation now states what this feature costs alongside what it gives you, including the two performance targets it has not met yet. With a large history the first speed build can take a long while: progress is shown, the last good figures stay readable while it runs, and a build that fails leaves those figures in place and reports the failure."
+          ]
+        }
+      ]
+    },
+    {
+      "version": "2.6.13",
+      "date": "2026-10-10",
+      "sections": [
+        {
+          "type": "added",
+          "items": [
+            "The Overview sparklines now match the range you picked: hours for today and yesterday, days for up to a month, months for a year. Every quick range has a curve again, including This Year and Last Year, and the points are computed under the same pricing and counting rules as the total above them, so curve and number cannot disagree. An hour or month that has not happened yet stays blank instead of being drawn as zero.",
+            "The Report tab gained a Day period. Step through today, yesterday and the recent days, each chip named with its real date, and durations under a day now read in your own language's units instead of a compact abbreviation."
+          ]
+        },
+        {
+          "type": "changed",
+          "items": [
+            "The Report tab stopped repeating itself. Sessions and Messages are summary figures now, the sentence card that restated them is gone, and the day-by-day panel hides on day and week reports, where the window has not met every day yet.",
+            "All that detail cost almost nothing in speed: pricing loads only when a figure needs it, the aggregation reuses work it has already done, and the dashboard stops redrawing a curve that has not changed. Measured against the previous release, every range reads faster or stays inside a tight margin."
+          ]
+        },
+        {
+          "type": "fixed",
+          "items": [
+            "A model's fees and messages no longer vanish from a sparkline just because one of its buckets carries no token counters, and a displayed cost no longer shifts by a penny depending on whether a year was summed all at once or month by month."
+          ]
+        }
+      ]
+    },
+    {
+      "version": "2.6.12",
+      "date": "2026-10-09",
+      "sections": [
+        {
+          "type": "added",
+          "items": [
+            "Opening an OpenCode session now fills the transcript timeline and the details drawer instead of saying no transcript was stored. Tokdash reads OpenCode's database read-only for message metadata (role, time, model, token and character counts, whether a message carries reasoning or tool calls) and tool metadata (name, status, and whether it had arguments). It reads metadata only: your prompts, responses, reasoning and tool output never leave the database.",
+            "The Sessions tab's client filters show each tool's logo next to its name and drop to just the logo when the row gets tight, so a dozen tools stay in one readable row.",
+            "A new architecture page walks a usage event from local client logs through the parsers, the usage database and pricing, and out to the API, the terminal dashboard and the statusline. The quota guide gained a diagram of the background poll and its reset-boundary samples.",
+            "The configuration reference documents 23 Tokdash settings that previously existed only in the code, covering background warming, sessions and parsing, quota polling, the terminal dashboard and update checks.",
+            "All six READMEs now carry the CI status and the current PyPI version.",
+            "New pull requests start from a template with a testing section and a checklist, and pytest moved into the dev requirements so one install covers the whole suite.",
+            "The OpenAPI schema at /openapi.json describes itself with a version, licence and six tags; every route carries a tag and most carry a one-line summary.",
+            "Four more models are priced: gpt-6.1-sol-pro, claude-haiku-5.5, mistral-large-4-0 and gemini-nano-banana-2.1."
+          ]
+        },
+        {
+          "type": "changed",
+          "items": [
+            "The dashboard no longer serves the Swagger UI and ReDoc pages. They fetched their JavaScript from a public CDN with no integrity check, and a script loaded on the dashboard's own origin can ask for the same write token the dashboard does. The plain JSON schema at /openapi.json stays, so OpenAPI tools keep working, and API.md is still the human-readable reference.",
+            "Freebuff's logo is its real glyph rather than a placeholder letter, in the green the site itself uses. Muse Code keeps its letter tile but now uses one blue for both the dashboard icon and its README badge, and the supported-clients list no longer leaves it out.",
+            "The contributing guide installs the full dev requirements the way CI does, adds the Windows activation commands, and runs a source checkout against its own data directory so a development build cannot migrate your real usage database."
+          ]
+        },
+        {
+          "type": "fixed",
+          "items": [
+            "The six Overview sparklines draw your recorded daily usage instead of a fixed decorative curve that looked identical for every user, every date range and every server. Curves are built only from data the page already loads, so they cost no extra requests; the cache-rate curve sums its counts rather than averaging daily percentages; the top-model curve follows the model the card names; days the data does not cover read as gaps rather than zeros; and where a curve cannot be drawn honestly the card says why, in all six languages, instead of showing a shape.",
+            "Devin CLI reports usage from a real sessions database. A populated store keeps its token counts, model and row id in fields the parser was not reading, so live installs showed no usage at all.",
+            "On very wide monitors the dashboard content sits centred in the space beside the sidebar instead of pushed up against it. Screens at 1920px and below are unchanged.",
+            "Three command-line errors now say what to do next: a failed db verify points at db resync, an unknown db action lists the valid ones, and a bad --port reports the problem it actually hit."
+          ]
+        }
+      ]
+    },
+    {
+      "version": "2.6.11",
+      "date": "2026-10-05",
+      "sections": [
+        {
+          "type": "added",
+          "items": [
+            "Every Overview KPI card now reads out the exact figure behind its rounded value when you hover it: the full token count, the message count with its unit, agent time down to the seconds, the cache hit rate to two decimals, and the top model's name unbroken. The readout takes the card's own colour and stays open while you move onto it. The Cost card deliberately has none, because the cost already arrives rounded to cents and more digits would only be false precision.",
+            "The dashboard's non-visible text is translated: aria-labels, tooltips, the session search placeholder and the browser tab title, in all six languages. Screen-reader users no longer hear English inside a translated interface, including the Quota tab's provider menu, which used to be written in code and announced itself in English everywhere."
+          ]
+        },
+        {
+          "type": "changed",
+          "items": [
+            "The Overview and Stats tabs lost a doubled-up figure and evened out their spacing. Token Composition no longer prints a Cache Saved total that repeats the legend directly below it, the header now sits the same distance above the first row of cards as the rest of the page does, and the Stats grids separate rows from columns instead of mixing two spacings.",
+            "The Freebuff logo in the README's supported-client strip was exported without transparency, so it sat on a white slab against GitHub's dark theme. It is rebuilt with transparent corners, and a check now insists every client logo keeps an alpha channel."
+          ]
+        },
+        {
+          "type": "fixed",
+          "items": [
+            "DeepSeek Harness usage that was being dropped is counted. A compaction event carries the summary call's own tokens but no turn or step, so its cost never reached the total; usage recorded inside a retried or aborted attempt is read now too, as is a finished message whose record left its usage out. Overview and the Sessions tab still agree, and stored rows reparse. Separately, a log that went corrupt, recovered, then went corrupt again logged nothing the second time for the rest of the process; a clean read now forgets the file.",
+            "The tab row beside the sidebar no longer reappears on wide screens. The rule that hid it had become an invalid selector, which the browser discarded without a word. Several accessible names that pointed at the wrong text are corrected too: the quota interval control announced 'saved interval' where its own label says 'Poll every', and one close button had its icon replaced by its label text.",
+            "The untranslated page and the translated one no longer say different things. Some built-in English fallbacks had drifted from the English dictionary, so every language briefly showed the stale wording -- the sidebar said \"What's New\" where the dictionary says \"What's new\" -- before the translation pass replaced it. Every fallback now matches its own key.",
+            "The checks behind the translations now pass on more than the machine they were written on. The dashboard's test suite decoded Node's output with the Windows locale encoding, which garbled Chinese, Japanese and emoji, and one terminal-dashboard check read a figure before its request had finished."
+          ]
+        }
+      ]
+    },
+    {
+      "version": "2.6.10",
+      "date": "2026-10-04",
+      "sections": [
+        {
+          "type": "added",
+          "items": [
+            "Freebuff Desktop is now a usage source. Tokdash reads the desktop app's per-project SQLite store, counting every assistant turn plus the autonomous mission loop's own model calls, and splits cached input and reasoning out of the token buckets the way the app records them. Turns routed to the claude-code or codex harness are skipped, since that usage already arrives as Claude Code and Codex. Freebuff sells an hour of a model rather than billing per token, so the cost shown is an API-equivalent estimate, not a bill.",
+            "The dashboard loads Tailwind CSS, Chart.js, Three.js and Flatpickr from the package instead of a CDN, so it renders the same with no network at all. Google Fonts stays remote. Load order and behaviour are unchanged, and the library files are cached by your browser for a year exactly as they were from the CDNs."
+          ]
+        },
+        {
+          "type": "changed",
+          "items": [
+            "The Overview's Avg Cache Hit Rate card no longer repeats its own label underneath the number."
+          ]
+        },
+        {
+          "type": "fixed",
+          "items": [
+            "Static assets load behind a reverse proxy that forwards the /tokdash prefix instead of stripping it. Every stylesheet, script and icon used to 404 there, which left the dashboard half-styled; a proxy may now do either. Tailscale Serve is unaffected.",
+            "The EST. agent time and Avg Cache Hit Rate cards no longer carry two invented figures. Their corner badges were hardcoded -61% and 92%, with nothing on the page able to update them, so every user, every date range and every language saw the same numbers sitting next to the real ones. Both badges are gone, and a test now forbids any hardcoded number in the Overview KPI cards."
+          ]
+        }
+      ]
+    },
+    {
+      "version": "2.6.9",
+      "date": "2026-10-03",
+      "sections": [
+        {
+          "type": "added",
+          "items": [
+            "A setup-managed Linux install can update itself from the dashboard. When the answering process proves it is the service tokdash setup installed, the update popover offers the version bump and a helper launched outside the server does the upgrade, so it survives the restart it causes; the usage database is backed up first and every failure path tries to bring the service back. Every other install keeps the copyable tokdash update command. Reaching that button from a remote browser is opt-in: pin the exact HTTPS origin in TOKDASH_UPDATE_ORIGIN and enter a one-time code minted on the host with tokdash update-enroll.",
+            "DeepSeek Harness logs in format generations 3 and 4 are read. Upstream renamed its session files, so upgrading dsh emptied the DSH source. Both generations are matched on their suffix now, and a seeded log with no inherited marker bills nothing rather than guessing.",
+            "A CDN that fails to load says so. Tailwind, Chart.js, Three.js, Flatpickr and Google Fonts are each probed for the capability they were meant to provide, and a missing one raises a dismissible notice in the dashboard's own language. When Flatpickr is what failed, the date-range picker is taken out of play rather than left as a button that opens nothing."
+          ]
+        },
+        {
+          "type": "changed",
+          "items": [
+            "The README leads with a two-command quick start and the four views the package actually ships: WebUI, TUI, Companion and Statusline. Reference tables moved into docs/ so each has exactly one home, every screenshot was regenerated from the seeded fixture rather than a real account, and the six language editions mirror the new structure heading for heading."
+          ]
+        },
+        {
+          "type": "fixed",
+          "items": [
+            "A DeepSeek Harness log that cannot be read no longer loses its stored rows, and no longer fails silently: the rows survive and the problem is reported once, in one wording on both Overview and the Sessions tab. A damaged interior frame costs only the rows inside it, so the batches around it still count.",
+            "Overview and the Sessions tab now resolve one DeepSeek Harness session to one winner, so two copies of the same corpus that recorded different usage no longer bill differently depending on which surface you happen to be reading.",
+            "A copied Reasonix day file bills once instead of twice with the usage database off, and deleting the copy no longer discards usage the original file recorded.",
+            "Antigravity's gemini-3.8-flash-n prices as gemini-3.8-flash instead of $0.00.",
+            "Date ranges resolve each boundary in its own date's UTC offset. In a zone that observes DST a range on the far side of a clock change was an hour off, so a late-evening event fell outside the window while the heatmap still counted it. A clock-change day is now exactly 23 or 25 hours long, and Overview, Sessions and the heatmap agree.",
+            "A failed usage-store read is logged instead of swallowed, so a corrupt or locked cache that quietly turns every request into a full reparse is finally visible. It stays out of the API response on purpose: the fallback answer is complete, and flagging it would pin the dashboard to stale numbers for as long as the database stayed broken.",
+            "An Overview range with nothing in it says No data instead of counting out a row of zeros. The count-ups also stopped resuming from the wrong number, counting down from a previous range's total, or flashing a fractional value wider than the card holding it.",
+            "The Pi fork-replay test passes in every timezone. It stamped its fixture at 21:33 UTC but queried a fixed local day, so east of UTC+2:27 it looked for usage on the wrong date and the fork-replay guard sat disabled across most of the world."
+          ]
+        }
+      ]
+    },
     {
       "version": "2.6.8",
       "date": "2026-09-30",
