@@ -211,6 +211,88 @@ with sync_playwright() as p:
         page.wait_for_timeout(1000)
     assert not unloaded, f"session panels without loaded rows: {unloaded}"
     print("session panels:", len(session_tools), "tools, all with rows")
+
+    # Session speed (v2.6.9+) fails loudly on screen and silently at the API, which is how
+    # two regressions reached the public demo: a batch that leaves a requested session out
+    # is read as not-indexed, parking that cell on "Pending" beside a build hint that can
+    # never resolve, and a session detail whose timeline cannot load prints "Timing history
+    # could not be read." The demo's turns are synthetic and carry no response durations,
+    # so both routes answer with the shell's own settled unmeasured state instead.
+    # Speed cells sit three levels deep (tool details > project details > rows) and the
+    # batch is IntersectionObserver-gated, so nothing is requested until a reader opens a
+    # panel and a row is on screen. Both steps happen the way a reader would do them.
+    speed_cells = """() => {
+      const cells = [...document.querySelectorAll('[data-session-speed-cell]')]
+        .filter((cell) => cell.querySelector('button')?.checkVisibility({ visibilityProperty: true }))
+        .map((cell) => cell.innerText.trim()).filter(Boolean);
+      return { count: cells.length,
+               stuck: cells.filter((label) => /pending|not indexed|building|error/i.test(label)),
+               sample: [...new Set(cells)].slice(0, 3) };
+    }"""
+    # Sessions nests three deep: tool panel > project > rows. Opening the tool panel
+    # alone leaves the rows folded, so keep opening the next closed panel a reader
+    # would open until a few speed cells are actually on screen -- a batch of one
+    # session would not prove the batch answers all of them.
+    for _ in range(8):
+        heads = page.locator("details:has([data-session-speed-cell]) > summary")
+        opened = False
+        for head in range(heads.count()):
+            panel = heads.nth(head)
+            if not panel.is_visible() or panel.evaluate("el => el.parentElement.open"):
+                continue  # open only what a reader would still have to open
+            panel.click()
+            opened = True
+            page.wait_for_timeout(1000)
+            if page.evaluate(speed_cells)["count"] >= 3:
+                break
+        if not opened or page.evaluate(speed_cells)["count"] >= 3:
+            break
+
+    marked = page.evaluate(
+        """() => {
+          const cell = [...document.querySelectorAll('[data-session-speed-cell]')]
+            .find((c) => c.querySelector('button')?.checkVisibility({ visibilityProperty: true }));
+          if (!cell) return null;
+          cell.dataset.speedProbe = '1';
+          cell.scrollIntoView({ block: 'center' });
+          return { tool: cell._speedSession?.tool, session: cell._speedSession?.session_id };
+        }"""
+    )
+    assert marked, "no session speed cell reached the viewport after opening a session panel"
+
+    settled = {"count": 0, "stuck": ["<the batch never answered>"], "sample": []}
+    for _ in range(20):
+        settled = page.evaluate(speed_cells)
+        if settled["count"] and not settled["stuck"]:
+            break
+        page.wait_for_timeout(1000)
+    assert settled["count"], "no session speed cell painted a rate after opening a session panel"
+    assert not settled["stuck"], (
+        "session speed cells never settled; POST /api/session-speeds has to answer every "
+        "requested session, the unmeasured ones too: " + str(settled["stuck"][:3])
+    )
+    assert page.evaluate(
+        "() => document.querySelector('[data-speed-probe] button')?.innerText.trim()") == "—", \
+        "the settled speed cell does not read as an unmeasured em dash"
+    print("session speed cells:", settled["count"], "settled, as", settled["sample"])
+
+    # The cell button opens the same session detail a row click opens, and the timing
+    # panel inside it has to explain the missing chart instead of blaming the read.
+    page.locator("[data-speed-probe] button").click()
+    page.wait_for_selector("#sessionSpeedPanel:not([hidden])", timeout=30_000)
+    speed_note = (page.locator("#sessionSpeedEmpty").inner_text() + " "
+                  + page.locator("#sessionSpeedNote").inner_text()).lower()
+    assert "could not be read" not in speed_note, f"speed timeline failed to load: {speed_note[:120]!r}"
+    assert "not indexed" not in speed_note and "could not be loaded" not in speed_note, \
+        f"speed timeline is stuck waiting for a build: {speed_note[:120]!r}"
+    assert page.evaluate("() => document.getElementById('sessionSpeedEmpty').hidden") is False, \
+        "speed panel shows neither a chart nor a reason"
+    assert page.evaluate("() => document.getElementById('sessionSpeedRetry').hidden") is True, \
+        "speed panel offers a retry, so it thinks the read failed"
+    print("session speed modal:", page.locator("#sessionSpeedEmpty").inner_text()[:90])
+    page.evaluate("() => closeSessionModal()")
+    page.wait_for_timeout(400)
+
     page.screenshot(path="verify-sessions.png")
 
     # The mock fleet: three machines, every generated session owned by exactly one.
