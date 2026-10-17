@@ -74,6 +74,7 @@ devices also get the static list.
 |  `static/themes.css`        | Verbatim copy of the production stylesheet.                            |
 |  `static/theme-config.js`   | Verbatim copy of the production theme palettes.                        |
 |  `static/mock-api.js`       | Demo-only fetch shim that builds and serves synthetic data.            |
+|  `static/vendor/`           | Verbatim copy of the libraries the dashboard self-hosts, + NOTICE.     |
 | `static/release-notes.json` | Verbatim copy of the shipped release notes the header reads.           |
 |  `static/icons/agents/`     | Per-agent logos used by the landing page "supported tools" row.        |
 |  `sw.js`                    | Service worker (PWA install + offline app shell), served at `/sw.js`.   |
@@ -138,6 +139,15 @@ folds its nine facets from the same synthetic turns that feed `/api/usage`, so t
 totals agree with Overview's, and one tool-key space serves `/api/usage`, `/api/insights`, and
 `/api/active-time` alike because the Report tab joins them on it.
 
+`static/vendor/` is a verbatim copy with a louder failure mode: since v2.6.9 the shell loads
+Tailwind, Chart.js, Three.js and Flatpickr from `/static/vendor/` rather than from a CDN, so a
+site that does not carry them asks for five files that are not there and quietly degrades. Copy
+the whole directory, `NOTICE.txt` included (it is those libraries' license text), add any new
+filename to `CORE_ASSETS` in `sw.js` -- which pre-caches them and only refills on install -- and
+move that file's `CACHE_NAME` when the shell moves, so a returning visitor is not left holding
+the previous build. `check_demo_sync.py` compares the directory file for file and proves every
+`/static/vendor/` path the shell requests exists.
+
 Lists drift the same way fields do. A new client, session harness or quota provider upstream
 needs its line in `static/mock-api.js` as well, or the demo shows an empty panel where the app
 shows data. `check_demo_sync.py` compares the mock's own lists (`window.__TOKDASH_DEMO__`)
@@ -151,6 +161,14 @@ it does not recognise), and each route answers a missing period with its own Fas
 one assertion that every month from `__TOKDASH_DEMO__.historyStartDate` to the current one has
 rows: a window that stops short reads as an empty chart rather than an error, which is how
 January to June went unnoticed.
+
+`/api/output-speed` is the one route the demo answers with nothing. Its rates come from real
+per-response durations, which a synthetic turn does not have, and upstream never averages
+per-call rates, so there is no honest figure to invent. The mock returns the API's own cold
+snapshot instead: no rows, every client with usage listed as unmeasured, and no build job, which
+is what stops the shell opening a job stream for one. The page then shows the state upstream
+designed for that cache -- "No measured output speed in this range." -- rather than a load error,
+and `verify_demo.py` pins the difference.
 
 ### Rebuilding the landing CSS
 

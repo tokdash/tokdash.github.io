@@ -3,7 +3,9 @@
  * __TOKDASH_CACHE_NAME__; here we bake in a literal version string instead. */
 
 const BASE_PATH = new URL(self.location.href).searchParams.get("base") || "";
-const CACHE_NAME = `tokdash-demo-v2${BASE_PATH ? `-${encodeURIComponent(BASE_PATH)}` : ""}`;
+// Bumped with the shell it pre-caches: the demo now boots from static/vendor/,
+// and cache.addAll only ever runs on install.
+const CACHE_NAME = `tokdash-demo-v3${BASE_PATH ? `-${encodeURIComponent(BASE_PATH)}` : ""}`;
 
 function appPath(path) {
   return `${BASE_PATH || ""}${path}`;
@@ -41,6 +43,11 @@ const CORE_ASSETS = [
   appPath("/static/anime.min.js"),
   appPath("/static/icons/icon-192.png"),
   appPath("/static/icons/icon-512.png"),
+  appPath("/static/vendor/tailwindcss-3.4.17.js"),
+  appPath("/static/vendor/chart-4.4.0.umd.min.js"),
+  appPath("/static/vendor/three-0.160.0.min.js"),
+  appPath("/static/vendor/flatpickr-4.6.13.min.css"),
+  appPath("/static/vendor/flatpickr-4.6.13.min.js"),
 ];
 
 self.addEventListener("install", (event) => {

@@ -2,8 +2,8 @@
 """Fail when the public demo stops matching the Tokdash UI it demos.
 
 The demo is a few copies of upstream -- the dashboard shell, the shipped release
-notes, the pricing snapshot, themes and icons -- and one hand-written synthetic
-backend. Each drifts on its own schedule, and a stale one shows visitors a
+notes, the pricing snapshot, themes, icons and vendored libraries -- and one
+hand-written synthetic backend. Each drifts on its own schedule, and a stale one shows visitors a
 different product: an older share card, a client that never shows up, a session
 panel that can only ever load nothing. Nothing else in this repo notices.
 
@@ -107,6 +107,18 @@ def upstream_manifest(upstream: Path) -> dict:
             p.read_text(encoding="utf-8")
             for p in sorted((upstream / "src/tokdash/static/js").rglob("*.js"))
         },
+        # The libraries the shell self-hosts rather than loading from a CDN, read
+        # the same way. Newer than a pinned copy here means a demo that quietly
+        # falls back to the CDN, or with the service worker's pre-cache in play,
+        # an install that fails.
+        "vendor_files": {
+            str(p.relative_to(upstream / "src/tokdash/static")):
+            p.read_text(encoding="utf-8")
+            for p in sorted((upstream / "src/tokdash/static/vendor").iterdir())
+            if p.is_file()
+        },
+        "vendor_refs": sorted(set(
+            re.findall(r"'(/static/vendor/[^']+)'", shell))),
     }
 
 
@@ -174,6 +186,15 @@ def compare(report: Report, upstream: Path, mock: dict, mock_error: str) -> None
         got = path.read_text(encoding="utf-8")
         report.check(f"static/{rel} is upstream's", got == want, first_difference(got, want))
 
+    # The self-hosted vendor libraries, mirrored file for file.
+    for rel, want in up["vendor_files"].items():
+        path = ROOT / "static" / rel
+        if not path.is_file():
+            report.check(f"static/{rel} is upstream's", False, "the site does not carry this file")
+            continue
+        got = path.read_text(encoding="utf-8")
+        report.check(f"static/{rel} is upstream's", got == want, first_difference(got, want))
+
     # 3. Release notes: the same file, and its own `current` agrees with the package.
     notes_text = here("static/release-notes.json")
     report.check("static/release-notes.json is upstream's", notes_text == up["release_notes"],
@@ -199,6 +220,10 @@ def compare(report: Report, upstream: Path, mock: dict, mock_error: str) -> None
     missing_icons = [icon for icon in up["icons"] if not (ROOT / icon.lstrip("/")).exists()]
     report.check("every tool logo the UI references exists", not missing_icons,
                  f"missing: {', '.join(missing_icons)}")
+    missing_vendor = [v for v in up["vendor_refs"] if not (ROOT / v.lstrip("/")).exists()]
+    report.check("every vendored library the shell requests exists", not missing_vendor,
+                 f"missing: {', '.join(missing_vendor)} -- the demo falls back to a CDN "
+                 f"for these, and offline paints nothing")
 
     # 6. Synthetic backend vs the UI it answers, both in the tool-key space the API
     #    answers with -- the mock names two sources after their products

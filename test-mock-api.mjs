@@ -185,7 +185,36 @@ const pricing = await get("/api/pricing-db");
 assert(pricing.data && pricing.data.models && Object.keys(pricing.data.models).length > 300, "pricing-db snapshot loads");
 
 
+// /api/output-speed (Model output speed, v2.6.9+). The demo's synthetic turns carry
+// no response durations, so this route owes the API's own cold snapshot: the state
+// the page renders as "no measured output speed". A 501 here would surface to a
+// visitor as "Output speed could not be loaded.", and inventing a tok/s figure would
+// be worse -- upstream never averages per-call rates, so there is nothing to fake.
+const speed = await get("/api/output-speed?period=month&view=across-models");
+assert(speed.view === "across-models" && speed.metric === "output_tok_per_s", "speed snapshot names its metric");
+assert(Array.isArray(speed.rows) && speed.rows.length === 0, "speed snapshot invents no rates");
+assert(speed.cache && speed.cache.state === "cold" && !speed.cache.job_id,
+  "speed snapshot is cold and jobless, so the page never opens a build-job stream");
+const speedTools = new Set((speed.source_status || []).map((row) => row.source));
+const speedUsage = await get("/api/usage?period=month");
+assert(speedTools.size > 0 && Object.keys(speedUsage.by_tool).every((t) => speedTools.has(t)),
+  "speed availability covers every client /api/usage ranks, in the same key space");
+assert((speed.source_status || []).every((r) => r.status === "timing_unavailable" && r.usage_rows > 0),
+  "every unmeasured client says why, and how much usage it has");
+const trend = await get("/api/output-speed?period=month&view=trend&bucket=auto");
+assert(trend.view === "trend" && !trend.buckets.length && !trend.offered_buckets.length && !trend.series.length,
+  "trend view stays empty instead of inventing buckets");
+const tod = await get("/api/output-speed?view=time-of-day&source=codex&model=x"
+  + "&measurement_kind=post_first_token&token_basis=output");
+assert(tod.view === "time-of-day" && !tod.hourly.length && !tod.six_hour.length, "time-of-day view stays empty");
+const sessSpeed = await (await fetchMock("/api/session-speeds", {
+  method: "POST", headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ sessions: [{ tool: "codex", session_id: "none" }] }),
+})).json();
+assert(Array.isArray(sessSpeed.sessions) && !sessSpeed.sessions.length, "session speeds reports nothing cached");
+
 // /api/insights (the Report tab's facet scan)
+
 const REPORT_FACETS = "daily,streaks,firsts,hourly,weekday,tools,models,projects";
 const report = await get(`/api/insights?period=week&facets=${REPORT_FACETS}`);
 assert(report.schema_version === 1 && report.facets.join(",") === REPORT_FACETS,

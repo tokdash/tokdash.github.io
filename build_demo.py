@@ -57,6 +57,19 @@ def once(source: str, anchor: str) -> int:
     return source.index(anchor)
 
 
+def once_line_end(source: str, anchor: str) -> int:
+    """The injection point just past the line that uniquely contains anchor.
+
+    Anchors stop short of the cosmetic detail -- comment wording, utility classes --
+    that upstream rewords between releases, so a restyled shell still builds and only
+    a real move of the injection point trips `once`.
+    """
+    i = once(source, anchor)
+    end = source.find("\n", i)
+    assert end != -1, f"anchor is not on a complete line: {anchor[:60]!r}"
+    return end + 1
+
+
 def render(upstream_html: str) -> str:
     """The three demo-only injections, applied to an upstream dashboard shell.
 
@@ -66,17 +79,15 @@ def render(upstream_html: str) -> str:
     html = upstream_html
 
     # 1. GA tag, between the theme-color meta and the title.
-    anchor = '<meta name="theme-color" content="#1E40AF" />\n'
-    i = once(html, anchor) + len(anchor)
+    i = once_line_end(html, '<meta name="theme-color" content="#1E40AF" />')
     html = html[:i] + GA_BLOCK + html[i:]
 
     # 2. Mock API loader, right before the font tags.
-    i = once(html, "  <!-- Fonts (Design System: Fira Code / Fira Sans) -->")
+    i = once(html, "  <!-- Fonts (")
     html = html[:i] + MOCK_LOADER + "\n" + html[i:]
 
     # 3. Demo banner, at the top of the main viewport (sidebar era shell, v2.6.6+).
-    anchor = '    <div class="w-full max-w-[1680px] p-4 sm:p-6 lg:p-8 space-y-6">\n'
-    i = once(html, anchor) + len(anchor)
+    i = once_line_end(html, '    <div class="w-full max-w-[1680px]')
     html = html[:i] + DEMO_BANNER + html[i:]
 
     return html
