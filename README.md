@@ -114,9 +114,10 @@ A new file here also goes into `CORE_ASSETS` in `sw.js`, so the page still loads
 
 ### Refreshing the demo from upstream
 
-`demo/index.html` is the upstream `src/tokdash/static/index.html` plus three injections: the
-Google Analytics tag, the `mock-api.js` loader, and the "Live demo" banner. Rebuild it with
-the script rather than editing by hand:
+`demo/index.html` is the upstream `src/tokdash/static/index.html` plus four injections: the
+Google Analytics tag, a seed that opens the page on the Elevated style instead of the app
+default Paper (Paper keys every tab and card with a border), the `mock-api.js` loader, and
+the "Live demo" banner. Rebuild it with the script rather than editing by hand:
 
 ```bash
 git -C ../tokdash fetch origin main

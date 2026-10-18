@@ -38,6 +38,20 @@
     document.write(`<link rel="icon" href="${window.tokdashPath('/static/icons/icon-192.png')}" sizes="192x192" />`);
   </script>
 
+  <!-- Demo: open on the Elevated style, the look the README screenshots and the landing
+       page show. The app's own default is Paper, and Paper is the one style that keys every
+       tab and every card with a 1px border, so the demo read as an outlined grid next to the
+       dashboard people actually run -- those installs predate the Paper default and still
+       carry their own stored choice. Seed the key only when unset, so a visitor who picks a
+       style in Settings keeps it on the next visit. -->
+  <script>
+    try {
+      if (!localStorage.getItem('tokdash-style-theme')) {
+        localStorage.setItem('tokdash-style-theme', 'elevated');
+      }
+    } catch (error) {}
+  </script>
+
   <!-- Demo: synthetic backend (overrides window.fetch for /api/*) -->
   <script>document.write(`<script src="${window.tokdashPath('/static/mock-api.js')}"><\/script>`);</script>
 

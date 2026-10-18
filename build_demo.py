@@ -1,11 +1,12 @@
 """Rebuild demo/index.html from the Tokdash package's static UI.
 
 The demo page is the unmodified dashboard frontend (tokdash/src/tokdash/static/index.html)
-plus three small injections:
+plus four small injections:
 
   1. Google Analytics tag (head)
-  2. mock-api.js loader (head, before the font tags)
-  3. "Live demo" banner (top of body)
+  2. stored style theme seed (head, before the app reads it)
+  3. mock-api.js loader (head, before the font tags)
+  4. "Live demo" banner (top of body)
 
 Build the public demo from a released tree, never from a feature branch:
 
@@ -34,6 +35,21 @@ GA_BLOCK = """  <!-- Google tag (gtag.js) -->
 
 MOCK_LOADER = """  <!-- Demo: synthetic backend (overrides window.fetch for /api/*) -->
   <script>document.write(`<script src="${window.tokdashPath('/static/mock-api.js')}"><\\/script>`);</script>
+"""
+
+STYLE_SEED = """  <!-- Demo: open on the Elevated style, the look the README screenshots and the landing
+       page show. The app's own default is Paper, and Paper is the one style that keys every
+       tab and every card with a 1px border, so the demo read as an outlined grid next to the
+       dashboard people actually run -- those installs predate the Paper default and still
+       carry their own stored choice. Seed the key only when unset, so a visitor who picks a
+       style in Settings keeps it on the next visit. -->
+  <script>
+    try {
+      if (!localStorage.getItem('tokdash-style-theme')) {
+        localStorage.setItem('tokdash-style-theme', 'elevated');
+      }
+    } catch (error) {}
+  </script>
 """
 
 DEMO_BANNER = """
@@ -82,11 +98,12 @@ def render(upstream_html: str) -> str:
     i = once_line_end(html, '<meta name="theme-color" content="#1E40AF" />')
     html = html[:i] + GA_BLOCK + html[i:]
 
-    # 2. Mock API loader, right before the font tags.
+    # 2. Style seed, then the mock API loader, both right before the font tags. The seed
+    #    has to land before the shell's inline script calls getDefaultStyleTheme().
     i = once(html, "  <!-- Fonts (")
-    html = html[:i] + MOCK_LOADER + "\n" + html[i:]
+    html = html[:i] + STYLE_SEED + "\n" + MOCK_LOADER + "\n" + html[i:]
 
-    # 3. Demo banner, at the top of the main viewport (sidebar era shell, v2.6.6+).
+    # 4. Demo banner, at the top of the main viewport (sidebar era shell, v2.6.6+).
     i = once_line_end(html, '    <div class="w-full max-w-[1680px]')
     html = html[:i] + DEMO_BANNER + html[i:]
 

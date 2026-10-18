@@ -3,9 +3,9 @@
  * __TOKDASH_CACHE_NAME__; here we bake in a literal version string instead. */
 
 const BASE_PATH = new URL(self.location.href).searchParams.get("base") || "";
-// Bumped with the shell it pre-caches: the demo now boots from static/vendor/,
-// and cache.addAll only ever runs on install.
-const CACHE_NAME = `tokdash-demo-v3${BASE_PATH ? `-${encodeURIComponent(BASE_PATH)}` : ""}`;
+// Bumped with the shell it pre-caches, and cache.addAll only ever runs on install:
+// v3 moved the demo onto static/vendor/, v4 the shell that opens on Elevated style.
+const CACHE_NAME = `tokdash-demo-v4${BASE_PATH ? `-${encodeURIComponent(BASE_PATH)}` : ""}`;
 
 function appPath(path) {
   return `${BASE_PATH || ""}${path}`;
